@@ -306,7 +306,8 @@ def cmd_serve(args, out=None):
     live = LiveSession(symbols=sym, symbols_raw=sym_raw, out_dir=args.captures,
                        flash_target=flash_target)
     try:
-        httpd = make_server(State(args.file, sym, live, args.dev, args.baud), args.port)
+        httpd = make_server(State(args.file, sym, live, args.dev, args.baud, project=args.project,
+                                  rules_path=args.rules, base=args.base), args.port)
     except OSError as e:
         _log_err("akscope: cannot listen on 127.0.0.1:%d: %s" % (args.port, e))
         return 2
@@ -320,6 +321,65 @@ def cmd_serve(args, out=None):
         pass
     live.stop()
     httpd.server_close()
+    return 0
+
+
+def cmd_verify(args, out=None):
+    out = out or sys.stdout
+    from akscope import verify
+    from akscope.build import BuildError
+    from akscope.core import timeline
+
+    if not args.project and not args.trace:
+        _log_err("akscope: give a project folder, a --trace file, or both")
+        return 2
+    try:
+        rules = verify.load_rules(args.rules)
+    except (OSError, ValueError) as e:
+        _log_err("akscope: rules: %s" % e)
+        return 2
+
+    findings = []
+    handled = None
+    if args.project and not args.no_static:
+        try:
+            res = verify.run_static(args.project, args.tools, args.gcc, args.base, args.all, _log_err)
+        except BuildError as e:
+            _log_err("akscope: %s" % e)
+            return 2
+        findings += res.findings
+        handled = res.handled
+
+    for path in args.trace or []:
+        header, data = read_capture(path)
+        records, _, st = akt.decode_bytes(data)
+        if not records:
+            _log_err("akscope: no trace frames in %s" % path)
+            return 2
+        sym = None
+        if args.project:
+            sym = _load_symbols(args.project)
+        if sym is None or not sym.tasks:
+            sym = SymbolTable(header.get("symbols"))
+        tl = timeline.build_timeline(records)
+        for f in verify.run_runtime(tl, sym, rules, handled, st):
+            f.file = f.file or ""
+            f.message = "%s: %s" % (pathlib.Path(path).name, f.message) if len(args.trace) > 1 else f.message
+            findings.append(f)
+
+    findings = verify.ordered(verify.apply_ignore(findings, rules))
+    errors, warnings = verify.summary(findings)
+    if args.format == "json":
+        json.dump({"errors": errors, "warnings": warnings,
+                   "findings": [f.to_dict() for f in findings]}, out, indent=1)
+        out.write("\n")
+    else:
+        for f in findings:
+            out.write(f.text() + "\n")
+        out.write("%d error%s, %d warning%s\n" % (errors, "" if errors == 1 else "s",
+                                                  warnings, "" if warnings == 1 else "s"))
+    if errors or (args.strict and warnings):
+        return 1
     return 0
 
 
@@ -359,6 +419,20 @@ def register(subparsers):
     p.add_argument("--clean", action="store_true", help="drop the cached objects first")
     p.set_defaults(func=cmd_build)
 
+    p = subparsers.add_parser("verify", help="check AK event-driven rules on the sources and traces")
+    p.add_argument("project", nargs="?", help="project folder, for the static rules S01 to S12")
+    p.add_argument("--trace", action="append", help=".akt capture for the runtime rules R01 to R08 "
+                                                    "(can be given more than once)")
+    p.add_argument("--rules", help="rules file, see akscope/rules/default.yml")
+    p.add_argument("--base", help="AK base kit folder (default: ak-base-kit-stm32l151 next to the project)")
+    p.add_argument("--all", action="store_true", help="also report code that comes unchanged from the base kit")
+    p.add_argument("--no-static", action="store_true", help="only the runtime rules")
+    p.add_argument("--tools", help="WORKSPACE_TOOLS_PATH of the AK Makefile")
+    p.add_argument("--gcc", help="toolchain folder (GCC_PATH)")
+    p.add_argument("--format", choices=("text", "json"), default="text")
+    p.add_argument("--strict", action="store_true", help="exit 1 on warnings too")
+    p.set_defaults(func=cmd_verify)
+
     p = subparsers.add_parser("serve", help="open the web UI on http://127.0.0.1:8730")
     p.add_argument("file", nargs="?", help=".akt or raw capture to show")
     p.add_argument("--project", help="project built by akscope build: names, and the firmware "
@@ -367,6 +441,8 @@ def register(subparsers):
     p.add_argument("--dev", help="serial port preselected in the page, e.g. /dev/ttyUSB0")
     p.add_argument("--baud", type=int, default=115200)
     p.add_argument("--captures", default="captures", help="folder for live captures")
+    p.add_argument("--rules", help="rules file for the Verify tab")
+    p.add_argument("--base", help="AK base kit folder for the static rules")
     p.add_argument("--port", type=int, default=8730, help="HTTP port")
     p.add_argument("--no-browser", action="store_true")
     p.set_defaults(func=cmd_serve)

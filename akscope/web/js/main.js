@@ -5,6 +5,7 @@ import { FlowView } from "./flow.js";
 import { esc, fmtDur, fmtTime } from "./format.js";
 import { StatsView } from "./stats.js";
 import { TimelineView } from "./timeline.js";
+import { VerifyView } from "./verify.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -60,6 +61,26 @@ const events = new EventTable($("events-scroll"), $("events-spacer"), $("event-c
 const detail = new DetailView($("detail"), { onPick: (i) => selectExec(i, true) });
 const stats = new StatsView($("stats"));
 const flow = new FlowView($("flow"), $("flow-note"), { onPick: (i) => selectExec(i, true) });
+const verifyView = new VerifyView($("verify"), $("verify-note"), $("verify-badge"), $("btn-verify-copy"), {
+	onPick: (f) => {
+		if (f.exec >= 0) selectExec(f.exec, true);
+		else timeline.reveal(f.t_us);
+	},
+});
+
+let verifyTimer = null;
+async function runVerify() {
+	clearTimeout(verifyTimer);
+	const source = state.trace && state.trace.live ? "live" : "current";
+	const r = await postJson("/api/verify", { source });
+	if (r.error) {
+		$("verify-note").textContent = r.error;
+		return;
+	}
+	verifyView.show(r);
+	// the static rules run once in the background; ask again until they are in
+	if (r.static === "running") verifyTimer = setTimeout(runVerify, 2000);
+}
 
 let flowPending = false;
 function scheduleFlow() {
@@ -101,6 +122,7 @@ function applyUnit(unit) {
 	events.setUnit(unit);
 	detail.setUnit(unit);
 	flow.setUnit(unit);
+	verifyView.setUnit(unit);
 	timeline.onView(timeline.v0, timeline.v1);
 }
 
@@ -163,6 +185,8 @@ function showTrace(trace) {
 	renderInfo(trace);
 	applyUnit(state.unit);
 	$("btn-follow").hidden = !trace.live;
+	verifyView.clear();
+	if (state.tab === "verify") runVerify();
 }
 
 // live capture: add what the server sent since the last delta
@@ -415,6 +439,7 @@ $("event-filter").addEventListener("input", (e) => events.setFilter(e.target.val
 for (const box of document.querySelectorAll(".events-tools input[data-kind]")) {
 	box.addEventListener("change", () => events.setKind(box.dataset.kind, box.checked));
 }
+$("btn-verify").addEventListener("click", runVerify);
 $("btn-export-csv").addEventListener("click", () => events.export("csv"));
 $("btn-export-json").addEventListener("click", () => events.export("json"));
 
@@ -425,6 +450,7 @@ for (const tab of document.querySelectorAll(".tab")) {
 		for (const body of document.querySelectorAll(".tab-body")) body.hidden = body.dataset.body !== tab.dataset.tab;
 		if (state.tab === "events") events.render(true);
 		if (state.tab === "flow") flow.render();
+		if (state.tab === "verify" && !verifyView.result) runVerify();
 	});
 }
 

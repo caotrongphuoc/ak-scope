@@ -8,10 +8,16 @@ version = "0.1.0"
 description = "Record, visualize and verify task messages, signals and timers in AK event-driven firmware"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["pyserial>=3.4"]
+dependencies = ["pyserial>=3.4", "pyyaml>=5.1"]
 
 [project.scripts]
 akscope = "akscope.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["akscope*"]
+
+# the web UI and the firmware module ship inside the package
+[tool.setuptools.package-data]
+akscope = ["web/*.html", "web/css/*.css", "web/js/*.js", "web/theme/*.css",
+           "firmware/akt/*.c", "firmware/akt/*.h", "firmware/akt/*.mk", "firmware/akt/*.md",
+           "rules/*.yml"]

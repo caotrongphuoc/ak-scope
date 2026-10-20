@@ -2,7 +2,7 @@
 
 `akt_trace` records message posts, handler runs and timers in an AK 1.3 project and sends
 them on the console UART for `akscope`. It lives in the application layer and does not
-change the kernel. Record format: [docs/trace-format.md](../../docs/trace-format.md).
+change the kernel. Record format: [docs/trace-format.md](../../../docs/trace-format.md).
 
 Measured on `11m-game` (STM32L151, 32 MHz):
 

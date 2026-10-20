@@ -107,7 +107,7 @@ class TestControl(unittest.TestCase):
     def test_config(self):
         status, body = self.request("GET", "/api/config")
         self.assertEqual(status, 200)
-        self.assertEqual(json.loads(body), {"flash_target": None, "live": True,
+        self.assertEqual(json.loads(body), {"flash_target": None, "live": True, "verify_static": False,
                                             "port": "/dev/ttyUSB0", "baud": 115200})
 
     def test_foreign_host_and_origin(self):

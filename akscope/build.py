@@ -3,7 +3,7 @@
 The project's own Makefile is used as is. A generated wrapper makefile includes it, moves
 OBJECTS_DIR to a cache folder and adds:
 
-- firmware/akt/akt_trace.c
+- akscope/firmware/akt/akt_trace.c
 - a generated akt_auto.c with one __wrap_ function per task handler, a wrap of the first
   polling function that also calls akt_trace_poll(), and a wrap of task_create() that turns
   on the DWT cycle counter and starts the trace
@@ -25,7 +25,7 @@ import subprocess
 
 from akscope.core import symbols as symbols_mod
 
-AKT_DIR = pathlib.Path(__file__).resolve().parent.parent / "firmware" / "akt"
+AKT_DIR = pathlib.Path(__file__).resolve().parent / "firmware" / "akt"
 CACHE_ROOT = pathlib.Path(os.environ.get("XDG_CACHE_HOME", pathlib.Path.home() / ".cache")) / "akscope"
 
 KERNEL_POST_WRAPS = ("task_post_pure_msg", "task_post_common_msg", "task_post_dynamic_msg",
@@ -186,6 +186,10 @@ class Builder:
         self.obj = self.cache / "obj"
         self.gen = self.cache / "gen"
         self.mk = self.cache / "akscope.mk"
+        # toolchain paths given once are kept with the cache, so later commands need not repeat them
+        saved = self._saved_config()
+        tools = tools or saved.get("tools")
+        gcc = gcc or saved.get("gcc")
         self.tools = pathlib.Path(tools).expanduser().resolve() if tools else None
         self.gcc = pathlib.Path(gcc).expanduser().resolve() if gcc else None
         # some projects set GCC_PATH to a fixed folder instead of using WORKSPACE_TOOLS_PATH
@@ -209,11 +213,21 @@ class Builder:
             raise BuildError("make failed:\n%s%s" % (out.stdout[-3000:], out.stderr[-3000:]))
         return out.stdout
 
-    def build(self):
+    def _saved_config(self):
+        try:
+            return json.loads((self.cache / "config.json").read_text())
+        except (OSError, ValueError):
+            return {}
+
+    def prepare(self):
         self.gen.mkdir(parents=True, exist_ok=True)
         self.obj.mkdir(parents=True, exist_ok=True)
         self.mk.write_text(_WRAPPER_MK.format(akt=AKT_DIR, gen=self.gen))
+        cfg = {"tools": str(self.tools) if self.tools else None, "gcc": str(self.gcc) if self.gcc else None}
+        (self.cache / "config.json").write_text(json.dumps(cfg))
 
+    def build(self):
+        self.prepare()
         gcc_path = self._make("akscope-gcc-path").strip().splitlines()[-1]
         objdump = pathlib.Path(gcc_path) / "bin" / "arm-none-eabi-objdump"
         nm = pathlib.Path(gcc_path) / "bin" / "arm-none-eabi-nm"
@@ -277,19 +291,18 @@ class Builder:
             raise BuildError("preprocessing %s failed:\n%s" % (src, out.stderr[-2000:]))
         return out.stdout
 
-    def extract_symbols(self):
-        """Task and signal names from the app sources, written to symbols.json."""
-        self.log("akscope: reading task and signal names")
+    def preprocess(self, prefixes, extra=()):
+        """{source path: -E output} for the built sources under prefixes, plus extra paths.
+
+        Uses the project's own compiler and flags, so #if and macros resolve as in the build.
+        """
         drop = {"-c", "-MD", "-MMD", "-fstack-usage"}
         cxx = self._var("CPP")
         cc = self._var("CC")
         cxx_flags = [f for f in shlex.split(self._var("CPPFLAGS")) if f not in drop]
         c_flags = [f for f in shlex.split(self._var("CFLAGS")) if f not in drop]
         files = shlex.split(self._var("SOURCES_CPP")) + shlex.split(self._var("SOURCES"))
-        # signals are used in app, the link/rf stacks under networks, drivers, and the
-        # screen manager in common (it arms the display render timer)
-        files = [f for f in files if f.startswith(("sources/app/", "sources/networks/",
-                                                   "sources/driver/", "sources/common/"))]
+        files = [f for f in files if f.startswith(tuple(prefixes)) or f in extra]
 
         def run(src):
             if src.endswith(".cpp"):
@@ -298,14 +311,28 @@ class Builder:
 
         with concurrent.futures.ThreadPoolExecutor(self.jobs) as pool:
             texts = dict(pool.map(run, files))
+        self._macro_flags = (cxx, cxx_flags)
+        return texts
 
+    def macros(self, src):
+        """`-dM -E` output for one C++ source, after preprocess() ran."""
+        cxx, flags = self._macro_flags
+        return self._preprocess(cxx, flags, src, True)
+
+    def extract_symbols(self):
+        """Task and signal names from the app sources, written to symbols.json."""
+        self.log("akscope: reading task and signal names")
+        # signals are used in app, the link/rf stacks under networks, drivers, and the
+        # screen manager in common (it arms the display render timer)
+        texts = self.preprocess(("sources/app/", "sources/networks/", "sources/driver/",
+                                 "sources/common/"))
         task_list = next((t for f, t in texts.items() if f.endswith("/task_list.cpp")), None)
         if task_list is None:
             raise BuildError("sources/app/task_list.cpp not in the build")
         app_ver = None
-        app_cpp = next((f for f in files if f.endswith("/app.cpp")), None)
+        app_cpp = next((f for f in texts if f.endswith("/app.cpp")), None)
         if app_cpp:
-            app_ver = symbols_mod.parse_app_ver(self._preprocess(cxx, cxx_flags, app_cpp, True))
+            app_ver = symbols_mod.parse_app_ver(self.macros(app_cpp))
 
         others = [t for f, t in texts.items() if not f.endswith("/task_list.cpp")]
         syms = symbols_mod.build_symbols(task_list, others, app_ver)

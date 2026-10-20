@@ -10,6 +10,9 @@ GET  /api/live         Server-Sent Events: status, snapshot, delta
 POST /api/record/start {"port", "baud"}, JSON body
 POST /api/record/stop
 POST /api/flash        {"port", "baud"}, flashes the --project firmware and records from boot
+POST /api/verify       {"source": "current" | "live"}: runtime rules on the open trace or the
+                       live capture, plus the static rules of --project (run once, in the
+                       background; the reply says when they are still running)
 
 Every /api/ request must carry Host (and Origin when present) of this server, and the control
 POSTs must be application/json. A web page from another site cannot then drive the kit:
@@ -30,7 +33,7 @@ from akscope.core import akt, timeline
 from akscope.core.aktfile import MAGIC, read_capture
 from akscope.core.symbols import SymbolTable
 
-WEB_DIR = pathlib.Path(__file__).resolve().parent.parent / "web"
+WEB_DIR = pathlib.Path(__file__).resolve().parent / "web"
 DEFAULT_PORT = 8730
 MAX_UPLOAD = 64 * 1024 * 1024
 KEEPALIVE_S = 15
@@ -39,6 +42,7 @@ mimetypes.add_type("text/javascript", ".js")
 
 
 def decode_capture(header, data, sym=None, name=""):
+    """(timeline JSON for the page, (Timeline, SymbolTable, stream stats) for verify)"""
     records, text, stats = akt.decode_bytes(data)
     if sym is None:
         sym = SymbolTable(header.get("symbols"))
@@ -47,7 +51,7 @@ def decode_capture(header, data, sym=None, name=""):
     out["name"] = name
     out["header"] = {k: v for k, v in header.items() if k != "symbols"}
     out["has_symbols"] = bool(sym.tasks)
-    return out
+    return out, (tl, sym, stats)
 
 
 def split_blob(blob):
@@ -60,19 +64,68 @@ def split_blob(blob):
 
 
 class State:
-    def __init__(self, trace_path=None, sym=None, live=None, port=None, baud=115200):
+    def __init__(self, trace_path=None, sym=None, live=None, port=None, baud=115200,
+                 project=None, rules_path=None, base=None):
         self.trace_path = trace_path
         self.sym = sym
         self.live = live
         self.port = port
         self.baud = baud
+        self.project = project
+        self.rules_path = rules_path
+        self.base = base
         self.lock = threading.Lock()
         self._cache = None
+        self.current = None  # (Timeline, SymbolTable, stream stats) of the trace on the page
+        self._static = None  # StaticResult once done
+        self._static_state = "none" if not project else "idle"
+        self._static_error = None
+
+    def static_result(self):
+        """(state, StaticResult or None, error). Starts the static run the first time."""
+        from akscope import verify
+
+        with self.lock:
+            if self._static_state == "idle":
+                self._static_state = "running"
+
+                def run():
+                    try:
+                        res = verify.run_static(self.project, base=self.base, log=lambda m: None)
+                        with self.lock:
+                            self._static, self._static_state = res, "done"
+                    except Exception as e:  # build or preprocess failure, shown on the page
+                        with self.lock:
+                            self._static_error, self._static_state = str(e), "failed"
+
+                threading.Thread(target=run, daemon=True).start()
+            return self._static_state, self._static, self._static_error
+
+    def verify(self, source):
+        from akscope import verify
+
+        rules = verify.load_rules(self.rules_path)
+        state, static, error = self.static_result()
+        findings = list(static.findings) if static else []
+        handled = static.handled if static else None
+        target = None
+        if source == "live" and self.live is not None and self.live.builder is not None:
+            with self.live.lock:
+                target = (self.live.builder.tl, self.live.sym, self.live.decoder.stats)
+                findings += verify.run_runtime(*target[:2], rules, handled, target[2])
+        elif self.current is not None:
+            tl, sym, stats = self.current
+            findings += verify.run_runtime(tl, sym, rules, handled, stats)
+        findings = verify.ordered(verify.apply_ignore(findings, rules))
+        errors, warnings = verify.summary(findings)
+        return {"static": state, "static_error": error, "errors": errors, "warnings": warnings,
+                "findings": [f.to_dict() for f in findings]}
 
     def config(self):
         return {
             "flash_target": str(self.live.flash_target) if self.live and self.live.flash_target else None,
             "live": self.live is not None,
+            "verify_static": self.project is not None,
             "port": self.port,
             "baud": self.baud,
         }
@@ -83,8 +136,9 @@ class State:
         with self.lock:
             if self._cache is None:
                 header, data = read_capture(self.trace_path)
-                self._cache = json.dumps(decode_capture(header, data, self.sym,
-                                                        pathlib.Path(self.trace_path).name))
+                out, self.current = decode_capture(header, data, self.sym,
+                                                   pathlib.Path(self.trace_path).name)
+                self._cache = json.dumps(out)
             return self._cache
 
 
@@ -200,6 +254,18 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/api/record/start", "/api/record/stop", "/api/flash"):
             self._control(path)
             return
+        if path == "/api/verify":
+            body = self._read_json()
+            if body is None:
+                self._error(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "send a JSON body")
+                return
+            try:
+                self._json(self.state.verify(body.get("source", "current")))
+            except (OSError, ValueError) as e:
+                self._error(HTTPStatus.BAD_REQUEST, "verify: %s" % e)
+            except Exception as e:  # report to the page instead of dropping the connection
+                self._error(HTTPStatus.INTERNAL_SERVER_ERROR, "verify failed: %s: %s" % (type(e).__name__, e))
+            return
         if path != "/api/decode":
             self._error(HTTPStatus.NOT_FOUND, "not found")
             return
@@ -211,7 +277,7 @@ class Handler(BaseHTTPRequestHandler):
         name = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get("name", [""])[0]
         try:
             header, data = split_blob(blob)
-            out = decode_capture(header, data, self.state.sym, name)
+            out, self.state.current = decode_capture(header, data, self.state.sym, name)
         except (ValueError, KeyError) as e:
             self._error(HTTPStatus.BAD_REQUEST, "cannot decode: %s" % e)
             return
