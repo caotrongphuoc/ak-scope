@@ -43,6 +43,36 @@ class Post:
     exec: int = -1  # index in Timeline.execs, -1 while still queued at the end
 
 
+class Agg:
+    """Running count, min, max, total of handler run time, and the longest wait, in cycles."""
+
+    __slots__ = ("count", "exe_min", "exe_max", "exe_total", "wait_max")
+
+    def __init__(self):
+        self.count = 0
+        self.exe_min = None
+        self.exe_max = 0
+        self.exe_total = 0
+        self.wait_max = -1
+
+    def add(self, e):
+        self.count += 1
+        self.exe_min = e.duration if self.exe_min is None else min(self.exe_min, e.duration)
+        self.exe_max = max(self.exe_max, e.duration)
+        self.exe_total += e.duration
+        self.wait_max = max(self.wait_max, e.wait)
+
+    def summary(self, us):
+        return {
+            "count": self.count,
+            "exe_min_us": us(self.exe_min),
+            "exe_avg_us": us(self.exe_total) / self.count,
+            "exe_max_us": us(self.exe_max),
+            "exe_total_us": us(self.exe_total),
+            "wait_max_us": us(self.wait_max) if self.wait_max >= 0 else None,
+        }
+
+
 @dataclass
 class Timeline:
     cpu_hz: int
@@ -55,45 +85,56 @@ class Timeline:
     pools: list = field(default_factory=list)  # (t, pure, common, dynamic, timer)
     marks: list = field(default_factory=list)  # (t, user_id, value)
     dropped: int = 0
+    task_agg: dict = field(default_factory=dict)  # task -> Agg
+    sig_agg: dict = field(default_factory=dict)  # (task, sig) -> Agg
 
     def us(self, cycles):
         return cycles * 1e6 / self.cpu_hz
 
 
-def build_timeline(records, default_cpu_hz=32000000):
-    records = sorted(records, key=lambda r: r.t_abs)
-    info = next((r.fields for r in records if r.kind == "INFO"), {})
-    cpu_hz = info.get("cpu_hz", default_cpu_hz)
-    t0 = records[0].t_abs if records else 0
-    tl = Timeline(cpu_hz=cpu_hz, t0=t0, duration=0, info=info)
+class TimelineBuilder:
+    """Adds records one at a time, for files and for a live capture.
 
-    waiting = {}  # (des, sig) -> deque of post indexes
-    timer_sigs = set()
+    Records may come in arrival order (live) or sorted by time (files). Both pair the same
+    way: an EXEC is sent after its handler returns, so it always arrives after the POST that
+    caused it, and a POST made inside a handler to its own task is later than that run's
+    start, which the t check below rejects.
+    """
 
-    # sorted by time, a POST always comes before the EXEC it causes: a message cannot start
-    # before it was posted, even when a handler posts to its own task
-    for r in records:
-        t = r.t_abs - t0
+    def __init__(self, default_cpu_hz=32000000):
+        self.tl = Timeline(cpu_hz=default_cpu_hz, t0=None, duration=0, info={})
+        self._waiting = {}  # (des, sig) -> deque of post indexes
+        self._timer_sigs = set()
+        self.links = []  # (post index, exec index) paired since the last take_links()
+
+    def add(self, r):
+        tl = self.tl
+        if tl.t0 is None:
+            tl.t0 = r.t_abs
+        t = r.t_abs - tl.t0
         f = r.fields
         if r.kind == "POST":
             p = Post(len(tl.posts), t, f["src"], f["des"], f["sig"], f["msg_type"], f["len"])
             tl.posts.append(p)
-            waiting.setdefault((p.des, p.sig), deque()).append(p.index)
+            self._waiting.setdefault((p.des, p.sig), deque()).append(p.index)
         elif r.kind == "EXEC":
             e = Exec(len(tl.execs), f["task"], f["sig"], f["msg_type"], t, f["duration"],
                      f["wait_ms"])
-            q = waiting.get((e.task, e.sig))
+            q = self._waiting.get((e.task, e.sig))
             if q and tl.posts[q[0]].t <= t:
                 p = tl.posts[q.popleft()]
                 p.exec = e.index
                 e.post, e.src, e.wait = p.index, p.src, t - p.t
-            elif (e.task, e.sig) in timer_sigs:
+                self.links.append((p.index, e.index))
+            elif (e.task, e.sig) in self._timer_sigs:
                 e.src = SRC_TIMER
             tl.execs.append(e)
+            tl.task_agg.setdefault(e.task, Agg()).add(e)
+            tl.sig_agg.setdefault((e.task, e.sig), Agg()).add(e)
             tl.duration = max(tl.duration, t + e.duration)
         elif r.kind in ("TIMER_SET", "TIMER_REMOVE"):
             if r.kind == "TIMER_SET":
-                timer_sigs.add((f["des"], f["sig"]))
+                self._timer_sigs.add((f["des"], f["sig"]))
             tl.timers.append((t, r.kind, f["des"], f["sig"], f.get("periodic", 0),
                               f.get("duty_ms", 0)))
         elif r.kind == "POOL":
@@ -102,87 +143,115 @@ def build_timeline(records, default_cpu_hz=32000000):
             tl.dropped += f["dropped"]
         elif r.kind == "USER":
             tl.marks.append((t, f["user_id"], f["value"]))
+        elif r.kind == "INFO" and not tl.info:
+            tl.info = f
+            tl.cpu_hz = f["cpu_hz"]
         tl.duration = max(tl.duration, t)
-    return tl
+
+    def take_links(self):
+        links, self.links = self.links, []
+        return links
 
 
-def _summary(execs, us):
-    durs = [us(e.duration) for e in execs]
-    waits = [us(e.wait) for e in execs if e.wait >= 0]
-    return {
-        "count": len(durs),
-        "exe_min_us": min(durs),
-        "exe_avg_us": sum(durs) / len(durs),
-        "exe_max_us": max(durs),
-        "exe_total_us": sum(durs),
-        "wait_max_us": max(waits) if waits else None,
-    }
+def build_timeline(records, default_cpu_hz=32000000):
+    records = sorted(records, key=lambda r: r.t_abs)
+    b = TimelineBuilder(default_cpu_hz)
+    # cpu_hz must be known before the first time is converted, take INFO first
+    info = next((r for r in records if r.kind == "INFO"), None)
+    if info is not None:
+        b.tl.info = info.fields
+        b.tl.cpu_hz = info.fields["cpu_hz"]
+    for r in records:
+        b.add(r)
+    if b.tl.t0 is None:
+        b.tl.t0 = 0
+    return b.tl
 
 
 def task_stats(tl):
-    by_task = {}
-    for e in tl.execs:
-        by_task.setdefault(e.task, []).append(e)
     span = tl.us(tl.duration) or 1.0
     out = {}
-    for task, execs in sorted(by_task.items()):
-        s = _summary(execs, tl.us)
+    for task, agg in sorted(tl.task_agg.items()):
+        s = agg.summary(tl.us)
         s["load_pct"] = 100.0 * s["exe_total_us"] / span
         out[task] = s
     return out
 
 
 def signal_stats(tl):
-    by_sig = {}
-    for e in tl.execs:
-        by_sig.setdefault((e.task, e.sig), []).append(e)
-    return {k: _summary(v, tl.us) for k, v in sorted(by_sig.items())}
+    return {k: agg.summary(tl.us) for k, agg in sorted(tl.sig_agg.items())}
+
+
+def exec_json(tl, e, sym):
+    us = tl.us
+    return {
+        "i": e.index, "task": e.task, "sig": e.sig, "sig_name": sym.signal(e.task, e.sig),
+        "type": msg_type_name(e.msg_type), "t": us(e.t_begin), "dur": us(e.duration),
+        "src": e.src, "src_name": e.src if isinstance(e.src, str) else sym.task(e.src),
+        "post": e.post, "wait": us(e.wait) if e.wait >= 0 else None,
+        "wait_ms_kernel": None if e.wait_ms_kernel == 0xFFFF else e.wait_ms_kernel,
+    }
+
+
+def post_json(tl, p, sym):
+    return {
+        "i": p.index, "t": tl.us(p.t), "src": p.src, "src_name": sym.task(p.src), "des": p.des,
+        "sig": p.sig, "sig_name": sym.signal(p.des, p.sig), "type": msg_type_name(p.msg_type),
+        "len": p.length, "exec": p.exec,
+    }
+
+
+def timer_json(tl, item, sym):
+    t, kind, des, sig, periodic, duty = item
+    return {"t": tl.us(t), "kind": kind, "des": des, "sig": sig, "sig_name": sym.signal(des, sig),
+            "periodic": bool(periodic), "duty_ms": duty}
+
+
+def pool_json(tl, item):
+    t, a, b, c, d = item
+    return {"t": tl.us(t), "pure": a, "common": b, "dynamic": c, "timer": d}
+
+
+def mark_json(tl, item):
+    t, i, v = item
+    return {"t": tl.us(t), "id": i, "value": v}
+
+
+def stats_json(tl, sym):
+    return {
+        "task_stats": [dict(task=t, name=sym.task(t), **s) for t, s in task_stats(tl).items()],
+        "signal_stats": [dict(task=t, sig=g, task_name=sym.task(t), sig_name=sym.signal(t, g), **s)
+                         for (t, g), s in signal_stats(tl).items()],
+    }
+
+
+def tasks_json(tl, sym):
+    task_ids = sorted({e.task for e in tl.execs} | {p.des for p in tl.posts} |
+                      {p.src for p in tl.posts} | set(sym.tasks))
+    out = []
+    for t in task_ids:
+        meta = sym.tasks.get(t, {})
+        out.append({"id": t, "name": sym.task(t), "pri": meta.get("pri"),
+                    "handler": meta.get("handler")})
+    return out
 
 
 def to_json(tl, sym=None, text="", stream_stats=None):
     """Plain data for the web UI. Times in microseconds from the first record."""
     sym = sym or SymbolTable()
-    us = tl.us
-
-    task_ids = sorted({e.task for e in tl.execs} | {p.des for p in tl.posts} |
-                      {p.src for p in tl.posts if isinstance(p.src, int)} | set(sym.tasks))
-    tasks = []
-    for t in task_ids:
-        meta = sym.tasks.get(t, {})
-        tasks.append({"id": t, "name": sym.task(t), "pri": meta.get("pri"),
-                      "handler": meta.get("handler")})
-
-    def src_name(src):
-        return src if isinstance(src, str) else sym.task(src)
-
-    return {
+    out = {
         "cpu_hz": tl.cpu_hz,
-        "duration_us": us(tl.duration),
+        "duration_us": tl.us(tl.duration),
         "info": tl.info,
         "dropped": tl.dropped,
         "stream": vars(stream_stats) if stream_stats else None,
-        "tasks": tasks,
-        "execs": [{
-            "i": e.index, "task": e.task, "sig": e.sig, "sig_name": sym.signal(e.task, e.sig),
-            "type": msg_type_name(e.msg_type), "t": us(e.t_begin), "dur": us(e.duration),
-            "src": e.src, "src_name": src_name(e.src), "post": e.post,
-            "wait": us(e.wait) if e.wait >= 0 else None,
-            "wait_ms_kernel": None if e.wait_ms_kernel == 0xFFFF else e.wait_ms_kernel,
-        } for e in tl.execs],
-        "posts": [{
-            "i": p.index, "t": us(p.t), "src": p.src, "src_name": sym.task(p.src), "des": p.des,
-            "sig": p.sig, "sig_name": sym.signal(p.des, p.sig), "type": msg_type_name(p.msg_type),
-            "len": p.length, "exec": p.exec,
-        } for p in tl.posts],
-        "timers": [{
-            "t": us(t), "kind": kind, "des": des, "sig": sig, "sig_name": sym.signal(des, sig),
-            "periodic": bool(periodic), "duty_ms": duty,
-        } for t, kind, des, sig, periodic, duty in tl.timers],
-        "pools": [{"t": us(t), "pure": a, "common": b, "dynamic": c, "timer": d}
-                  for t, a, b, c, d in tl.pools],
-        "marks": [{"t": us(t), "id": i, "value": v} for t, i, v in tl.marks],
-        "task_stats": [dict(task=t, name=sym.task(t), **s) for t, s in task_stats(tl).items()],
-        "signal_stats": [dict(task=t, sig=g, task_name=sym.task(t), sig_name=sym.signal(t, g), **s)
-                         for (t, g), s in signal_stats(tl).items()],
+        "tasks": tasks_json(tl, sym),
+        "execs": [exec_json(tl, e, sym) for e in tl.execs],
+        "posts": [post_json(tl, p, sym) for p in tl.posts],
+        "timers": [timer_json(tl, x, sym) for x in tl.timers],
+        "pools": [pool_json(tl, x) for x in tl.pools],
+        "marks": [mark_json(tl, x) for x in tl.marks],
         "text": text,
     }
+    out.update(stats_json(tl, sym))
+    return out
