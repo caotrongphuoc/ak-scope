@@ -13,9 +13,44 @@ Measured on `11m-game` (STM32L151, 32 MHz):
 
 With the trace off (`AKT_TRACE=0`, the default) the build is the same as without the module.
 
-## Add it to a project
+## Without changing the project: `akscope build`
 
-Paths are relative to `application/`.
+This is the normal way. The project is built by its own Makefile with a wrapper around it;
+objects go to `~/.cache/akscope/build/`, and no file in the project is written.
+
+```sh
+akscope build ~/workspace/github/11m-game --tools ~/workspace/tools
+akscope record --port /dev/ttyUSB0 --flash ~/workspace/github/11m-game -o run.akt
+akscope dump run.akt
+```
+
+What the wrapper does:
+
+- reads which handlers `app_task_table` and `app_task_polling_table` point to, from the
+  relocations of `task_list.o` (works for C and C++ handlers);
+- generates `akt_auto.c` with a `__wrap_` function for each handler, a wrap of the first
+  polling function that also calls `akt_trace_poll()`, and a wrap of `task_create()` that turns
+  on the DWT cycle counter and calls `akt_trace_init()`;
+- links with `--wrap` for those symbols and for `task_post_*`, `timer_set`,
+  `timer_remove_attr`.
+
+Options: `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH`; `--gcc` sets
+`GCC_PATH` directly, for Makefiles that hard-code it; `--ring` sets `AKT_RING_SIZE`
+(default 512 bytes, use 256 when RAM is short).
+
+Limits of this mode:
+
+- a handler defined inside `task_list.cpp` itself cannot be wrapped and is reported;
+- the `INFO` record has app version 0.0.0.0, the wrapper does not read `APP_VER`;
+- tested on `11m-game` and `zomwar-game` built from AK base kit 1.3.
+
+Measured with `zomwar-game`: RAM 15024 of 16384 bytes with the default ring, 14768 with
+`--ring 256`.
+
+## Add it by hand
+
+Only needed to keep the trace inside the project sources, for example to ship it in a
+debug build. Paths are relative to `application/`.
 
 1. Copy this folder to `sources/app/akt/` and include it from `sources/app/Makefile.mk`:
 
@@ -144,8 +179,8 @@ AKT_MARK(1, score);      /* USER record: id 1, value score */
 
 - **`ak-flash` can fail while the trace is running.** Trace frames reach the PC in the middle
   of the `ak-flash` handshake and the first attempt may end with `checksum incorrectly`.
-  Run it again: after the failed attempt the board waits in the bootloader and the second run
-  goes through.
+  After that the board waits in the bootloader; a retry right away answers `handshake
+  faulted`, one 5 to 10 s later goes through. `akscope flash` retries up to 4 times, 5 s apart.
 - **Console in blocking mode.** `main_app()` only switches the console to interrupt driven
   output (`sys_ctrl_shell_sw_to_nonblock()`) when `IF_LINK_UART_EN` is not set. With the
   link UART enabled, as in `11m-game`, each frame blocks the polling task for about 1.5 ms at
