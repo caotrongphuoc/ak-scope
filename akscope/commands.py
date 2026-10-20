@@ -2,6 +2,7 @@ import csv
 import dataclasses
 import datetime
 import json
+import pathlib
 import sys
 import time
 
@@ -84,6 +85,18 @@ def cmd_record(args, out=None):
     except ImportError:
         sys.stderr.write("akscope: record needs pyserial (pip install pyserial)\n")
         return 2
+
+    if args.flash:
+        # flash first and open the port right after, so INFO and the init records are kept
+        binary = _resolve_binary(args.flash)
+        if binary is None:
+            return 2
+        from akscope.flash import FlashError, flash
+        try:
+            flash(args.port, binary, log=_log_err)
+        except FlashError as e:
+            _log_err("akscope: %s" % e)
+            return 2
 
     try:
         port = serial.Serial(args.port, args.baud, timeout=0.1)
@@ -185,6 +198,58 @@ def cmd_dump(args, out=None):
     return 0
 
 
+def _log_err(msg):
+    sys.stderr.write(msg + "\n")
+
+
+def cmd_build(args, out=None):
+    from akscope.build import Builder, BuildError
+
+    try:
+        b = Builder(args.project, tools=args.tools, gcc=args.gcc, ring=args.ring, log=_log_err)
+        if args.clean:
+            b.clean()
+        binary, handlers = b.build()
+    except BuildError as e:
+        _log_err("akscope: %s" % e)
+        return 2
+    (out or sys.stdout).write("%s\n" % binary)
+    return 0
+
+
+def _resolve_binary(target):
+    """A .bin path as is, or for a project folder the .bin that `akscope build` made."""
+    from akscope.build import Builder, BuildError
+
+    target = pathlib.Path(target).expanduser()
+    if target.suffix == ".bin":
+        return target
+    try:
+        bins = sorted(Builder(target).obj.glob("*.bin"))
+    except BuildError as e:
+        _log_err("akscope: %s" % e)
+        return None
+    if not bins:
+        _log_err("akscope: nothing built for %s, run akscope build first" % target)
+        return None
+    return bins[0]
+
+
+def cmd_flash(args, out=None):
+    from akscope.flash import FlashError, flash
+
+    target = _resolve_binary(args.target)
+    if target is None:
+        return 2
+
+    try:
+        flash(args.port, target, attempts=args.attempts, log=_log_err)
+    except FlashError as e:
+        _log_err("akscope: %s" % e)
+        return 2
+    return 0
+
+
 def register(subparsers):
     p = subparsers.add_parser("import-log", help="read records from a console capture")
     p.add_argument("file", help="text captured from the board console")
@@ -201,8 +266,25 @@ def register(subparsers):
     p.add_argument("-o", "--output", default="run.akt")
     p.add_argument("--duration", type=float, help="seconds, default until Ctrl-C")
     p.add_argument("-q", "--quiet", action="store_true", help="do not echo console text")
+    p.add_argument("--flash", metavar="TARGET",
+                   help="flash this .bin or built project first, then record from boot")
     p.set_defaults(func=cmd_record)
 
     p = subparsers.add_parser("dump", help="print the trace records of a .akt or raw capture")
     p.add_argument("file")
     p.set_defaults(func=cmd_dump)
+
+    p = subparsers.add_parser("build", help="build an AK project with akt trace, project untouched")
+    p.add_argument("project", help="project folder, or its application/ folder")
+    p.add_argument("--tools", help="folder holding gcc-arm-none-eabi-10.3-2021.10-x86_64-linux "
+                                   "(WORKSPACE_TOOLS_PATH of the AK Makefile)")
+    p.add_argument("--gcc", help="toolchain folder (GCC_PATH), for projects that hard-code it")
+    p.add_argument("--ring", type=int, help="bytes of RAM for queued frames (default 512)")
+    p.add_argument("--clean", action="store_true", help="drop the cached objects first")
+    p.set_defaults(func=cmd_build)
+
+    p = subparsers.add_parser("flash", help="flash a kit with ak-flash, retrying on failure")
+    p.add_argument("--port", required=True)
+    p.add_argument("target", help=".bin file, or a project folder built by akscope build")
+    p.add_argument("--attempts", type=int, default=4)
+    p.set_defaults(func=cmd_flash)
