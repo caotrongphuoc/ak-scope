@@ -10,11 +10,9 @@ from akscope.core import akt, stats
 from akscope.core.aktfile import AktWriter, read_capture
 from akscope.core.console_log import load_trace
 from akscope.core.model import msg_type_name
+from akscope.core.symbols import SymbolTable
 
 DEFAULT_CPU_HZ = 32000000
-
-# task ids the kernel uses outside the task table
-_SPECIAL_TASKS = {0xEE: "isr", 0xEF: "idle"}
 
 _RECORD_FIELDS = ("line", "origin", "index", "task_id", "msg_type", "ref_count", "sig",
                   "wait_ms", "exe_ms")
@@ -86,6 +84,17 @@ def cmd_record(args, out=None):
         sys.stderr.write("akscope: record needs pyserial (pip install pyserial)\n")
         return 2
 
+    symbols = None
+    sym_source = args.sym or (args.flash if args.flash and pathlib.Path(args.flash).is_dir() else None)
+    if sym_source:
+        if _load_symbols(sym_source) is None:
+            return 2
+        p = pathlib.Path(sym_source).expanduser()
+        if p.is_dir():
+            from akscope.build import Builder
+            p = Builder(p).symbols_path
+        symbols = json.loads(p.read_text())
+
     if args.flash:
         # flash first and open the port right after, so INFO and the init records are kept
         binary = _resolve_binary(args.flash)
@@ -109,6 +118,8 @@ def cmd_record(args, out=None):
         "port": args.port,
         "baud": args.baud,
     }
+    if symbols:
+        header["symbols"] = symbols
     dec = akt.StreamDecoder()
     t_start = time.monotonic()
     t_status = t_start
@@ -139,20 +150,36 @@ def cmd_record(args, out=None):
     return 0
 
 
-def _task_name(task_id):
-    return _SPECIAL_TASKS.get(task_id, str(task_id))
+def _load_symbols(path):
+    """SymbolTable from a symbols.json file, or from a project built by `akscope build`."""
+    from akscope.build import Builder, BuildError
+
+    p = pathlib.Path(path).expanduser()
+    if p.is_dir():
+        try:
+            p = Builder(p).symbols_path
+        except BuildError as e:
+            _log_err("akscope: %s" % e)
+            return None
+    try:
+        return SymbolTable(json.loads(p.read_text()))
+    except (OSError, ValueError) as e:
+        _log_err("akscope: cannot read symbols %s: %s" % (p, e))
+        return None
 
 
-def _describe(rec):
+def _describe(rec, sym):
     f = rec.fields
     if rec.kind == "POST":
-        return "%s -> %s  sig %d  %s  len %d" % (_task_name(f["src"]), _task_name(f["des"]),
-                                                 f["sig"], msg_type_name(f["msg_type"]), f["len"])
+        return "%s -> %s  sig %s  %s  len %d" % (
+            sym.task(f["src"]), sym.task(f["des"]), sym.signal(f["des"], f["sig"]),
+            msg_type_name(f["msg_type"]), f["len"])
     if rec.kind == "TIMER_SET":
-        return "-> %d  sig %d  %d ms  %s" % (f["des"], f["sig"], f["duty_ms"],
-                                             "periodic" if f["periodic"] else "one shot")
+        return "-> %s  sig %s  %d ms  %s" % (
+            sym.task(f["des"]), sym.signal(f["des"], f["sig"]), f["duty_ms"],
+            "periodic" if f["periodic"] else "one shot")
     if rec.kind == "TIMER_REMOVE":
-        return "-> %d  sig %d" % (f["des"], f["sig"])
+        return "-> %s  sig %s" % (sym.task(f["des"]), sym.signal(f["des"], f["sig"]))
     if rec.kind == "POOL":
         return "used max: pure %d  common %d  dynamic %d  timer %d" % (
             f["pure"], f["common"], f["dynamic"], f["timer"])
@@ -163,6 +190,11 @@ def _describe(rec):
     if rec.kind == "INFO":
         return "format %d  %d Hz  %d tasks  app %s" % (
             f["version"], f["cpu_hz"], f["task_count"], ".".join(map(str, f["app_ver"])))
+    if rec.kind == "EXEC":
+        wait = "-" if f["wait_ms"] == 0xFFFF else "%d ms" % f["wait_ms"]
+        return "task %s  sig %s  %s  exe %.3f ms  wait %s" % (
+            sym.task(f["task"]), sym.signal(f["task"], f["sig"]), msg_type_name(f["msg_type"]),
+            f["duration"] * 1000.0 / sym.cpu_hz, wait)
     return ""
 
 
@@ -174,25 +206,24 @@ def cmd_dump(args, out=None):
         sys.stderr.write("akscope: no trace frames in %s\n" % args.file)
         return 2
 
+    if args.sym:
+        sym = _load_symbols(args.sym)
+        if sym is None:
+            return 2
+    else:
+        sym = SymbolTable(header.get("symbols"))
+
     info = next((r for r in records if r.kind == "INFO"), None)
-    cpu_hz = info.fields["cpu_hz"] if info else DEFAULT_CPU_HZ
+    sym.cpu_hz = info.fields["cpu_hz"] if info else DEFAULT_CPU_HZ
     if info is None:
-        sys.stderr.write("akscope: no INFO record, assuming %d Hz\n" % cpu_hz)
+        sys.stderr.write("akscope: no INFO record, assuming %d Hz\n" % sym.cpu_hz)
 
     # EXEC arrives after the POSTs made inside the handler; sort so it reads in time order
     records.sort(key=lambda r: r.t_abs)
     t0 = records[0].t_abs
     for r in records:
-        ms = (r.t_abs - t0) * 1000.0 / cpu_hz
-        if r.kind == "EXEC":
-            f = r.fields
-            wait = "-" if f["wait_ms"] == 0xFFFF else "%d ms" % f["wait_ms"]
-            line = "%-12s task %d  sig %d  %s  exe %.3f ms  wait %s" % (
-                r.kind, f["task"], f["sig"], msg_type_name(f["msg_type"]),
-                f["duration"] * 1000.0 / cpu_hz, wait)
-        else:
-            line = "%-12s %s" % (r.kind, _describe(r))
-        out.write("%12.3f  %s\n" % (ms, line))
+        ms = (r.t_abs - t0) * 1000.0 / sym.cpu_hz
+        out.write("%12.3f  %-12s %s\n" % (ms, r.kind, _describe(r, sym)))
 
     sys.stderr.write("%d frames, %d corrupt, %d text bytes\n" % (s.frames, s.corrupt, s.text_bytes))
     return 0
@@ -268,10 +299,13 @@ def register(subparsers):
     p.add_argument("-q", "--quiet", action="store_true", help="do not echo console text")
     p.add_argument("--flash", metavar="TARGET",
                    help="flash this .bin or built project first, then record from boot")
+    p.add_argument("--sym", help="symbols.json or built project, stored in the .akt file "
+                                 "(default: the --flash project)")
     p.set_defaults(func=cmd_record)
 
     p = subparsers.add_parser("dump", help="print the trace records of a .akt or raw capture")
     p.add_argument("file")
+    p.add_argument("--sym", help="symbols.json or built project, instead of the names in the file")
     p.set_defaults(func=cmd_dump)
 
     p = subparsers.add_parser("build", help="build an AK project with akt trace, project untouched")

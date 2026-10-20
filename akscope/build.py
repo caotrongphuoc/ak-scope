@@ -13,12 +13,17 @@ The handler list comes from the relocations of .rodata.app_task_table in task_li
 works for C and C++ handlers and needs no parsing of the source.
 """
 
+import concurrent.futures
 import hashlib
+import json
 import os
 import pathlib
 import re
+import shlex
 import shutil
 import subprocess
+
+from akscope.core import symbols as symbols_mod
 
 AKT_DIR = pathlib.Path(__file__).resolve().parent.parent / "firmware" / "akt"
 CACHE_ROOT = pathlib.Path(os.environ.get("XDG_CACHE_HOME", pathlib.Path.home() / ".cache")) / "akscope"
@@ -43,6 +48,9 @@ include Makefile
 
 akscope-gcc-path:
 \t@echo $(GCC_PATH)
+
+akscope-print-%:
+\t@echo $($*)
 
 ifeq ($(AKT),1)
 CFLAGS += -I{akt}
@@ -86,7 +94,7 @@ void __wrap_task_create(task_t* task_tbl) {{
 	port.cycle_now = akt_auto_cycle_now;
 	port.cpu_hz = SystemCoreClock;
 	port.task_count = count;
-	memset(port.app_ver, 0, sizeof(port.app_ver));
+	{app_ver_code}
 #if defined(RELEASE)
 	port.flags = AKT_FLAG_RELEASE;
 #else
@@ -155,8 +163,12 @@ def undefined_symbols(nm, obj):
     return {line.split()[-1] for line in out.stdout.splitlines() if line.strip()}
 
 
-def generate_auto(handlers, polling, table_name):
-    parts = [_AUTO_HEAD.format(table=table_name)]
+def generate_auto(handlers, polling, table_name, app_ver=None):
+    if app_ver:
+        app_ver_code = "\n\t".join("port.app_ver[%d] = %d;" % (i, v) for i, v in enumerate(app_ver))
+    else:
+        app_ver_code = "memset(port.app_ver, 0, sizeof(port.app_ver));"
+    parts = [_AUTO_HEAD.format(table=table_name, app_ver_code=app_ver_code)]
     parts += [_AUTO_HANDLER.format(sym=s) for s in handlers]
     if polling:
         parts.append(_AUTO_POLLING.format(sym=polling))
@@ -231,8 +243,9 @@ class Builder:
             if s not in KERNEL_HANDLERS:
                 self.log("akscope: %s is defined in task_list.cpp, not traced" % s)
 
+        syms = self.extract_symbols()
         (self.gen / "akt_auto.c").write_text(generate_auto(handlers, polling_sym,
-                                                          "app_task_table"))
+                                                          "app_task_table", syms["app_ver"]))
         wraps = list(KERNEL_POST_WRAPS) + handlers + [polling_sym]
 
         # pass 2: the whole firmware with akt
@@ -249,6 +262,58 @@ class Builder:
             if "Flash info" in line or "RAM info" in line:
                 self.log(line.strip())
         return bins[0], handlers
+
+    @property
+    def symbols_path(self):
+        return self.cache / "symbols.json"
+
+    def _var(self, name):
+        return self._make("akscope-print-%s" % name).strip()
+
+    def _preprocess(self, compiler, flags, src, macros=False):
+        cmd = [compiler] + flags + (["-dM"] if macros else []) + ["-E", src]
+        out = subprocess.run(cmd, cwd=self.app, capture_output=True, text=True, errors="replace")
+        if out.returncode != 0:
+            raise BuildError("preprocessing %s failed:\n%s" % (src, out.stderr[-2000:]))
+        return out.stdout
+
+    def extract_symbols(self):
+        """Task and signal names from the app sources, written to symbols.json."""
+        self.log("akscope: reading task and signal names")
+        drop = {"-c", "-MD", "-MMD", "-fstack-usage"}
+        cxx = self._var("CPP")
+        cc = self._var("CC")
+        cxx_flags = [f for f in shlex.split(self._var("CPPFLAGS")) if f not in drop]
+        c_flags = [f for f in shlex.split(self._var("CFLAGS")) if f not in drop]
+        files = shlex.split(self._var("SOURCES_CPP")) + shlex.split(self._var("SOURCES"))
+        # signals are used in app, the link/rf stacks under networks, drivers, and the
+        # screen manager in common (it arms the display render timer)
+        files = [f for f in files if f.startswith(("sources/app/", "sources/networks/",
+                                                   "sources/driver/", "sources/common/"))]
+
+        def run(src):
+            if src.endswith(".cpp"):
+                return src, self._preprocess(cxx, cxx_flags, src)
+            return src, self._preprocess(cc, c_flags, src)
+
+        with concurrent.futures.ThreadPoolExecutor(self.jobs) as pool:
+            texts = dict(pool.map(run, files))
+
+        task_list = next((t for f, t in texts.items() if f.endswith("/task_list.cpp")), None)
+        if task_list is None:
+            raise BuildError("sources/app/task_list.cpp not in the build")
+        app_ver = None
+        app_cpp = next((f for f in files if f.endswith("/app.cpp")), None)
+        if app_cpp:
+            app_ver = symbols_mod.parse_app_ver(self._preprocess(cxx, cxx_flags, app_cpp, True))
+
+        others = [t for f, t in texts.items() if not f.endswith("/task_list.cpp")]
+        syms = symbols_mod.build_symbols(task_list, others, app_ver)
+        syms["project"] = str(self.app.parent)
+        self.symbols_path.write_text(json.dumps(syms, indent=1, sort_keys=True))
+        named = sum(len(v) for v in syms["signals"].values())
+        self.log("akscope: %d tasks, %d task signals named" % (len(syms["tasks"]), named))
+        return syms
 
     def clean(self):
         shutil.rmtree(self.cache, ignore_errors=True)
