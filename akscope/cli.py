@@ -1,6 +1,6 @@
 import argparse
 
-from akscope import __version__
+from akscope import __version__, commands
 
 
 def build_parser():
@@ -9,8 +9,8 @@ def build_parser():
         description="record, visualize and verify AK firmware message flow",
     )
     parser.add_argument("--version", action="version", version="akscope " + __version__)
-    # each command module registers its own subparser here
-    parser.add_subparsers(dest="command", metavar="command")
+    subparsers = parser.add_subparsers(dest="command", metavar="command")
+    commands.register(subparsers)
     return parser
 
 
