@@ -32,14 +32,29 @@ _LAYOUT = {
 
 RECORD_SIZE = {rid: 5 + struct.calcsize(fmt) for rid, (_, fmt, _) in _LAYOUT.items()}
 
+# id -> (name, compiled struct for t and the fields, field names); decode_record runs per frame
+_COMPILED = {rid: (name, struct.Struct("<I" + fmt[1:]), names)
+             for rid, (name, fmt, names) in _LAYOUT.items()}
+
+
+def _crc8_table():
+    table = []
+    for b in range(256):
+        crc = b
+        for _ in range(8):
+            crc = ((crc << 1) ^ 0x07) & 0xFF if crc & 0x80 else (crc << 1) & 0xFF
+        table.append(crc)
+    return table
+
+
+_CRC8_TABLE = _crc8_table()
+
 
 def crc8(data):
     """CRC-8/SMBUS: poly 0x07, init 0, no reflection, no final xor."""
     crc = 0
     for b in data:
-        crc ^= b
-        for _ in range(8):
-            crc = ((crc << 1) ^ 0x07) & 0xFF if crc & 0x80 else (crc << 1) & 0xFF
+        crc = _CRC8_TABLE[crc ^ b]
     return crc
 
 
@@ -111,10 +126,10 @@ def decode_record(body):
         return "unknown"
     if len(record) != RECORD_SIZE[rid]:
         return None
-    name, fmt, names = _LAYOUT[rid]
-    (t,) = struct.unpack_from("<I", record, 1)
-    values = struct.unpack_from(fmt, record, 5)
-    fields = dict(zip(names, values))
+    name, st, names = _COMPILED[rid]
+    values = st.unpack_from(record, 1)
+    t = values[0]
+    fields = dict(zip(names, values[1:]))
     if rid == ID_INFO:
         fields["app_ver"] = list(fields["app_ver"])
     return Record(kind=name, rid=rid, t=t, fields=fields)
@@ -138,11 +153,12 @@ class StreamDecoder:
 
     def feed(self, data):
         items = []
-        for b in data:
-            if b != 0:
-                self._segment.append(b)
-                continue
+        parts = bytes(data).split(b"\x00")
+        # every part but the last ended with a delimiter; the last waits for more data
+        for part in parts[:-1]:
+            self._segment += part
             self._flush(items)
+        self._segment += parts[-1]
         return items
 
     def _flush(self, items):
