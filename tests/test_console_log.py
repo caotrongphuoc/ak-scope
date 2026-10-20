@@ -57,6 +57,14 @@ class TestParseText(unittest.TestCase):
         self.assertEqual(len(life), 21)
         self.assertEqual([r.exe_ms for r in shell], [5, 1, 90])
 
+    def test_boot_capture_with_text(self):
+        # boot banner and -LINK_PRINT- lines sit between the kernel log lines
+        records = parse_file(SAMPLES / "11m-game-boot-console.log")
+        self.assertEqual(len(records), 84)
+        self.assertEqual(records[0].line, 3)
+        display = [r for r in records if r.task_id == 9]
+        self.assertEqual([(r.sig, r.exe_ms) for r in display], [(10, 139), (14, 36), (104, 38)])
+
 
 if __name__ == "__main__":
     unittest.main()
