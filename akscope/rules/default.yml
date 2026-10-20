@@ -1,0 +1,34 @@
+# akscope verify rules. Copy this file next to the project, change what you need and pass it
+# with --rules. Keys left out keep these defaults.
+
+# R01: handler run time. AK handlers run to completion; long ones delay every other task.
+exe_warn_ms: 10
+exe_error_ms: 50
+
+# R02: time a message waited in the queue before its handler started
+wait_warn_ms: 100
+
+# R03: highest pool use seen in POOL records, as a share of the pool size in INFO
+pool_warn_pct: 80
+
+# R04: posts of the same (src, des, sig) inside any 1 s window
+storm_per_s: 100
+
+# R05: a periodic timer that fires further than this from its period
+timer_drift_pct: 10
+
+# findings to leave out of the report: a rule code, optionally with text that must appear in
+# the message or the location
+#   ignore:
+#     - rule: R01
+#       match: AC_DISPLAY_INITIAL      # one-off display init at boot
+ignore: []
+
+# R08: expected sequences. For every run of `after`, a run of `then` must start within
+# `within` (us, ms or s). task and sig take names from the project or numbers.
+#   expect:
+#     - name: match starts after the logo
+#       after: {task: AC_TASK_DISPLAY_ID, sig: AC_DISPLAY_SHOW_LOGO}
+#       then: {task: EM_GAME_MATCH_ID, sig: EM_GAME_MATCH_INIT}
+#       within: 100ms
+expect: []
