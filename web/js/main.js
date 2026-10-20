@@ -1,6 +1,7 @@
 import { readPalette, taskColorIndex } from "./colors.js";
 import { DetailView } from "./detail.js";
 import { EventTable } from "./events.js";
+import { FlowView } from "./flow.js";
 import { esc, fmtDur, fmtTime } from "./format.js";
 import { StatsView } from "./stats.js";
 import { TimelineView } from "./timeline.js";
@@ -24,18 +25,28 @@ function savePref(key, value) {
 	}
 }
 
+const EVENTS_REFRESH_MS = 1000;
+
 const state = {
 	trace: null,
 	tasks: [],
 	visible: new Set(),
 	unit: pref("unit", "ms"),
 	theme: pref("theme", "dark"),
+	tab: "events",
+	config: {},
+	live: { state: "idle" },
+	follow: true,
+	eventsDirty: false,
+	lastEvents: 0,
 };
 
 const timeline = new TimelineView($("timeline"), $("timeline-wrap"), $("tooltip"), {
 	onSelect: (i) => selectExec(i, false),
 	onView: (v0, v1) => {
 		$("view-range").textContent = `${fmtTime(Math.max(v0, 0), state.unit)} to ${fmtTime(v1, state.unit)}  (${fmtDur(v1 - v0)})`;
+		flow.setView(v0, v1);
+		if (state.tab === "flow") scheduleFlow();
 	},
 });
 
@@ -48,11 +59,25 @@ const events = new EventTable($("events-scroll"), $("events-spacer"), $("event-c
 
 const detail = new DetailView($("detail"), { onPick: (i) => selectExec(i, true) });
 const stats = new StatsView($("stats"));
+const flow = new FlowView($("flow"), $("flow-note"), { onPick: (i) => selectExec(i, true) });
+
+let flowPending = false;
+function scheduleFlow() {
+	if (flowPending) return;
+	flowPending = true;
+	requestAnimationFrame(() => {
+		flowPending = false;
+		flow.render();
+	});
+}
 
 function selectExec(i, reveal) {
+	if (reveal && i >= 0) setFollow(false);
 	timeline.select(i, reveal);
 	detail.show(i);
 	events.select(i);
+	flow.select(i);
+	if (state.tab === "flow") scheduleFlow();
 }
 
 function applyTheme(theme) {
@@ -75,6 +100,7 @@ function applyUnit(unit) {
 	timeline.setUnit(unit);
 	events.setUnit(unit);
 	detail.setUnit(unit);
+	flow.setUnit(unit);
 	timeline.onView(timeline.v0, timeline.v1);
 }
 
@@ -105,13 +131,23 @@ function updateRows() {
 	timeline.setRows(state.tasks.filter((t) => state.visible.has(t.id)));
 }
 
-function showTrace(trace) {
-	state.trace = trace;
+function sortTasks(tasks) {
 	// higher priority first, the kernel runs those first
-	state.tasks = [...trace.tasks].sort((a, b) => (b.pri ?? -1) - (a.pri ?? -1) || a.id - b.id);
+	return [...tasks].sort((a, b) => (b.pri ?? -1) - (a.pri ?? -1) || a.id - b.id);
+}
+
+function activeTasks(trace) {
 	const active = new Set(trace.execs.map((e) => e.task));
 	for (const p of trace.posts) active.add(p.des);
+	return active;
+}
+
+function showTrace(trace) {
+	state.trace = trace;
+	state.tasks = sortTasks(trace.tasks);
 	// the timer task never runs a traced handler, keep its row off unless something posts to it
+	const active = activeTasks(trace);
+	state.active = active;
 	state.visible = new Set(state.tasks.filter((t) => active.has(t.id)).map((t) => t.id));
 
 	$("empty").hidden = true;
@@ -122,22 +158,91 @@ function showTrace(trace) {
 	events.setTrace(trace);
 	detail.setTrace(trace);
 	stats.setTrace(trace);
+	flow.setTrace(trace, state.tasks);
 	$("console").textContent = trace.text || "(no console text)";
 	renderInfo(trace);
 	applyUnit(state.unit);
+	$("btn-follow").hidden = !trace.live;
 }
+
+// live capture: add what the server sent since the last delta
+function applyDelta(d) {
+	const tr = state.trace;
+	if (!tr) return;
+	tr.execs.push(...d.execs);
+	tr.posts.push(...d.posts);
+	for (const e of d.execs) {
+		if (e.post >= 0 && tr.posts[e.post]) tr.posts[e.post].exec = e.i;
+	}
+	tr.timers.push(...d.timers);
+	tr.pools.push(...d.pools);
+	tr.marks.push(...d.marks);
+	tr.text += d.text;
+	tr.duration_us = d.duration_us;
+	tr.dropped = d.dropped;
+	tr.info = d.info;
+	tr.cpu_hz = d.cpu_hz;
+	tr.stream = d.stream;
+
+	let rowsChanged = false;
+	if (d.tasks) {
+		const known = new Set(tr.tasks.map((t) => t.id));
+		if (d.tasks.some((t) => !known.has(t.id))) {
+			tr.tasks = d.tasks;
+			state.tasks = sortTasks(tr.tasks);
+			buildColors();
+			detail.setTrace(tr);
+			flow.setTrace(tr, state.tasks);
+			rowsChanged = true;
+		}
+	}
+	// a task gets its row the first time it runs or is posted to, as when a file is opened
+	for (const id of [...d.execs.map((e) => e.task), ...d.posts.map((p) => p.des)]) {
+		if (!state.active.has(id)) {
+			state.active.add(id);
+			state.visible.add(id);
+			rowsChanged = true;
+		}
+	}
+	if (rowsChanged) {
+		renderTaskList();
+		updateRows();
+	}
+	if (d.task_stats) {
+		tr.task_stats = d.task_stats;
+		tr.signal_stats = d.signal_stats;
+		stats.setTrace(tr);
+		renderTaskList();
+	}
+	if (d.text) $("console").textContent = tr.text;
+
+	timeline.append(d.execs);
+	if (state.follow) timeline.followEnd();
+	state.eventsDirty = true;
+	renderInfo(tr);
+}
+
+function refreshEvents(now) {
+	if (state.eventsDirty && now - state.lastEvents > EVENTS_REFRESH_MS) {
+		state.eventsDirty = false;
+		state.lastEvents = now;
+		events.setTrace(state.trace);
+	}
+	requestAnimationFrame(refreshEvents);
+}
+requestAnimationFrame(refreshEvents);
 
 function renderInfo(tr) {
 	const info = tr.info || {};
-	const parts = [`<b>${esc(tr.name || "trace")}</b>`];
+	const parts = [`<b>${esc((tr.name || "trace").split("/").pop())}</b>`];
 	if (info.app_ver) parts.push(`app ${info.app_ver.join(".")}`);
 	if (info.cpu_hz) parts.push(`${info.cpu_hz / 1e6} MHz`);
 	parts.push(fmtDur(tr.duration_us));
 	parts.push(`${tr.execs.length} runs`);
 	if (tr.dropped) parts.push(`<span class="warn">${tr.dropped} dropped</span>`);
 	if (tr.stream && tr.stream.corrupt) parts.push(`<span class="warn">${tr.stream.corrupt} corrupt</span>`);
-	if (!tr.has_symbols) parts.push(`<span class="warn">no names, open with --sym</span>`);
-	if (!tr.info || !tr.info.cpu_hz) parts.push(`<span class="warn">no INFO, 32 MHz assumed</span>`);
+	if (!tr.has_symbols) parts.push(`<span class="warn">no names</span>`);
+	if (!info.cpu_hz) parts.push(`<span class="warn">no INFO, 32 MHz assumed</span>`);
 	$("trace-info").innerHTML = parts.map((p) => `<span>${p}</span>`).join("");
 }
 
@@ -149,6 +254,7 @@ function showError(msg) {
 async function openFile(file) {
 	const res = await fetch("/api/decode?name=" + encodeURIComponent(file.name), {
 		method: "POST",
+		headers: { "Content-Type": "application/octet-stream" },
 		body: await file.arrayBuffer(),
 	});
 	const body = await res.json().catch(() => ({ error: "bad reply from server" }));
@@ -164,9 +270,93 @@ async function openFile(file) {
 	showTrace(body);
 }
 
-async function loadInitial() {
+// live controls
+
+async function postJson(path, body) {
+	const res = await fetch(path, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body || {}),
+	});
+	return res.json().catch(() => ({ error: "bad reply from server" }));
+}
+
+async function loadPorts() {
+	const ports = await (await fetch("/api/ports")).json();
+	const sel = $("port-select");
+	const want = sel.value || pref("port", "") || state.config.port || "";
+	sel.innerHTML = ports.length
+		? ports.map((p) => `<option value="${esc(p.device)}">${esc(p.device)}  ${esc(p.description || "")}</option>`).join("")
+		: `<option value="">no serial port</option>`;
+	if (ports.some((p) => p.device === want)) sel.value = want;
+}
+
+function renderLive(st) {
+	state.live = st;
+	const el = $("live-status");
+	const busy = st.state !== "idle";
+	el.className = "live-status " + st.state + (st.state === "idle" && st.message ? " error" : "");
+	const file = st.file ? st.file.split("/").pop() : "";
+	el.textContent = st.message || (st.state === "recording" ? "recording " + file : st.state === "flashing" ? "flashing" : "idle");
+	el.title = st.message || st.file || "";
+	$("btn-record").hidden = st.state === "recording";
+	$("btn-record").disabled = st.state === "flashing";
+	$("btn-stop").hidden = st.state !== "recording";
+	$("btn-flash").disabled = st.state === "flashing";
+	$("port-select").disabled = busy;
+	$("baud-select").disabled = busy;
+}
+
+function connectLive() {
+	const es = new EventSource("/api/live");
+	es.addEventListener("status", (e) => renderLive(JSON.parse(e.data)));
+	es.addEventListener("snapshot", (e) => {
+		setFollow(true);
+		showTrace(JSON.parse(e.data));
+	});
+	es.addEventListener("delta", (e) => applyDelta(JSON.parse(e.data)));
+	// EventSource reconnects by itself after a server restart
+}
+
+function setFollow(on) {
+	state.follow = on;
+	$("btn-follow").classList.toggle("active", on);
+	if (on && state.trace && state.trace.live) timeline.followEnd();
+}
+
+function liveTarget() {
+	const port = $("port-select").value;
+	const baud = +$("baud-select").value;
+	savePref("port", port);
+	savePref("baud", String(baud));
+	return { port, baud };
+}
+
+$("btn-record").addEventListener("click", async () => {
+	const r = await postJson("/api/record/start", liveTarget());
+	if (r.error) renderLive({ state: "idle", message: r.error });
+});
+$("btn-stop").addEventListener("click", () => postJson("/api/record/stop"));
+$("btn-flash").addEventListener("click", async () => {
+	const r = await postJson("/api/flash", liveTarget());
+	if (r.error) renderLive({ state: "idle", message: r.error });
+});
+$("port-select").addEventListener("focus", loadPorts);
+$("btn-follow").addEventListener("click", () => setFollow(!state.follow));
+
+async function init() {
+	applyTheme(state.theme);
+	state.config = await (await fetch("/api/config")).json();
+	if (state.config.live) {
+		$("live-controls").hidden = false;
+		$("btn-flash").hidden = !state.config.flash_target;
+		$("btn-flash").title = state.config.flash_target ? "flash " + state.config.flash_target + ", then record from boot" : "";
+		$("baud-select").value = pref("baud", String(state.config.baud || 115200));
+		await loadPorts();
+		connectLive();
+	}
 	const res = await fetch("/api/trace");
-	if (res.status === 200) showTrace(await res.json());
+	if (res.status === 200 && !(state.trace && state.trace.live)) showTrace(await res.json());
 }
 
 // controls
@@ -196,7 +386,15 @@ $("unit-switch").addEventListener("click", (e) => {
 	const b = e.target.closest("button");
 	if (b) applyUnit(b.dataset.unit);
 });
-$("btn-fit").addEventListener("click", () => timeline.fit());
+$("btn-fit").addEventListener("click", () => {
+	setFollow(false);
+	timeline.fit();
+});
+// zoom or pan by hand stops following the newest records
+$("timeline").addEventListener("mousedown", () => setFollow(false));
+$("timeline").addEventListener("wheel", (e) => {
+	if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) setFollow(false);
+}, { passive: true });
 
 $("task-list").addEventListener("click", (e) => {
 	const li = e.target.closest("li[data-task]");
@@ -217,26 +415,31 @@ $("event-filter").addEventListener("input", (e) => events.setFilter(e.target.val
 for (const box of document.querySelectorAll(".events-tools input[data-kind]")) {
 	box.addEventListener("change", () => events.setKind(box.dataset.kind, box.checked));
 }
+$("btn-export-csv").addEventListener("click", () => events.export("csv"));
+$("btn-export-json").addEventListener("click", () => events.export("json"));
 
 for (const tab of document.querySelectorAll(".tab")) {
 	tab.addEventListener("click", () => {
+		state.tab = tab.dataset.tab;
 		for (const t of document.querySelectorAll(".tab")) t.classList.toggle("active", t === tab);
 		for (const body of document.querySelectorAll(".tab-body")) body.hidden = body.dataset.body !== tab.dataset.tab;
-		if (tab.dataset.tab === "events") events.render(true);
+		if (state.tab === "events") events.render(true);
+		if (state.tab === "flow") flow.render();
 	});
 }
 
 document.addEventListener("keydown", (e) => {
-	if (!state.trace || e.target.closest("input")) return;
+	if (!state.trace || e.target.closest("input, select")) return;
 	const mid = (timeline.v0 + timeline.v1) / 2;
 	const half = (timeline.v1 - timeline.v0) / 2;
-	if (e.key === "f") timeline.fit();
-	else if (e.key === "Escape") {
+	if (e.key === "f") {
+		setFollow(false);
+		timeline.fit();
+	} else if (e.key === "Escape") {
 		timeline.clearMeasure();
 		selectExec(-1, false);
 	} else if (e.key === "+" || e.key === "=") timeline.setView(mid - half / 1.5, mid + half / 1.5);
 	else if (e.key === "-") timeline.setView(mid - half * 1.5, mid + half * 1.5);
 });
 
-applyTheme(state.theme);
-loadInitial();
+init();

@@ -30,6 +30,18 @@ akscope serve run.akt
 `akscope serve` listens on `http://127.0.0.1:8730` only. A trace can also be opened from the
 page (Open, or drop the file on it).
 
+To record and flash from the page, start it with the built project:
+
+```sh
+akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0
+```
+
+Record captures the port into `captures/run-<date>-<time>.akt` and shows the records as they
+arrive (Follow keeps the newest ones in view). Flash stops the capture, writes the firmware made
+by `akscope build` with `ak-flash`, retrying when the trace of the running firmware breaks the
+handshake, and starts a new capture so the boot is recorded. The page can only open serial
+ports the machine lists and only flash the `--project` firmware.
+
 ```
       31.141  EXEC         task AC_TASK_UART_IF_ID  sig AC_UART_IF_INIT  pure  exe 0.071 ms  wait 0 ms
       31.144  POST         AC_TASK_UART_IF_ID -> AC_LINK_ID  sig AC_LINK_INIT  pure  len 0

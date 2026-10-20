@@ -2,6 +2,11 @@
 	box-sizing: border-box;
 }
 
+/* the hidden attribute must win over component display rules such as .btn */
+[hidden] {
+	display: none !important;
+}
+
 html,
 body {
 	height: 100%;
@@ -706,4 +711,162 @@ code,
 
 .empty-card code {
 	color: var(--fg-base);
+}
+
+/* live capture */
+
+.live-controls {
+	display: flex;
+	align-items: center;
+	gap: var(--space-8);
+	margin-right: var(--space-8);
+}
+
+.live-controls[hidden] {
+	display: none;
+}
+
+.select {
+	height: var(--button-height);
+	padding: 0 var(--space-8);
+	font-size: var(--font-size-base);
+}
+
+#port-select {
+	max-width: 220px;
+}
+
+.live-status {
+	min-width: 120px;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-8);
+	max-width: 320px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--fg-secondary);
+	font-size: var(--font-size-sm);
+}
+
+.live-status::before {
+	content: "";
+	flex: 0 0 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--fg-disabled);
+}
+
+.live-status.recording::before {
+	background: var(--green);
+}
+
+.live-status.flashing::before {
+	background: var(--yellow);
+}
+
+.live-status.error {
+	color: var(--red);
+}
+
+.btn.toggle.active {
+	border-color: var(--primary);
+	color: var(--primary-lighter);
+	background: var(--bg-selected);
+}
+
+:root[data-theme="light"] .btn.toggle.active {
+	color: var(--primary-darker);
+}
+
+.btn[disabled] {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.tools-right {
+	margin-left: auto;
+	display: flex;
+	gap: var(--space-8);
+}
+
+/* flow */
+
+.flow-tools {
+	flex: 0 0 36px;
+	display: flex;
+	align-items: center;
+	padding: 0 var(--space-16);
+}
+
+.flow {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.flow svg {
+	display: block;
+}
+
+.flow .lane-head {
+	fill: var(--fg-base);
+	font: 500 var(--font-size-sm) var(--font-sans);
+}
+
+.flow .lane-line {
+	stroke: var(--border-base);
+}
+
+.flow .msg {
+	cursor: pointer;
+}
+
+.flow .msg:hover .msg-bg {
+	fill: var(--bg-secondary-hover);
+}
+
+.flow .msg.selected .msg-bg {
+	fill: var(--bg-selected);
+}
+
+.flow .msg-bg {
+	fill: transparent;
+}
+
+.flow .msg-time,
+.flow .msg-exe {
+	fill: var(--fg-secondary);
+	font: var(--font-size-xs) var(--font-mono);
+}
+
+.flow .msg-label {
+	fill: var(--fg-base);
+	font: var(--font-size-xs) var(--font-sans);
+}
+
+.flow .msg-line {
+	stroke: var(--fg-secondary);
+	stroke-width: 1;
+}
+
+.flow .msg.selected .msg-line {
+	stroke: var(--primary);
+	stroke-width: 2;
+}
+
+.flow .msg-head {
+	fill: var(--fg-secondary);
+}
+
+.flow .msg.selected .msg-head {
+	fill: var(--primary);
+}
+
+.flow .msg-exe.slow {
+	fill: var(--yellow);
+}
+
+.flow .msg-exe.too-slow {
+	fill: var(--red);
 }

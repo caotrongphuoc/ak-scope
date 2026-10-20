@@ -3,6 +3,7 @@ import json
 import pathlib
 import threading
 import unittest
+import unittest.mock
 
 from akscope.server import State, make_server
 
@@ -78,6 +79,61 @@ class TestTraceArg(ServerCase):
         status, _, body = self.request("GET", "/api/trace")
         self.assertEqual(status, 200)
         self.assertEqual(json.loads(body)["info"]["cpu_hz"], 32000000)
+
+
+
+class TestControl(unittest.TestCase):
+    def setUp(self):
+        from akscope.live import LiveSession
+
+        self.live = LiveSession()
+        self.httpd = make_server(State(live=self.live, port="/dev/ttyUSB0"), port=0)
+        self.port = self.httpd.server_address[1]
+        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+
+    def tearDown(self):
+        self.live.stop()
+        self.httpd.shutdown()
+        self.httpd.server_close()
+
+    def request(self, method, path, body=None, headers=None):
+        c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
+        c.request(method, path, body=body, headers=headers or {})
+        r = c.getresponse()
+        data = r.read()
+        c.close()
+        return r.status, data
+
+    def test_config(self):
+        status, body = self.request("GET", "/api/config")
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(body), {"flash_target": None, "live": True,
+                                            "port": "/dev/ttyUSB0", "baud": 115200})
+
+    def test_foreign_host_and_origin(self):
+        status, _ = self.request("GET", "/api/config", headers={"Host": "evil.example"})
+        self.assertEqual(status, 403)
+        status, _ = self.request("POST", "/api/record/stop", b"{}",
+                                 {"Content-Type": "application/json", "Origin": "http://evil.example"})
+        self.assertEqual(status, 403)
+
+    def test_control_needs_json(self):
+        status, _ = self.request("POST", "/api/record/stop", b"{}", {"Content-Type": "text/plain"})
+        self.assertEqual(status, 415)
+
+    def test_only_listed_ports(self):
+        status, body = self.request("POST", "/api/record/start", b'{"port": "/etc/passwd"}',
+                                    {"Content-Type": "application/json"})
+        self.assertEqual(status, 400)
+        self.assertIn(b"unknown port", body)
+
+    def test_flash_without_target(self):
+        with unittest.mock.patch("serial.tools.list_ports.comports",
+                                 return_value=[unittest.mock.Mock(device="/dev/ttyUSB0")]):
+            status, body = self.request("POST", "/api/flash", b'{"port": "/dev/ttyUSB0"}',
+                                        {"Content-Type": "application/json"})
+        self.assertEqual(status, 200)
+        self.assertFalse(json.loads(body)["ok"])
 
 
 if __name__ == "__main__":

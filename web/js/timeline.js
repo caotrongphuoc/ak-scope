@@ -8,6 +8,8 @@ const BLOCK_PAD = 5;
 const MIN_SPAN_US = 5;
 const MAX_ARROWS = 400;
 const RUN_PX = 3;
+// widest view, also the window kept while following a live capture that just started
+const MIN_MAX_SPAN_US = 10e6;
 
 // first index in a list sorted by .t whose t is >= value
 function lowerBound(list, value) {
@@ -64,6 +66,25 @@ export class TimelineView {
 		this.fit();
 	}
 
+	// live capture: handler runs arrive in start order, so each task list stays sorted
+	append(execs) {
+		for (const e of execs) {
+			if (!this.byTask.has(e.task)) this.byTask.set(e.task, []);
+			this.byTask.get(e.task).push(e);
+			this.maxDur.set(e.task, Math.max(this.maxDur.get(e.task) || 0, e.dur));
+		}
+		this.draw();
+	}
+
+	// keep the newest records at the right edge, same zoom
+	followEnd() {
+		const span = this.v1 - this.v0;
+		const end = this.trace.duration_us;
+		// until the capture is longer than the window, keep it pinned at the start
+		if (end < span * 0.95) return;
+		this.setView(end - span * 0.95, end + span * 0.05);
+	}
+
 	setRows(tasks) {
 		this.rows = tasks;
 		this.rowOf = new Map(tasks.map((t, i) => [t.id, i]));
@@ -77,11 +98,16 @@ export class TimelineView {
 
 	fit() {
 		const d = this.trace ? this.trace.duration_us : 1;
+		// a live capture starts empty: show its first seconds instead of a few microseconds
+		if (this.trace && this.trace.live && d < MIN_MAX_SPAN_US) {
+			this.setView(-MIN_MAX_SPAN_US * 0.02, MIN_MAX_SPAN_US * 0.98);
+			return;
+		}
 		this.setView(-d * 0.01, d * 1.01);
 	}
 
 	setView(v0, v1) {
-		const max = (this.trace ? this.trace.duration_us : 1) * 1.2 + 1000;
+		const max = Math.max((this.trace ? this.trace.duration_us : 0) * 1.2, MIN_MAX_SPAN_US);
 		let span = Math.min(Math.max(v1 - v0, MIN_SPAN_US), max);
 		const mid = (v0 + v1) / 2;
 		this.v0 = mid - span / 2;

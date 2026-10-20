@@ -76,6 +76,25 @@ export class EventTable {
 		this.render(true);
 	}
 
+	// the rows that pass the filter, as a file the browser saves
+	export(format) {
+		const cols = ["n", "kind", "t_us", "task", "sig", "from", "type", "exe_us", "wait_us"];
+		const rows = this.shown.map((it) => [it.n, it.kind, it.t, it.task, it.sig, it.from, it.type, it.exe, it.wait]);
+		let blob;
+		if (format === "json") {
+			blob = new Blob([JSON.stringify(rows.map((r) => Object.fromEntries(cols.map((c, i) => [c, r[i]]))), null, 1)],
+				{ type: "application/json" });
+		} else {
+			const cell = (v) => (v == null ? "" : /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v));
+			blob = new Blob([[cols, ...rows].map((r) => r.map(cell).join(",")).join("\n") + "\n"], { type: "text/csv" });
+		}
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "akscope-events." + format;
+		a.click();
+		setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+	}
+
 	select(execIndex) {
 		this.selectedExec = execIndex;
 		const n = this.shown.findIndex((it) => it.kind === "EXEC" && it.exec === execIndex);

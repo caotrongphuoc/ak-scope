@@ -12,6 +12,19 @@
 		<div class="brand">ak-scope</div>
 		<div class="trace-info" id="trace-info"></div>
 		<div class="topbar-right">
+			<div class="live-controls" id="live-controls" hidden>
+				<select class="input select" id="port-select" aria-label="Serial port"></select>
+				<select class="input select" id="baud-select" aria-label="Baud rate">
+					<option>115200</option>
+					<option>230400</option>
+					<option>460800</option>
+					<option>921600</option>
+				</select>
+				<button class="btn btn-primary" id="btn-record" type="button">Record</button>
+				<button class="btn btn-secondary" id="btn-stop" type="button" hidden>Stop</button>
+				<button class="btn btn-secondary" id="btn-flash" type="button" hidden>Flash</button>
+				<span class="live-status" id="live-status"></span>
+			</div>
 			<button class="btn btn-secondary" id="btn-open" type="button">
 				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h13v-6.5h-6.5l-1.5-1.5z"/></svg>
 				Open
@@ -41,6 +54,8 @@
 					<button type="button" data-unit="s">s</button>
 				</div>
 				<button class="btn btn-secondary btn-sm" id="btn-fit" type="button">Fit</button>
+				<button class="btn btn-secondary btn-sm toggle" id="btn-follow" type="button" hidden
+					title="keep the newest records in view while recording">Follow</button>
 				<span class="view-range" id="view-range"></span>
 				<span class="hint">wheel: zoom, drag: pan, shift + drag: measure</span>
 			</div>
@@ -60,6 +75,7 @@
 		<section class="bottom">
 			<nav class="tabs" role="tablist">
 				<button type="button" class="tab active" data-tab="events" role="tab">Events</button>
+				<button type="button" class="tab" data-tab="flow" role="tab">Flow</button>
 				<button type="button" class="tab" data-tab="stats" role="tab">Stats</button>
 				<button type="button" class="tab" data-tab="console" role="tab">Console</button>
 			</nav>
@@ -71,6 +87,10 @@
 					<label class="check"><input type="checkbox" data-kind="POST" checked> POST</label>
 					<label class="check"><input type="checkbox" data-kind="TIMER" checked> TIMER</label>
 					<span class="muted" id="event-count"></span>
+					<span class="tools-right">
+						<button class="btn btn-secondary btn-sm" id="btn-export-csv" type="button">Export CSV</button>
+						<button class="btn btn-secondary btn-sm" id="btn-export-json" type="button">Export JSON</button>
+					</span>
 				</div>
 				<div class="table-head events-row" id="events-head">
 					<span class="num">#</span><span class="num">time</span><span>kind</span><span>task</span><span>signal</span>
@@ -79,6 +99,12 @@
 				<div class="events-scroll" id="events-scroll">
 					<div class="events-spacer" id="events-spacer"></div>
 				</div>
+			</div>
+			<div class="tab-body" data-body="flow" hidden>
+				<div class="flow-tools">
+					<span class="muted" id="flow-note"></span>
+				</div>
+				<div class="flow" id="flow"></div>
 			</div>
 			<div class="tab-body" data-body="stats" hidden>
 				<div class="stats" id="stats"></div>

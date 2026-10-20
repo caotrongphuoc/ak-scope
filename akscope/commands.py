@@ -284,15 +284,29 @@ def cmd_flash(args, out=None):
 def cmd_serve(args, out=None):
     import webbrowser
 
+    from akscope.live import LiveSession
     from akscope.server import State, make_server
 
-    sym = None
-    if args.sym:
-        sym = _load_symbols(args.sym)
+    sym, sym_raw, flash_target = None, None, None
+    sym_source = args.sym or args.project
+    if sym_source:
+        sym = _load_symbols(sym_source)
         if sym is None:
             return 2
+        p = pathlib.Path(sym_source).expanduser()
+        if p.is_dir():
+            from akscope.build import Builder
+            p = Builder(p).symbols_path
+        sym_raw = json.loads(p.read_text())
+    if args.project:
+        flash_target = _resolve_binary(args.project)
+        if flash_target is None:
+            return 2
+
+    live = LiveSession(symbols=sym, symbols_raw=sym_raw, out_dir=args.captures,
+                       flash_target=flash_target)
     try:
-        httpd = make_server(State(args.file, sym), args.port)
+        httpd = make_server(State(args.file, sym, live, args.dev, args.baud), args.port)
     except OSError as e:
         _log_err("akscope: cannot listen on 127.0.0.1:%d: %s" % (args.port, e))
         return 2
@@ -304,6 +318,7 @@ def cmd_serve(args, out=None):
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
+    live.stop()
     httpd.server_close()
     return 0
 
@@ -346,8 +361,13 @@ def register(subparsers):
 
     p = subparsers.add_parser("serve", help="open the web UI on http://127.0.0.1:8730")
     p.add_argument("file", nargs="?", help=".akt or raw capture to show")
+    p.add_argument("--project", help="project built by akscope build: names, and the firmware "
+                                     "the Flash button writes")
     p.add_argument("--sym", help="symbols.json or built project, instead of the names in the file")
-    p.add_argument("--port", type=int, default=8730)
+    p.add_argument("--dev", help="serial port preselected in the page, e.g. /dev/ttyUSB0")
+    p.add_argument("--baud", type=int, default=115200)
+    p.add_argument("--captures", default="captures", help="folder for live captures")
+    p.add_argument("--port", type=int, default=8730, help="HTTP port")
     p.add_argument("--no-browser", action="store_true")
     p.set_defaults(func=cmd_serve)
 
