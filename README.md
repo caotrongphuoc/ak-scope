@@ -22,7 +22,13 @@ akscope record --port /dev/ttyUSB0 --flash ~/workspace/github/11m-game -o run.ak
 
 # print the records, with task and signal names read from the project sources
 akscope dump run.akt
+
+# or look at it in the browser: timeline, events, stats
+akscope serve run.akt
 ```
+
+`akscope serve` listens on `http://127.0.0.1:8730` only. A trace can also be opened from the
+page (Open, or drop the file on it).
 
 ```
       31.141  EXEC         task AC_TASK_UART_IF_ID  sig AC_UART_IF_INIT  pure  exe 0.071 ms  wait 0 ms

@@ -281,6 +281,33 @@ def cmd_flash(args, out=None):
     return 0
 
 
+def cmd_serve(args, out=None):
+    import webbrowser
+
+    from akscope.server import State, make_server
+
+    sym = None
+    if args.sym:
+        sym = _load_symbols(args.sym)
+        if sym is None:
+            return 2
+    try:
+        httpd = make_server(State(args.file, sym), args.port)
+    except OSError as e:
+        _log_err("akscope: cannot listen on 127.0.0.1:%d: %s" % (args.port, e))
+        return 2
+    url = "http://127.0.0.1:%d/" % httpd.server_address[1]
+    _log_err("akscope: serving %s, Ctrl-C to stop" % url)
+    if not args.no_browser:
+        webbrowser.open(url)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    return 0
+
+
 def register(subparsers):
     p = subparsers.add_parser("import-log", help="read records from a console capture")
     p.add_argument("file", help="text captured from the board console")
@@ -316,6 +343,13 @@ def register(subparsers):
     p.add_argument("--ring", type=int, help="bytes of RAM for queued frames (default 512)")
     p.add_argument("--clean", action="store_true", help="drop the cached objects first")
     p.set_defaults(func=cmd_build)
+
+    p = subparsers.add_parser("serve", help="open the web UI on http://127.0.0.1:8730")
+    p.add_argument("file", nargs="?", help=".akt or raw capture to show")
+    p.add_argument("--sym", help="symbols.json or built project, instead of the names in the file")
+    p.add_argument("--port", type=int, default=8730)
+    p.add_argument("--no-browser", action="store_true")
+    p.set_defaults(func=cmd_serve)
 
     p = subparsers.add_parser("flash", help="flash a kit with ak-flash, retrying on failure")
     p.add_argument("--port", required=True)

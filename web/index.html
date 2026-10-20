@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>ak-scope</title>
+	<link rel="stylesheet" href="theme/tokens.css">
+	<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+	<header class="topbar">
+		<div class="brand">ak-scope</div>
+		<div class="trace-info" id="trace-info"></div>
+		<div class="topbar-right">
+			<button class="btn btn-secondary" id="btn-open" type="button">
+				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h13v-6.5h-6.5l-1.5-1.5z"/></svg>
+				Open
+			</button>
+			<div class="segmented" id="theme-switch" role="group" aria-label="Theme">
+				<button type="button" data-theme-value="dark">Dark</button>
+				<button type="button" data-theme-value="light">Light</button>
+			</div>
+			<input type="file" id="file-input" accept=".akt,.bin" hidden>
+		</div>
+	</header>
+
+	<main class="layout" id="layout" hidden>
+		<aside class="panel tasks-panel">
+			<div class="panel-head">
+				<span>Tasks</span>
+				<button class="btn-text" id="btn-all-tasks" type="button">All</button>
+			</div>
+			<ul class="task-list" id="task-list"></ul>
+		</aside>
+
+		<section class="timeline-area">
+			<div class="timeline-tools">
+				<div class="segmented" id="unit-switch" role="group" aria-label="Time unit">
+					<button type="button" data-unit="us">us</button>
+					<button type="button" data-unit="ms">ms</button>
+					<button type="button" data-unit="s">s</button>
+				</div>
+				<button class="btn btn-secondary btn-sm" id="btn-fit" type="button">Fit</button>
+				<span class="view-range" id="view-range"></span>
+				<span class="hint">wheel: zoom, drag: pan, shift + drag: measure</span>
+			</div>
+			<div class="timeline-wrap" id="timeline-wrap">
+				<canvas id="timeline"></canvas>
+				<div class="tooltip" id="tooltip" hidden></div>
+			</div>
+		</section>
+
+		<aside class="panel detail-panel">
+			<div class="panel-head"><span>Detail</span></div>
+			<div class="detail" id="detail">
+				<p class="muted">Click a block on the timeline or a row below.</p>
+			</div>
+		</aside>
+
+		<section class="bottom">
+			<nav class="tabs" role="tablist">
+				<button type="button" class="tab active" data-tab="events" role="tab">Events</button>
+				<button type="button" class="tab" data-tab="stats" role="tab">Stats</button>
+				<button type="button" class="tab" data-tab="console" role="tab">Console</button>
+			</nav>
+			<div class="tab-body" data-body="events">
+				<div class="events-tools">
+					<input class="input search" id="event-filter" type="search"
+						placeholder="Filter by task, signal or kind">
+					<label class="check"><input type="checkbox" data-kind="EXEC" checked> EXEC</label>
+					<label class="check"><input type="checkbox" data-kind="POST" checked> POST</label>
+					<label class="check"><input type="checkbox" data-kind="TIMER" checked> TIMER</label>
+					<span class="muted" id="event-count"></span>
+				</div>
+				<div class="table-head events-row" id="events-head">
+					<span class="num">#</span><span class="num">time</span><span>kind</span><span>task</span><span>signal</span>
+					<span>from</span><span>type</span><span class="num">exe</span><span class="num">wait</span>
+				</div>
+				<div class="events-scroll" id="events-scroll">
+					<div class="events-spacer" id="events-spacer"></div>
+				</div>
+			</div>
+			<div class="tab-body" data-body="stats" hidden>
+				<div class="stats" id="stats"></div>
+			</div>
+			<div class="tab-body" data-body="console" hidden>
+				<pre class="console" id="console"></pre>
+			</div>
+		</section>
+	</main>
+
+	<section class="empty" id="empty">
+		<div class="empty-card">
+			<h1>No trace open</h1>
+			<p>Record one with <code>akscope record --port /dev/ttyUSB0 -o run.akt</code>,
+				then open the file here or drop it on this page.</p>
+			<button class="btn btn-primary" id="btn-open-empty" type="button">Open trace</button>
+			<p class="error" id="load-error" hidden></p>
+		</div>
+	</section>
+
+	<script type="module" src="js/main.js"></script>
+</body>
+</html>
