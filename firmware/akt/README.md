@@ -41,8 +41,15 @@ Options: `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH`; `
 Limits of this mode:
 
 - a handler defined inside `task_list.cpp` itself cannot be wrapped and is reported;
-- the `INFO` record has app version 0.0.0.0, the wrapper does not read `APP_VER`;
+- the app version in `INFO` comes from `APP_VER` in `app.h`; it is 0.0.0.0 when the project
+  has no `sources/app/app.cpp` or no such macro;
 - tested on `11m-game` and `zomwar-game` built from AK base kit 1.3.
+
+`akscope build` also writes `symbols.json` next to the objects: task names from the task table,
+and signal names per task, found from `case` labels in each handler's `switch (msg->sig)` and
+from `task_post_*_msg()` / `timer_set()` calls. `akscope record --flash <project>` stores it in
+the `.akt` file so `akscope dump` prints names. A name followed by `?` was matched only by value
+and may be wrong.
 
 Measured with `zomwar-game`: RAM 15024 of 16384 bytes with the default ring, 14768 with
 `--ring 256`.

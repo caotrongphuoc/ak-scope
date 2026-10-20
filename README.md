@@ -20,15 +20,16 @@ akscope build ~/workspace/github/11m-game --tools ~/workspace/tools
 # flash it and record from boot until Ctrl-C
 akscope record --port /dev/ttyUSB0 --flash ~/workspace/github/11m-game -o run.akt
 
-# print the records
+# print the records, with task and signal names read from the project sources
 akscope dump run.akt
 ```
 
 ```
-      31.143  EXEC         task 6  sig 10  pure  exe 0.071 ms  wait 0 ms
-      31.146  POST         6 -> 17  sig 10  pure  len 0
-      31.310  EXEC         task 17  sig 10  pure  exe 0.073 ms  wait 0 ms
-     130.909  EXEC         task 9  sig 10  pure  exe 139.106 ms  wait 0 ms
+      31.141  EXEC         task AC_TASK_UART_IF_ID  sig AC_UART_IF_INIT  pure  exe 0.071 ms  wait 0 ms
+      31.144  POST         AC_TASK_UART_IF_ID -> AC_LINK_ID  sig AC_LINK_INIT  pure  len 0
+      31.309  EXEC         task AC_LINK_ID  sig AC_LINK_INIT  pure  exe 0.073 ms  wait 0 ms
+     130.921  EXEC         task AC_TASK_DISPLAY_ID  sig AC_DISPLAY_INITIAL  pure  exe 139.099 ms  wait 0 ms
+    2168.281  TIMER_SET    -> AC_TASK_DISPLAY_ID  sig AC_DISPLAY_RENDER_SCREEN  3 ms  one shot
 ```
 
 Firmware that was built without the trace sends no message records. For it, `akscope record`
