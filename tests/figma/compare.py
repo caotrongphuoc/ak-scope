@@ -66,7 +66,8 @@ class WebDriver:
         self.log = open(CACHE / "geckodriver.log", "w")
         self.proc = subprocess.Popen(["geckodriver", "--port", str(WD_PORT)], stdout=self.log,
                                      stderr=subprocess.STDOUT)
-        for _ in range(50):
+        # the snap Firefox can take a while to start
+        for _ in range(150):
             try:
                 self.call("GET", "/status")
                 break

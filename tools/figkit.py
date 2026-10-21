@@ -259,6 +259,7 @@ class Renderer:
         self.defs = []
         self.uid = 0
         self.modes = {}  # variable set guid -> mode guid, set by the frames being drawn
+        self.props = {}  # component property values of the instance being drawn
 
     def _id(self, prefix):
         self.uid += 1
@@ -367,6 +368,11 @@ class Renderer:
         ov = override or {}
         if ov.get("visible") == 0:
             return ""
+        for ref in n.get("componentPropRefs") or []:
+            if ref.get("componentPropNodeField") == "VISIBLE":
+                value = self.props.get(gid(ref["defID"]))
+                if value is not None and not value.get("boolValue", 1):
+                    return ""
         saved_modes = self.modes
         entries = (n.get("variableModeBySetMap") or {}).get("entries", [])
         if entries:
@@ -389,7 +395,10 @@ class Renderer:
                                 ov.get("fillPaints") or n.get("fillPaints"))
         kids_svg = []
         if t == "INSTANCE":
-            kids_svg.append(self.instance(n, ov))
+            kids_svg.append(self.instance(n, ov, master))
+        elif t == "BOOLEAN_OPERATION":
+            # the children are the operands; fillGeometry is the result
+            pass
         else:
             for c in self.doc.kids(n):
                 kids_svg.append(self.node(c, self._derived_for(master, c), master))
@@ -434,28 +443,50 @@ class Renderer:
                          % (cid, -m, -m, w + 2 * m, h + 2 * m, -m, -m, w + 2 * m, h + 2 * m, d))
         return ['<g mask="url(#%s)">%s</g>' % (cid, "".join(strokes))]
 
-    def instance(self, n, ov):
+    OVERRIDDEN = ("visible", "fillPaints", "strokePaints", "opacity", "componentPropAssignments")
+
+    def instance(self, n, ov, outer=None):
         sd = n.get("symbolData") or {}
         sym = self.doc.nodes.get(gid(sd["symbolID"])) if sd.get("symbolID") else None
         if not sym:
             return ""
         # derived data of this instance, keyed by the guid path of the node inside the symbol
         derived = {}
+
+        def merge(path, o, keys):
+            merged = dict(derived.get(path, {}))
+            for k in keys:
+                if k in o:
+                    merged[k] = o[k]
+            derived[path] = merged
+
         for d in n.get("derivedSymbolData") or []:
             path = tuple(gid(g) for g in (d.get("guidPath") or {}).get("guids", []))
             if path:
                 derived[path] = d
+        props = {gid(a["defID"]): _prop_value(a) for a in n.get("componentPropAssignments") or []}
         for o in sd.get("symbolOverrides") or []:
             path = tuple(gid(g) for g in (o.get("guidPath") or {}).get("guids", []))
             if path:
-                merged = dict(derived.get(path, {}))
-                for k in ("visible", "fillPaints", "strokePaints", "opacity"):
-                    if k in o:
-                        merged[k] = o[k]
-                derived[path] = merged
-        out = []
-        for c in self.doc.kids(sym):
-            out.append(self.node(c, self._derived_for(derived, c), derived))
+                merge(path, o, self.OVERRIDDEN)
+        # an enclosing instance reaches into this one with longer guid paths
+        if outer:
+            keys = {gid(n["guid"])} | ({gid(n["overrideKey"])} if n.get("overrideKey") else set())
+            for path, o in outer.items():
+                if len(path) > 1 and path[0] in keys:
+                    merge(path[1:], o, tuple(o.keys()))
+            for path, o in outer.items():
+                if len(path) == 1 and path[0] in keys:
+                    for a in o.get("componentPropAssignments") or []:
+                        props[gid(a["defID"])] = _prop_value(a)
+        saved = self.props
+        self.props = props
+        try:
+            out = []
+            for c in self.doc.kids(sym):
+                out.append(self.node(c, self._derived_for(derived, c), derived))
+        finally:
+            self.props = saved
         return "".join(out)
 
     @staticmethod
@@ -484,6 +515,14 @@ class Renderer:
         bg = '<rect width="100%%" height="100%%" fill="%s"/>' % background if background else ""
         return ('<svg xmlns="http://www.w3.org/2000/svg" width="%.0f" height="%.0f" viewBox="0 0 %.3f %.3f">'
                 '<defs>%s</defs>%s%s</svg>' % (math.ceil(w), math.ceil(h), w, h, "".join(self.defs), bg, body))
+
+
+def _prop_value(assignment):
+    """the value of a component property assignment; newer files keep it in varValue"""
+    v = assignment.get("value") or {}
+    if not v:
+        v = ((assignment.get("varValue") or {}).get("value")) or {}
+    return v
 
 
 def _invert(m):

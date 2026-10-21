@@ -29,7 +29,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 ICON_LIST = ROOT / "tools" / "figma_icons.txt"
 # the component pages the UI is built from
 SPEC_PAGES = ("Button", "Tabs", "Table", "Tree", "Tag", "Tooltip", "Select", "Input ", "Check box", "Segmented",
-              "Switch", "Badge", "Alert", "Message", "Modal", "Drawer", "Empty", "Statistic", "Navbar")
+              "Switch", "Badge", "Alert", "Message", "Modal", "Drawer", "Empty", "Statistic", "Navbar",
+              "Dropdown", "Menu", "Pagination", "Collapse", "Progress", "Popover confirm", "Upload", "Radio button",
+              "Breadcrumb")
 MODES = {"default-dark": "dark", "default-light": "light"}
 
 
@@ -186,6 +188,11 @@ def _box(doc, n):
         d["stroke"] = _paints(doc, n["strokePaints"])
         d["stroke_weight"] = n["strokeWeight"]
         d["stroke_align"] = n.get("strokeAlign")
+        if n.get("borderStrokeWeightsIndependent"):
+            # top, right, bottom, left
+            d["stroke_sides"] = [n.get("border%sWeight" % k, 0) for k in ("Top", "Right", "Bottom", "Left")]
+        if n.get("dashPattern"):
+            d["dash"] = n["dashPattern"]
     fx = [e for e in n.get("effects") or [] if e.get("visible", 1)]
     if fx:
         d["effects"] = [{"type": e.get("type"), "x": e.get("offset", {}).get("x", 0), "y": e.get("offset", {}).get("y", 0),
