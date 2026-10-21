@@ -136,5 +136,43 @@ class TestControl(unittest.TestCase):
         self.assertFalse(json.loads(body)["ok"])
 
 
+class TestDecodedCache(unittest.TestCase):
+    def test_second_open_from_cache(self):
+        import tempfile
+
+        from akscope import server
+
+        data = (SAMPLES / "11m-game-boot-akt.bin").read_bytes()
+        with tempfile.TemporaryDirectory() as d:
+            with unittest.mock.patch.object(server, "_decoded_dir", return_value=pathlib.Path(d)):
+                first = State()
+                a = first.open({}, data, "boot.bin")
+                self.assertIsNotNone(first.current)
+                self.assertEqual(len(list(pathlib.Path(d).glob("*.json"))), 1)
+
+                again = State()
+                with unittest.mock.patch.object(server, "decode_capture", wraps=server.decode_capture) as dec:
+                    b = again.open({}, data, "boot.bin")
+                    self.assertEqual(dec.call_count, 0)
+                    self.assertEqual(a, b)
+                    # verify still gets a timeline, built when it is asked for
+                    self.assertEqual(len(again._current_timeline()[0].execs), 32)
+                    self.assertEqual(dec.call_count, 1)
+
+    def test_prune(self):
+        import os
+        import tempfile
+
+        from akscope import server
+
+        with tempfile.TemporaryDirectory() as d:
+            for i in range(5):
+                f = pathlib.Path(d) / ("%d.json" % i)
+                f.write_text("{}")
+                os.utime(f, (i, i))
+            server._prune(pathlib.Path(d), 2)
+            self.assertEqual(sorted(p.name for p in pathlib.Path(d).glob("*.json")), ["3.json", "4.json"])
+
+
 if __name__ == "__main__":
     unittest.main()

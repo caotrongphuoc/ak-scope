@@ -20,6 +20,7 @@ its fetch() would need a CORS preflight that this server never answers, and DNS 
 fails the Host check.
 """
 
+import hashlib
 import json
 import mimetypes
 import pathlib
@@ -38,6 +39,10 @@ DEFAULT_PORT = 8730
 MAX_UPLOAD = 64 * 1024 * 1024
 KEEPALIVE_S = 15
 
+# decoded page JSON of opened captures, so opening a large trace again is instant
+DECODED_KEEP = 20
+DECODED_FORMAT = "1"  # change when the page JSON changes shape
+
 mimetypes.add_type("text/javascript", ".js")
 
 
@@ -52,6 +57,27 @@ def decode_capture(header, data, sym=None, name=""):
     out["header"] = {k: v for k, v in header.items() if k != "symbols"}
     out["has_symbols"] = bool(sym.tasks)
     return out, (tl, sym, stats)
+
+
+def _decoded_dir():
+    from akscope.build import CACHE_ROOT
+    return CACHE_ROOT / "decoded"
+
+
+def _cache_key(data, header, sym, name):
+    h = hashlib.sha1(DECODED_FORMAT.encode())
+    h.update(data)
+    h.update(json.dumps(header, sort_keys=True, default=str).encode())
+    if sym is not None:
+        h.update(json.dumps([sym.tasks, sym.signals, sym.fallback], sort_keys=True, default=str).encode())
+    h.update(name.encode())
+    return h.hexdigest()
+
+
+def _prune(folder, keep):
+    files = sorted(folder.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    for f in files[keep:]:
+        f.unlink(missing_ok=True)
 
 
 def split_blob(blob):
@@ -77,6 +103,7 @@ class State:
         self.lock = threading.Lock()
         self._cache = None
         self.current = None  # (Timeline, SymbolTable, stream stats) of the trace on the page
+        self._current_src = None  # (header, data, sym, name) to build current on demand
         self._static = None  # StaticResult once done
         self._static_state = "none" if not project else "idle"
         self._static_error = None
@@ -113,7 +140,7 @@ class State:
             with self.live.lock:
                 target = (self.live.builder.tl, self.live.sym, self.live.decoder.stats)
                 findings += verify.run_runtime(*target[:2], rules, handled, target[2])
-        elif self.current is not None:
+        elif self._current_timeline() is not None:
             tl, sym, stats = self.current
             findings += verify.run_runtime(tl, sym, rules, handled, stats)
         findings = verify.ordered(verify.apply_ignore(findings, rules))
@@ -130,16 +157,43 @@ class State:
             "baud": self.baud,
         }
 
+    def open(self, header, data, name):
+        """Page JSON (a str) for a capture, from the decoded cache when it was opened before.
+        The Timeline for verify is only built when verify asks for it."""
+        with self.lock:
+            self.current = None
+            self._current_src = (header, data, self.sym, name)
+            folder = _decoded_dir()
+            path = folder / (_cache_key(data, header, self.sym, name) + ".json")
+            if path.is_file():
+                path.touch()
+                return path.read_text()
+            out, self.current = decode_capture(header, data, self.sym, name)
+            text = json.dumps(out, separators=(",", ":"))
+            try:
+                folder.mkdir(parents=True, exist_ok=True)
+                tmp = path.with_suffix(".tmp")
+                tmp.write_text(text)
+                tmp.replace(path)
+                _prune(folder, DECODED_KEEP)
+            except OSError:
+                pass  # no cache, still served
+            return text
+
+    def _current_timeline(self):
+        with self.lock:
+            if self.current is None and self._current_src is not None:
+                header, data, sym, name = self._current_src
+                self.current = decode_capture(header, data, sym, name)[1]
+            return self.current
+
     def trace_json(self):
         if not self.trace_path:
             return None
-        with self.lock:
-            if self._cache is None:
-                header, data = read_capture(self.trace_path)
-                out, self.current = decode_capture(header, data, self.sym,
-                                                   pathlib.Path(self.trace_path).name)
-                self._cache = json.dumps(out)
-            return self._cache
+        if self._cache is None:
+            header, data = read_capture(self.trace_path)
+            self._cache = self.open(header, data, pathlib.Path(self.trace_path).name)
+        return self._cache
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -277,11 +331,11 @@ class Handler(BaseHTTPRequestHandler):
         name = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get("name", [""])[0]
         try:
             header, data = split_blob(blob)
-            out, self.state.current = decode_capture(header, data, self.state.sym, name)
+            body = self.state.open(header, data, name)
         except (ValueError, KeyError) as e:
             self._error(HTTPStatus.BAD_REQUEST, "cannot decode: %s" % e)
             return
-        self._send(HTTPStatus.OK, json.dumps(out).encode())
+        self._send(HTTPStatus.OK, body.encode())
 
 
     def _control(self, path):

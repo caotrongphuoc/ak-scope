@@ -74,6 +74,10 @@ akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0
 The server only listens on 127.0.0.1, only opens serial ports the machine lists, only flashes
 the `--project` firmware, and refuses requests that do not come from its own page.
 
+A decoded capture is kept in `~/.cache/akscope/decoded/` (the last 20), so a large trace opens
+at once the second time. Decoding is plain Python: about 10 s for 100 000 handler runs the
+first time.
+
 ## Verify
 
 ```sh
