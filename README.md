@@ -20,6 +20,12 @@ For building and flashing the firmware you also need what the AK base kit uses:
 - the ARM toolchain `gcc-arm-none-eabi-10.3-2021.10`
 - [ak-flash](https://github.com/ak-embedded-software/ak-flash) on the `PATH`
 
+For the desktop window (`akscope app`) the system packages of GTK 3 and WebKit2GTK 4.0:
+
+```sh
+sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.0
+```
+
 Tested on Ubuntu 22.04 with the AK kit on a CH340 USB serial adapter. Windows is not tested yet.
 
 ## Quick start
@@ -53,17 +59,25 @@ as noise and is ignored.
 | `akscope record --port <dev> -o run.akt [--flash <project>]` | captures the UART to a `.akt` file; with `--flash`, flashes first and records from boot |
 | `akscope dump run.akt` | prints the records with task and signal names |
 | `akscope serve [run.akt] [--project <project>] [--dev <dev>]` | web page on `http://127.0.0.1:8730` |
+| `akscope app [run.akt] [--project <project>] [--dev <dev>]` | the same page in a desktop window |
+| `akscope install-desktop [--project <project>]` | adds ak-scope to the desktop menu |
 | `akscope verify [<project>] [--trace run.akt]` | static and runtime rule checks, text or `--format json` |
 | `akscope import-log console.txt`, `akscope stats console.txt` | read the kernel's own task log (`LOG_AK_KERNEL_ENABLE`) from firmware without the trace |
 
 `akscope <command> --help` lists every option.
 
-## The web page
+## The web page and the desktop window
 
 ```
-akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0
+akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0    # in the browser
+akscope app --project ~/workspace/github/11m-game --dev /dev/ttyUSB0      # in its own window
 ```
 
+Both show the same page: the top bar holds the trace facts, the serial port, Record, Flash and
+Open; the side bar switches between the views. The look follows the design system file in
+Figma, dark and light.
+
+- **Trace**: the tasks, the timeline and the detail of the selected run.
 - **Timeline**: one row per task, higher priority first. A block is one handler run; an arrow
   goes from the post to the run it caused; a tick marks a run started by a timer. Wheel to
   zoom, drag to pan, shift and drag to measure, `f` to fit.
@@ -75,6 +89,11 @@ akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0
 - **Verify**: the rule checks for this trace, and for the project sources when `--project` is
   given. Click a runtime finding to jump to the run.
 - **Record / Flash**: live capture into `captures/`, the view follows the newest records.
+
+The desktop window runs the server in its own process on a free port, asks where to save an
+export, keeps its size per project in `~/.config/akscope/window.json`, and raises the open
+window when started again for the same project. `akscope install-desktop` writes the menu entry
+to `~/.local/share/applications/`.
 
 The server only listens on 127.0.0.1, only opens serial ports the machine lists, only flashes
 the `--project` firmware, and refuses requests that do not come from its own page.
@@ -126,3 +145,14 @@ python3 -m unittest
 
 The tests use the captures in `samples/` and need no board. The web page is plain JavaScript
 modules under `akscope/web/`, no build step.
+
+The components of the page are compared with the Figma file pixel by pixel
+(`akscope/web/gallery.html`, `tests/figma/compare.py`). The icons are drawn from the Figma file
+and not kept in the repository:
+
+```sh
+python3 tools/figma_export.py all "[WEB - 1] Design system VMS.fig"   # tokens, icons, spec
+AKSCOPE_FIG="[WEB - 1] Design system VMS.fig" python3 -m unittest tests.test_figma_gallery
+```
+
+The comparison needs Firefox, geckodriver, PyGObject with librsvg, and Pillow.

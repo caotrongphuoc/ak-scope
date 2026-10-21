@@ -300,9 +300,8 @@ def cmd_flash(args, out=None):
     return 0
 
 
-def cmd_serve(args, out=None):
-    import webbrowser
-
+def _make_server(args, port):
+    """(httpd, live) for serve and app, or (None, None) after printing why not"""
     from akscope.live import LiveSession
     from akscope.server import State, make_server
 
@@ -311,7 +310,7 @@ def cmd_serve(args, out=None):
     if sym_source:
         sym = _load_symbols(sym_source)
         if sym is None:
-            return 2
+            return None, None
         p = pathlib.Path(sym_source).expanduser()
         if p.is_dir():
             from akscope.build import Builder
@@ -320,7 +319,7 @@ def cmd_serve(args, out=None):
     if args.project:
         flash_target = _resolve_binary(args.project)
         if flash_target is None:
-            return 2
+            return None, None
 
     if args.baud is None:
         args.baud = _project_baud(args.project) or 115200
@@ -329,9 +328,18 @@ def cmd_serve(args, out=None):
                        flash_target=flash_target)
     try:
         httpd = make_server(State(args.file, sym, live, args.dev, args.baud, project=args.project,
-                                  rules_path=args.rules, base=args.base), args.port)
+                                  rules_path=args.rules, base=args.base), port)
     except OSError as e:
-        _log_err("akscope: cannot listen on 127.0.0.1:%d: %s" % (args.port, e))
+        _log_err("akscope: cannot listen on 127.0.0.1:%d: %s" % (port, e))
+        return None, None
+    return httpd, live
+
+
+def cmd_serve(args, out=None):
+    import webbrowser
+
+    httpd, live = _make_server(args, args.port)
+    if httpd is None:
         return 2
     url = "http://127.0.0.1:%d/" % httpd.server_address[1]
     _log_err("akscope: serving %s, Ctrl-C to stop" % url)
@@ -343,6 +351,31 @@ def cmd_serve(args, out=None):
         pass
     live.stop()
     httpd.server_close()
+    return 0
+
+
+def cmd_app(args, out=None):
+    try:
+        from akscope import app
+    except ImportError as e:
+        _log_err("akscope: %s" % e)
+        return 2
+    # a free port: several windows (one per project) can run at the same time
+    httpd, live = _make_server(args, 0)
+    if httpd is None:
+        return 2
+    try:
+        return app.run(httpd, live, args)
+    finally:
+        live.stop()
+        httpd.server_close()
+
+
+def cmd_install_desktop(args, out=None):
+    out = out or sys.stdout
+    from akscope import desktop
+    for path in desktop.install(args.project):
+        print(path, file=out)
     return 0
 
 
@@ -471,6 +504,23 @@ def register(subparsers):
     p.add_argument("--port", type=int, default=8730, help="HTTP port")
     p.add_argument("--no-browser", action="store_true")
     p.set_defaults(func=cmd_serve)
+
+    p = subparsers.add_parser("app", help="the same UI in a desktop window (GTK 3, WebKit2GTK 4.0)")
+    p.add_argument("file", nargs="?", help=".akt or raw capture to show")
+    p.add_argument("--project", help="project built by akscope build: names, and the firmware "
+                                     "the Flash button writes")
+    p.add_argument("--sym", help="symbols.json or built project, instead of the names in the file")
+    p.add_argument("--dev", help="serial port preselected in the page, e.g. /dev/ttyUSB0")
+    p.add_argument("--baud", type=int, help="default: the project's --console-baud, else 115200")
+    p.add_argument("--captures", default="captures", help="folder for live captures")
+    p.add_argument("--rules", help="rules file for the Verify tab")
+    p.add_argument("--base", help="AK base kit folder for the static rules")
+    p.add_argument("--inspector", action="store_true", help="allow the WebKit inspector (right click)")
+    p.set_defaults(func=cmd_app)
+
+    p = subparsers.add_parser("install-desktop", help="add ak-scope to the desktop menu (~/.local/share)")
+    p.add_argument("--project", help="open this project from the menu entry")
+    p.set_defaults(func=cmd_install_desktop)
 
     p = subparsers.add_parser("flash", help="flash a kit with ak-flash, retrying on failure")
     p.add_argument("--port", required=True)
