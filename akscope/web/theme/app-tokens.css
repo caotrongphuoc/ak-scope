@@ -1,0 +1,54 @@
+/* What the views of ak-scope read besides the Figma tokens (figma-tokens.css, loaded first):
+ * the names the canvas code asks for, mapped onto the Figma variables, and the task colors.
+ * A task block looks like a Figma Tag of one color: the tag border color filled, the tag text
+ * color on it. Both themes follow from the Figma modes. */
+
+:root {
+	--font-sans: Inter, sans-serif;
+	--font-mono: "DejaVu Sans Mono", "Liberation Mono", Menlo, Consolas, monospace;
+
+	--topbar-height: 54px;
+	--navside-width: 124px;
+
+	--bg-base: var(--color-background-base);
+	/* the timeline is drawn on the panel color */
+	--bg-surface: var(--color-background-base);
+	--bg-popup: var(--color-background-pop-up);
+	--bg-selected: var(--color-on-background-selected);
+	--bg-row-alt: var(--color-on-background-default-hover);
+	--border-base: var(--color-border-base);
+	--border-subtle: var(--color-border-secondary-disable);
+	--fg-base: var(--color-foreground-base);
+	--fg-secondary: var(--color-foreground-secondary);
+	--primary: var(--color-background-primary);
+	--red: var(--color-foreground-danger);
+	--yellow: var(--color-foreground-warning);
+	--arrow: var(--color-foreground-secondary);
+
+	--task-0: var(--color-customize-border-blue);
+	--task-0-on: var(--color-customize-foreground-blue);
+	--task-1: var(--color-customize-border-orange);
+	--task-1-on: var(--color-customize-foreground-orange);
+	--task-2: var(--color-customize-border-purple);
+	--task-2-on: var(--color-customize-foreground-purple);
+	--task-3: var(--color-customize-border-turquoise);
+	--task-3-on: var(--color-customize-foreground-turquoise);
+	--task-4: var(--color-customize-border-pink);
+	--task-4-on: var(--color-customize-foreground-pink);
+	--task-5: var(--color-customize-border-green);
+	--task-5-on: var(--color-customize-foreground-green);
+	--task-6: var(--color-customize-border-lime);
+	--task-6-on: var(--color-customize-foreground-lime);
+	--task-7: var(--color-customize-border-yellow);
+	--task-7-on: var(--color-customize-foreground-yellow);
+	--task-timer: var(--color-customize-border-neutral);
+	--task-timer-on: var(--color-customize-foreground-neutral);
+}
+
+[data-theme="dark"] {
+	color-scheme: dark;
+}
+
+[data-theme="light"] {
+	color-scheme: light;
+}

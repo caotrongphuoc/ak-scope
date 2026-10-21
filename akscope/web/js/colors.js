@@ -1,4 +1,4 @@
-// task colors come from tokens.css so a theme change applies to the canvas too
+// task colors come from app-tokens.css (on top of the Figma tokens), so a theme change applies to the canvas too
 
 const N_COLORS = 8;
 const TIMER_TASK_ID = 0;

@@ -34,7 +34,7 @@ const state = {
 	visible: new Set(),
 	unit: pref("unit", "ms"),
 	theme: pref("theme", "dark"),
-	tab: "events",
+	page: pref("page", "trace"),
 	config: {},
 	live: { state: "idle" },
 	follow: true,
@@ -47,7 +47,7 @@ const timeline = new TimelineView($("timeline"), $("timeline-wrap"), $("tooltip"
 	onView: (v0, v1) => {
 		$("view-range").textContent = `${fmtTime(Math.max(v0, 0), state.unit)} to ${fmtTime(v1, state.unit)}  (${fmtDur(v1 - v0)})`;
 		flow.setView(v0, v1);
-		if (state.tab === "flow") scheduleFlow();
+		if (state.page === "flow") scheduleFlow();
 	},
 });
 
@@ -98,14 +98,14 @@ function selectExec(i, reveal) {
 	detail.show(i);
 	events.select(i);
 	flow.select(i);
-	if (state.tab === "flow") scheduleFlow();
+	if (state.page === "flow") scheduleFlow();
 }
 
 function applyTheme(theme) {
 	state.theme = theme;
 	document.documentElement.dataset.theme = theme;
 	for (const b of $("theme-switch").querySelectorAll("button")) {
-		b.classList.toggle("active", b.dataset.themeValue === theme);
+		b.classList.toggle("is-active", b.dataset.themeValue === theme);
 	}
 	savePref("theme", theme);
 	if (state.trace) buildColors();
@@ -115,7 +115,7 @@ function applyTheme(theme) {
 function applyUnit(unit) {
 	state.unit = unit;
 	for (const b of $("unit-switch").querySelectorAll("button")) {
-		b.classList.toggle("active", b.dataset.unit === unit);
+		b.classList.toggle("is-active", b.dataset.unit === unit);
 	}
 	savePref("unit", unit);
 	timeline.setUnit(unit);
@@ -138,14 +138,15 @@ function buildColors() {
 function renderTaskList() {
 	const counts = new Map();
 	for (const e of state.trace.execs) counts.set(e.task, (counts.get(e.task) || 0) + 1);
+	// a Figma Tree item per task: the checkbox shows the timeline row, the count is a Badge
 	$("task-list").innerHTML = state.tasks.map((t) => {
-		const off = state.visible.has(t.id) ? "" : " off";
+		const on = state.visible.has(t.id);
 		const pri = t.pri != null ? "p" + t.pri : "";
-		return `<li class="${off.trim()}" data-task="${t.id}" title="${esc(t.name)}  id ${t.id} ${pri}">` +
-			`<input type="checkbox" ${off ? "" : "checked"} tabindex="-1">` +
-			`<span class="swatch" style="background:${state.colors.get(t.id).fill}"></span>` +
-			`<span class="name">${esc(t.name)}</span>` +
-			`<span class="count">${counts.get(t.id) || 0}</span></li>`;
+		return `<div class="tree-item${on ? "" : " is-off"}" data-task="${t.id}" title="${esc(t.name)}  id ${t.id} ${pri}">` +
+			`<span class="checkbox${on ? " is-checked" : ""}"><span class="checkbox-box"></span></span>` +
+			`<span class="task-swatch" style="background:${state.colors.get(t.id).fill}"></span>` +
+			`<span class="tree-title">${esc(t.name)}</span>` +
+			`<span class="badge">${counts.get(t.id) || 0}</span></div>`;
 	}).join("");
 }
 
@@ -174,6 +175,7 @@ function showTrace(trace) {
 
 	$("empty").hidden = true;
 	$("layout").hidden = false;
+	showPage(state.page);
 	buildColors();
 	timeline.setTrace(trace, state.colors);
 	updateRows();
@@ -186,7 +188,7 @@ function showTrace(trace) {
 	applyUnit(state.unit);
 	$("btn-follow").hidden = !trace.live;
 	verifyView.clear();
-	if (state.tab === "verify") runVerify();
+	if (state.page === "verify") runVerify();
 }
 
 // live capture: add what the server sent since the last delta
@@ -256,22 +258,24 @@ function refreshEvents(now) {
 }
 requestAnimationFrame(refreshEvents);
 
+// the open trace in the top bar: its name, then the facts as Figma Tags; problems are red or yellow
 function renderInfo(tr) {
 	const info = tr.info || {};
-	const parts = [`<b>${esc((tr.name || "trace").split("/").pop())}</b>`];
-	if (info.app_ver) parts.push(`app ${info.app_ver.join(".")}`);
-	if (info.cpu_hz) parts.push(`${info.cpu_hz / 1e6} MHz`);
-	parts.push(fmtDur(tr.duration_us));
-	parts.push(`${tr.execs.length} runs`);
-	if (tr.dropped) parts.push(`<span class="warn">${tr.dropped} dropped</span>`);
-	if (tr.stream && tr.stream.corrupt) parts.push(`<span class="warn">${tr.stream.corrupt} corrupt</span>`);
-	if (!tr.has_symbols) parts.push(`<span class="warn">no names</span>`);
-	if (!info.cpu_hz) parts.push(`<span class="warn">no INFO, 32 MHz assumed</span>`);
-	$("trace-info").innerHTML = parts.map((p) => `<span>${p}</span>`).join("");
+	const tag = (text, color = "neutral") => `<span class="tag tag--${color}"><span>${text}</span></span>`;
+	const parts = [`<span class="trace-name">${esc((tr.name || "trace").split("/").pop())}</span>`];
+	if (info.app_ver) parts.push(tag(`app ${info.app_ver.join(".")}`));
+	if (info.cpu_hz) parts.push(tag(`${info.cpu_hz / 1e6} MHz`));
+	parts.push(tag(fmtDur(tr.duration_us)));
+	parts.push(tag(`${tr.execs.length} runs`));
+	if (tr.dropped) parts.push(tag(`${tr.dropped} dropped`, "red"));
+	if (tr.stream && tr.stream.corrupt) parts.push(tag(`${tr.stream.corrupt} corrupt`, "red"));
+	if (!tr.has_symbols) parts.push(tag("no names", "yellow"));
+	if (!info.cpu_hz) parts.push(tag("no INFO, 32 MHz assumed", "yellow"));
+	$("trace-info").innerHTML = parts.join("");
 }
 
 function showError(msg) {
-	$("load-error").textContent = msg;
+	$("load-error-text").textContent = msg;
 	$("load-error").hidden = false;
 }
 
@@ -315,13 +319,18 @@ async function loadPorts() {
 	if (ports.some((p) => p.device === want)) sel.value = want;
 }
 
+// the capture state as a Figma status badge: green recording, blue flashing, red error
 function renderLive(st) {
 	state.live = st;
 	const el = $("live-status");
 	const busy = st.state !== "idle";
-	el.className = "live-status " + st.state + (st.state === "idle" && st.message ? " error" : "");
+	const error = st.state === "idle" && st.message;
+	const dot = { recording: "dot--green", flashing: "dot--blue" }[st.state] || (error ? "dot--red" : "");
+	el.className = "status" + (st.state === "recording" ? " is-recording" : "") + (error ? " is-error" : "");
+	el.querySelector(".dot").className = "dot " + dot;
 	const file = st.file ? st.file.split("/").pop() : "";
-	el.textContent = st.message || (st.state === "recording" ? "recording " + file : st.state === "flashing" ? "flashing" : "idle");
+	el.querySelector(".live-text").textContent =
+		st.message || (st.state === "recording" ? "recording " + file : st.state === "flashing" ? "flashing" : "idle");
 	el.title = st.message || st.file || "";
 	$("btn-record").hidden = st.state === "recording";
 	$("btn-record").disabled = st.state === "flashing";
@@ -344,7 +353,8 @@ function connectLive() {
 
 function setFollow(on) {
 	state.follow = on;
-	$("btn-follow").classList.toggle("active", on);
+	$("btn-follow").classList.toggle("btn--primary", on);
+	$("btn-follow").classList.toggle("btn--secondary", !on);
 	if (on && state.trace && state.trace.live) timeline.followEnd();
 }
 
@@ -361,7 +371,20 @@ $("btn-record").addEventListener("click", async () => {
 	if (r.error) renderLive({ state: "idle", message: r.error });
 });
 $("btn-stop").addEventListener("click", () => postJson("/api/record/stop"));
-$("btn-flash").addEventListener("click", async () => {
+// flashing replaces the firmware on the kit, so it asks first
+$("btn-flash").addEventListener("click", () => {
+	const { port, baud } = liveTarget();
+	$("flash-text").textContent = `${state.config.flash_target} is written to the kit on ${port || "the serial port"} ` +
+		`with ak-flash, then the trace is recorded from boot at ${baud} baud.`;
+	$("flash-dialog").hidden = false;
+	$("btn-flash-go").focus();
+});
+$("btn-flash-cancel").addEventListener("click", () => ($("flash-dialog").hidden = true));
+$("flash-dialog").addEventListener("keydown", (e) => {
+	if (e.key === "Escape") $("flash-dialog").hidden = true;
+});
+$("btn-flash-go").addEventListener("click", async () => {
+	$("flash-dialog").hidden = true;
 	const r = await postJson("/api/flash", liveTarget());
 	if (r.error) renderLive({ state: "idle", message: r.error });
 });
@@ -370,7 +393,9 @@ $("btn-follow").addEventListener("click", () => setFollow(!state.follow));
 
 async function init() {
 	applyTheme(state.theme);
+	showPage(state.page);
 	state.config = await (await fetch("/api/config")).json();
+	$("brand-version").textContent = state.config.version ? "v" + state.config.version : "";
 	if (state.config.live) {
 		$("live-controls").hidden = false;
 		$("btn-flash").hidden = !state.config.flash_target;
@@ -393,7 +418,7 @@ $("file-input").addEventListener("change", (e) => {
 
 document.addEventListener("dragover", (e) => {
 	e.preventDefault();
-	$("empty").classList.add("drop");
+	if (!$("empty").hidden) $("empty").classList.add("drop");
 });
 document.addEventListener("dragleave", () => $("empty").classList.remove("drop"));
 document.addEventListener("drop", (e) => {
@@ -421,7 +446,7 @@ $("timeline").addEventListener("wheel", (e) => {
 }, { passive: true });
 
 $("task-list").addEventListener("click", (e) => {
-	const li = e.target.closest("li[data-task]");
+	const li = e.target.closest("[data-task]");
 	if (!li) return;
 	const id = +li.dataset.task;
 	if (state.visible.has(id)) state.visible.delete(id);
@@ -436,23 +461,30 @@ $("btn-all-tasks").addEventListener("click", () => {
 });
 
 $("event-filter").addEventListener("input", (e) => events.setFilter(e.target.value));
-for (const box of document.querySelectorAll(".events-tools input[data-kind]")) {
+for (const box of document.querySelectorAll("input[data-kind]")) {
 	box.addEventListener("change", () => events.setKind(box.dataset.kind, box.checked));
 }
 $("btn-verify").addEventListener("click", runVerify);
 $("btn-export-csv").addEventListener("click", () => events.export("csv"));
 $("btn-export-json").addEventListener("click", () => events.export("json"));
 
-for (const tab of document.querySelectorAll(".tab")) {
-	tab.addEventListener("click", () => {
-		state.tab = tab.dataset.tab;
-		for (const t of document.querySelectorAll(".tab")) t.classList.toggle("active", t === tab);
-		for (const body of document.querySelectorAll(".tab-body")) body.hidden = body.dataset.body !== tab.dataset.tab;
-		if (state.tab === "events") events.render(true);
-		if (state.tab === "flow") flow.render();
-		if (state.tab === "verify" && !verifyView.result) runVerify();
-	});
+function showPage(page) {
+	if (!document.querySelector(`.page[data-page="${page}"]`)) page = "trace";
+	state.page = page;
+	savePref("page", page);
+	for (const b of document.querySelectorAll(".nav-item[data-page]")) b.classList.toggle("is-active", b.dataset.page === page);
+	for (const p of document.querySelectorAll(".page[data-page]")) p.hidden = p.dataset.page !== page;
+	if (!state.trace) return;
+	if (page === "trace") timeline.draw();
+	if (page === "events") events.render(true);
+	if (page === "flow") flow.render();
+	if (page === "verify" && !verifyView.result) runVerify();
 }
+
+$("navside").addEventListener("click", (e) => {
+	const b = e.target.closest(".nav-item[data-page]");
+	if (b) showPage(b.dataset.page);
+});
 
 document.addEventListener("keydown", (e) => {
 	if (!state.trace || e.target.closest("input, select")) return;

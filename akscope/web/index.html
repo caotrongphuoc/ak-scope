@@ -4,137 +4,214 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>ak-scope</title>
-	<link rel="stylesheet" href="theme/tokens.css">
+	<link rel="stylesheet" href="css/fonts.css">
+	<link rel="stylesheet" href="theme/figma-tokens.css">
+	<link rel="stylesheet" href="theme/app-tokens.css">
+	<link rel="stylesheet" href="css/components.css">
 	<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 	<header class="topbar">
-		<div class="brand">ak-scope</div>
+		<div class="brand">
+			<span class="brand-name">ak-scope</span>
+			<span class="brand-version" id="brand-version"></span>
+		</div>
 		<div class="trace-info" id="trace-info"></div>
-		<div class="topbar-right">
+		<div class="topbar-actions">
 			<div class="live-controls" id="live-controls" hidden>
-				<select class="input select" id="port-select" aria-label="Serial port"></select>
-				<select class="input select" id="baud-select" aria-label="Baud rate">
-					<option>115200</option>
-					<option>230400</option>
-					<option>460800</option>
-					<option>921600</option>
-				</select>
-				<button class="btn btn-primary" id="btn-record" type="button">Record</button>
-				<button class="btn btn-secondary" id="btn-stop" type="button" hidden>Stop</button>
-				<button class="btn btn-secondary" id="btn-flash" type="button" hidden>Flash</button>
-				<span class="live-status" id="live-status"></span>
+				<span class="status" id="live-status"><span class="dot"></span><span class="live-text"></span></span>
+				<label class="select select--native" title="Serial port">
+					<select id="port-select" aria-label="Serial port"></select>
+					<span class="icon" style="--icon:url(/icons/chevron-down1.svg)"></span>
+				</label>
+				<label class="select select--native select--baud" title="Baud rate">
+					<select id="baud-select" aria-label="Baud rate">
+						<option>115200</option>
+						<option>230400</option>
+						<option>460800</option>
+						<option>921600</option>
+					</select>
+					<span class="icon" style="--icon:url(/icons/chevron-down1.svg)"></span>
+				</label>
+				<button class="btn btn--primary" id="btn-record" type="button">
+					<span class="icon" style="--icon:url(/icons/record-circle.svg)"></span><span class="btn-label">Record</span>
+				</button>
+				<button class="btn btn--primary btn--danger" id="btn-stop" type="button" hidden>
+					<span class="icon" style="--icon:url(/icons/stop-circle.svg)"></span><span class="btn-label">Stop</span>
+				</button>
+				<button class="btn btn--secondary" id="btn-flash" type="button" hidden>
+					<span class="icon" style="--icon:url(/icons/flash.svg)"></span><span class="btn-label">Flash</span>
+				</button>
 			</div>
-			<button class="btn btn-secondary" id="btn-open" type="button">
-				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h13v-6.5h-6.5l-1.5-1.5z"/></svg>
-				Open
+			<button class="btn btn--secondary" id="btn-open" type="button">
+				<span class="icon" style="--icon:url(/icons/folder-open.svg)"></span><span class="btn-label">Open</span>
 			</button>
 			<div class="segmented" id="theme-switch" role="group" aria-label="Theme">
-				<button type="button" data-theme-value="dark">Dark</button>
-				<button type="button" data-theme-value="light">Light</button>
+				<button class="btn btn--square" type="button" data-theme-value="dark" title="Dark">
+					<span class="icon" style="--icon:url(/icons/moon.svg)"></span>
+				</button>
+				<button class="btn btn--square" type="button" data-theme-value="light" title="Light">
+					<span class="icon" style="--icon:url(/icons/sun.svg)"></span>
+				</button>
 			</div>
 			<input type="file" id="file-input" accept=".akt,.bin" hidden>
 		</div>
 	</header>
 
-	<main class="layout" id="layout" hidden>
-		<aside class="panel tasks-panel">
-			<div class="panel-head">
-				<span>Tasks</span>
-				<button class="btn-text" id="btn-all-tasks" type="button">All</button>
-			</div>
-			<ul class="task-list" id="task-list"></ul>
-		</aside>
+	<nav class="navside" id="navside" aria-label="Views">
+		<button class="nav-item" type="button" data-page="trace">
+			<span class="icon" style="--icon:url(/icons/activity.svg)"></span><span class="icon" style="--icon:url(/icons/activity-bold.svg)"></span><span>Trace</span>
+		</button>
+		<button class="nav-item" type="button" data-page="events">
+			<span class="icon" style="--icon:url(/icons/task-square.svg)"></span><span class="icon" style="--icon:url(/icons/task-square-bold.svg)"></span><span>Events</span>
+		</button>
+		<button class="nav-item" type="button" data-page="flow">
+			<span class="icon" style="--icon:url(/icons/hierarchy.svg)"></span><span class="icon" style="--icon:url(/icons/hierarchy-bold.svg)"></span><span>Flow</span>
+		</button>
+		<button class="nav-item" type="button" data-page="stats">
+			<span class="icon" style="--icon:url(/icons/chart.svg)"></span><span class="icon" style="--icon:url(/icons/chart-bold.svg)"></span><span>Stats</span>
+		</button>
+		<button class="nav-item" type="button" data-page="verify">
+			<span class="icon" style="--icon:url(/icons/shield-tick.svg)"></span><span class="icon" style="--icon:url(/icons/shield-tick-bold.svg)"></span><span>Verify</span>
+			<span class="badge badge--red nav-badge" id="verify-badge" hidden></span>
+		</button>
+		<button class="nav-item" type="button" data-page="console">
+			<span class="icon" style="--icon:url(/icons/code.svg)"></span><span class="icon" style="--icon:url(/icons/code-bold.svg)"></span><span>Console</span>
+		</button>
+	</nav>
 
-		<section class="timeline-area">
-			<div class="timeline-tools">
-				<div class="segmented" id="unit-switch" role="group" aria-label="Time unit">
-					<button type="button" data-unit="us">us</button>
-					<button type="button" data-unit="ms">ms</button>
-					<button type="button" data-unit="s">s</button>
+	<main class="content" id="layout" hidden>
+		<section class="page page-trace" data-page="trace">
+			<aside class="panel tasks-panel">
+				<div class="panel-head">
+					<span class="panel-title">Tasks</span>
+					<button class="btn btn--link" id="btn-all-tasks" type="button"><span class="btn-label">Show all</span></button>
 				</div>
-				<button class="btn btn-secondary btn-sm" id="btn-fit" type="button">Fit</button>
-				<button class="btn btn-secondary btn-sm toggle" id="btn-follow" type="button" hidden
-					title="keep the newest records in view while recording">Follow</button>
-				<span class="view-range" id="view-range"></span>
-				<span class="hint">wheel: zoom, drag: pan, shift + drag: measure</span>
+				<div class="task-list" id="task-list"></div>
+			</aside>
+
+			<section class="panel timeline-area">
+				<div class="toolbar">
+					<div class="segmented" id="unit-switch" role="group" aria-label="Time unit">
+						<button class="btn" type="button" data-unit="us"><span class="btn-label">us</span></button>
+						<button class="btn" type="button" data-unit="ms"><span class="btn-label">ms</span></button>
+						<button class="btn" type="button" data-unit="s"><span class="btn-label">s</span></button>
+					</div>
+					<button class="btn btn--secondary" id="btn-fit" type="button" title="show the whole trace (f)">
+						<span class="icon" style="--icon:url(/icons/maximize.svg)"></span><span class="btn-label">Fit</span>
+					</button>
+					<button class="btn btn--secondary" id="btn-follow" type="button" hidden
+						title="keep the newest records in view while recording">
+						<span class="icon" style="--icon:url(/icons/timer.svg)"></span><span class="btn-label">Follow</span>
+					</button>
+					<span class="view-range" id="view-range"></span>
+					<span class="hint">wheel: zoom, drag: pan, shift + drag: measure</span>
+				</div>
+				<div class="timeline-wrap" id="timeline-wrap">
+					<canvas id="timeline"></canvas>
+					<div class="tooltip timeline-tip" id="tooltip" hidden></div>
+				</div>
+			</section>
+
+			<aside class="panel detail-panel">
+				<div class="panel-head"><span class="panel-title">Detail</span></div>
+				<div class="detail" id="detail"></div>
+			</aside>
+		</section>
+
+		<section class="page" data-page="events" hidden>
+			<div class="toolbar">
+				<label class="input input--search">
+					<input id="event-filter" type="search" placeholder="Filter by task, signal or kind">
+					<span class="input-addon"><span class="icon" style="--icon:url(/icons/search-normal.svg)"></span></span>
+				</label>
+				<label class="checkbox"><input type="checkbox" data-kind="EXEC" checked><span class="checkbox-box"></span>EXEC</label>
+				<label class="checkbox"><input type="checkbox" data-kind="POST" checked><span class="checkbox-box"></span>POST</label>
+				<label class="checkbox"><input type="checkbox" data-kind="TIMER" checked><span class="checkbox-box"></span>TIMER</label>
+				<span class="toolbar-note" id="event-count"></span>
+				<span class="toolbar-right">
+					<button class="btn btn--secondary" id="btn-export-csv" type="button">
+						<span class="icon" style="--icon:url(/icons/export.svg)"></span><span class="btn-label">CSV</span>
+					</button>
+					<button class="btn btn--secondary" id="btn-export-json" type="button">
+						<span class="icon" style="--icon:url(/icons/export.svg)"></span><span class="btn-label">JSON</span>
+					</button>
+				</span>
 			</div>
-			<div class="timeline-wrap" id="timeline-wrap">
-				<canvas id="timeline"></canvas>
-				<div class="tooltip" id="tooltip" hidden></div>
+			<div class="panel grid-panel">
+				<div class="vscroll" id="events-scroll">
+					<div class="vrow vrow--head events-cols" id="events-head">
+						<span class="num">#</span><span class="num">Time</span><span>Kind</span><span>Task</span><span>Signal</span>
+						<span>From</span><span>Type</span><span class="num">Exe</span><span class="num">Wait</span>
+					</div>
+					<div class="vspacer" id="events-spacer"></div>
+				</div>
 			</div>
 		</section>
 
-		<aside class="panel detail-panel">
-			<div class="panel-head"><span>Detail</span></div>
-			<div class="detail" id="detail">
-				<p class="muted">Click a block on the timeline or a row below.</p>
+		<section class="page" data-page="flow" hidden>
+			<div class="toolbar">
+				<span class="toolbar-note" id="flow-note"></span>
 			</div>
-		</aside>
+			<div class="panel flow" id="flow"></div>
+		</section>
 
-		<section class="bottom">
-			<nav class="tabs" role="tablist">
-				<button type="button" class="tab active" data-tab="events" role="tab">Events</button>
-				<button type="button" class="tab" data-tab="flow" role="tab">Flow</button>
-				<button type="button" class="tab" data-tab="stats" role="tab">Stats</button>
-				<button type="button" class="tab" data-tab="verify" role="tab">Verify <span class="badge" id="verify-badge" hidden></span></button>
-				<button type="button" class="tab" data-tab="console" role="tab">Console</button>
-			</nav>
-			<div class="tab-body" data-body="events">
-				<div class="events-tools">
-					<input class="input search" id="event-filter" type="search"
-						placeholder="Filter by task, signal or kind">
-					<label class="check"><input type="checkbox" data-kind="EXEC" checked> EXEC</label>
-					<label class="check"><input type="checkbox" data-kind="POST" checked> POST</label>
-					<label class="check"><input type="checkbox" data-kind="TIMER" checked> TIMER</label>
-					<span class="muted" id="event-count"></span>
-					<span class="tools-right">
-						<button class="btn btn-secondary btn-sm" id="btn-export-csv" type="button">Export CSV</button>
-						<button class="btn btn-secondary btn-sm" id="btn-export-json" type="button">Export JSON</button>
-					</span>
-				</div>
-				<div class="table-head events-row" id="events-head">
-					<span class="num">#</span><span class="num">time</span><span>kind</span><span>task</span><span>signal</span>
-					<span>from</span><span>type</span><span class="num">exe</span><span class="num">wait</span>
-				</div>
-				<div class="events-scroll" id="events-scroll">
-					<div class="events-spacer" id="events-spacer"></div>
-				</div>
+		<section class="page page-scroll" data-page="stats" hidden>
+			<div class="stats" id="stats"></div>
+		</section>
+
+		<section class="page" data-page="verify" hidden>
+			<div class="toolbar">
+				<button class="btn btn--primary" id="btn-verify" type="button">
+					<span class="icon" style="--icon:url(/icons/shield-tick.svg)"></span><span class="btn-label">Run verify</span>
+				</button>
+				<span class="toolbar-note" id="verify-note">Checks the AK rules on this trace, and on the project sources when the server runs with --project.</span>
+				<span class="toolbar-right">
+					<button class="btn btn--secondary" id="btn-verify-copy" type="button" hidden>
+						<span class="icon" style="--icon:url(/icons/copy.svg)"></span><span class="btn-label">Copy report</span>
+					</button>
+				</span>
 			</div>
-			<div class="tab-body" data-body="flow" hidden>
-				<div class="flow-tools">
-					<span class="muted" id="flow-note"></span>
-				</div>
-				<div class="flow" id="flow"></div>
-			</div>
-			<div class="tab-body" data-body="stats" hidden>
-				<div class="stats" id="stats"></div>
-			</div>
-			<div class="tab-body" data-body="verify" hidden>
-				<div class="events-tools">
-					<button class="btn btn-primary btn-sm" id="btn-verify" type="button">Run verify</button>
-					<span class="muted" id="verify-note">Checks the AK rules on this trace, and on the project sources when the server runs with --project.</span>
-					<span class="tools-right">
-						<button class="btn btn-secondary btn-sm" id="btn-verify-copy" type="button" hidden>Copy report</button>
-					</span>
-				</div>
-				<div class="verify" id="verify"></div>
-			</div>
-			<div class="tab-body" data-body="console" hidden>
-				<pre class="console" id="console"></pre>
-			</div>
+			<div class="panel grid-panel verify" id="verify"></div>
+		</section>
+
+		<section class="page" data-page="console" hidden>
+			<pre class="panel console" id="console"></pre>
 		</section>
 	</main>
 
-	<section class="empty" id="empty">
-		<div class="empty-card">
-			<h1>No trace open</h1>
-			<p>Record one with <code>akscope record --port /dev/ttyUSB0 -o run.akt</code>,
-				then open the file here or drop it on this page.</p>
-			<button class="btn btn-primary" id="btn-open-empty" type="button">Open trace</button>
-			<p class="error" id="load-error" hidden></p>
+	<section class="content content-empty" id="empty">
+		<div class="empty">
+			<span class="icon" style="--icon:url(/icons/document-upload.svg)"></span>
+			<div class="empty-text">
+				<span class="empty-title">No trace open</span>
+				<span class="empty-desc">Record one from the kit, or open an .akt file. A file can also be dropped here.</span>
+			</div>
+			<button class="btn btn--primary" id="btn-open-empty" type="button">
+				<span class="icon" style="--icon:url(/icons/folder-open.svg)"></span><span class="btn-label">Open trace</span>
+			</button>
+			<div class="alert alert--error" id="load-error" hidden>
+				<span class="icon alert-icon" style="--icon:url(/icons/close-circle-bold.svg)"></span>
+				<span class="alert-text" id="load-error-text"></span>
+			</div>
 		</div>
 	</section>
+
+	<div class="overlay" id="flash-dialog" hidden>
+		<div class="modal modal--alert" role="dialog" aria-modal="true" aria-labelledby="flash-title">
+			<div class="modal-header">
+				<span class="icon" style="--icon:url(/icons/flash.svg)"></span>
+				<span class="modal-title" id="flash-title">Flash the kit?</span>
+			</div>
+			<div class="modal-body" id="flash-text"></div>
+			<div class="modal-footer">
+				<span class="modal-actions">
+					<button class="btn btn--secondary" id="btn-flash-cancel" type="button"><span class="btn-label">Cancel</span></button>
+					<button class="btn btn--primary" id="btn-flash-go" type="button"><span class="btn-label">Flash</span></button>
+				</span>
+			</div>
+		</div>
+	</div>
 
 	<script type="module" src="js/main.js"></script>
 </body>

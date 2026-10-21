@@ -18,7 +18,7 @@ export class VerifyView {
 		this.unit = "ms";
 		this.result = null;
 		root.addEventListener("click", (e) => {
-			const row = e.target.closest(".verify-row[data-n]");
+			const row = e.target.closest(".vrow[data-n]");
 			if (!row) return;
 			const f = this.result.findings[+row.dataset.n];
 			if (f.exec >= 0 || f.t_us != null) this.onPick(f);
@@ -65,20 +65,25 @@ export class VerifyView {
 		this.note.textContent = parts.join(". ");
 		this.badge.hidden = !(r.errors || r.warnings);
 		this.badge.textContent = r.errors || r.warnings;
-		this.badge.classList.toggle("warn", !r.errors);
+		this.badge.classList.toggle("badge--red", !!r.errors);
+		this.badge.classList.toggle("badge--yellow", !r.errors);
 		this.copyBtn.hidden = !r.findings.length;
 		if (!r.findings.length) {
-			this.root.innerHTML = `<p class="verify-empty">No findings.</p>`;
+			this.root.innerHTML = `<div class="empty"><span class="icon" style="--icon:url(/icons/shield-tick.svg)"></span>` +
+				`<div class="empty-text"><span class="empty-title">No findings</span>` +
+				`<span class="empty-desc">The trace keeps every rule that was checked.</span></div></div>`;
 			return;
 		}
-		this.root.innerHTML = r.findings.map((f, n) => {
-			const link = f.exec >= 0 || f.t_us != null ? " link" : "";
-			return `<div class="verify-row${link}" data-n="${n}">` +
-				`<span><span class="tag tag-${f.severity}">${f.severity}</span></span>` +
-				`<span class="mono" title="${esc(RULES[f.rule] || "")}">${esc(f.rule)}</span>` +
-				`<span class="msg">${esc(f.message)}</span>` +
-				`<span class="where">${esc(this.where(f))}</span>` +
+		const head = `<div class="vrow vrow--head verify-cols"><span>Severity</span><span>Rule</span><span>Message</span><span>Where</span></div>`;
+		this.root.innerHTML = head + `<div class="verify-list">` + r.findings.map((f, n) => {
+			const link = f.exec >= 0 || f.t_us != null ? " is-link" : "";
+			const color = { error: "red", warning: "yellow" }[f.severity] || "blue";
+			return `<div class="vrow verify-cols${link}" data-n="${n}">` +
+				`<span><span class="tag tag--${color}"><span>${esc(f.severity)}</span></span></span>` +
+				`<span title="${esc(RULES[f.rule] || "")}">${esc(f.rule)}</span>` +
+				`<span title="${esc(f.message)}">${esc(f.message)}</span>` +
+				`<span class="where" title="${esc(this.where(f))}">${esc(this.where(f))}</span>` +
 				`</div>`;
-		}).join("");
+		}).join("") + `</div>`;
 	}
 }

@@ -3,8 +3,9 @@ import { esc, exeClass, fmtDur, fmtTick, fmtTime, niceStep } from "./format.js";
 
 const GUTTER = 180;
 const AXIS = 28;
-const ROW = 26;
-const BLOCK_PAD = 5;
+// rows as high as a Figma Tree item
+const ROW = 34;
+const BLOCK_PAD = 7;
 const MIN_SPAN_US = 5;
 const MAX_ARROWS = 400;
 const RUN_PX = 3;
@@ -229,7 +230,7 @@ export class TimelineView {
 		c.stroke();
 		const { step, out } = this.ticks();
 		c.fillStyle = th.fg2;
-		c.font = "10px " + th.mono;
+		c.font = "12px " + th.sans;
 		c.textBaseline = "middle";
 		for (const t of out) {
 			const x = Math.round(this.x(t)) + 0.5;
@@ -248,7 +249,7 @@ export class TimelineView {
 		c.moveTo(GUTTER - 0.5, 0);
 		c.lineTo(GUTTER - 0.5, this.height);
 		c.stroke();
-		c.font = "12px " + th.sans;
+		c.font = "14px " + th.sans;
 		c.textBaseline = "middle";
 		this.rows.forEach((task, i) => {
 			const y = AXIS + i * ROW;
@@ -257,9 +258,9 @@ export class TimelineView {
 				c.fillRect(0, y, GUTTER, ROW);
 			}
 			c.fillStyle = this.colors.get(task.id).fill;
-			c.fillRect(10, y + ROW / 2 - 4, 8, 8);
+			c.fillRect(12, y + ROW / 2 - 6, 12, 12);
 			c.fillStyle = th.fg;
-			this.clipText(c, task.name, 26, y + ROW / 2, GUTTER - 34);
+			this.clipText(c, task.name, 32, y + ROW / 2, GUTTER - 40);
 		});
 	}
 
@@ -288,7 +289,7 @@ export class TimelineView {
 	}
 
 	paintBlocks(c, th) {
-		c.font = "11px " + th.sans;
+		c.font = "12px " + th.sans;
 		c.textBaseline = "middle";
 		const sel = this.selected >= 0 ? this.trace.execs[this.selected] : null;
 		this.rows.forEach((task, i) => {

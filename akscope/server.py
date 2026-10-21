@@ -4,7 +4,7 @@ GET  /                 web/index.html and the other files under web/
 GET  /api/trace        the trace given on the command line, as timeline JSON (204 if none)
 POST /api/decode       body is a .akt or raw capture picked in the browser, returns timeline JSON
                        (the server never reads paths sent by the page)
-GET  /api/config       what this server can do: flash target, default port and baud
+GET  /api/config       version and what this server can do: flash target, default port and baud
 GET  /api/ports        serial ports on this machine
 GET  /api/live         Server-Sent Events: status, snapshot, delta
 POST /api/record/start {"port", "baud"}, JSON body
@@ -149,7 +149,9 @@ class State:
                 "findings": [f.to_dict() for f in findings]}
 
     def config(self):
+        from akscope import __version__
         return {
+            "version": __version__,
             "flash_target": str(self.live.flash_target) if self.live and self.live.flash_target else None,
             "live": self.live is not None,
             "verify_static": self.project is not None,

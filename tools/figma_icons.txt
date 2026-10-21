@@ -1,10 +1,12 @@
 activity
+activity:bold
 add
 add-square
 caret-rectangle-down:bold
 caret-rectangle-right:bold
 caret-rectangle-up:bold
 chart
+chart:bold
 chevron-down1
 chevron-left1
 chevron-right1
@@ -13,6 +15,7 @@ Close
 close-circle
 close-circle:bold
 code
+code:bold
 copy
 cpu
 danger
@@ -25,6 +28,7 @@ flash
 folder-open
 help-circle
 hierarchy
+hierarchy:bold
 home
 info:bold
 information
@@ -45,10 +49,12 @@ search-zoom-in
 search-zoom-out
 setting2
 shield-tick
+shield-tick:bold
 status-up
 stop-circle
 sun
 task-square
+task-square:bold
 tick-02:bold
 tick-circle
 tick-circle:bold

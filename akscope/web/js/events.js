@@ -1,7 +1,9 @@
 import { esc, exeClass, fmtDur, fmtTime } from "./format.js";
 
-const ROW = 26;
+// a single line row of the Figma table
+const ROW = 44;
 const OVERSCAN = 10;
+const KIND_COLOR = { EXEC: "blue", POST: "purple", TIMER: "yellow" };
 
 export class EventTable {
 	constructor(scroll, spacer, countEl, { onPick }) {
@@ -18,7 +20,7 @@ export class EventTable {
 		scroll.addEventListener("scroll", () => this.render());
 		new ResizeObserver(() => this.render()).observe(scroll);
 		spacer.addEventListener("click", (e) => {
-			const row = e.target.closest(".events-row");
+			const row = e.target.closest(".vrow");
 			if (row) this.onPick(this.shown[+row.dataset.n]);
 		});
 	}
@@ -116,12 +118,12 @@ export class EventTable {
 		let html = "";
 		for (let n = first; n < last; n++) {
 			const it = this.shown[n];
-			const sel = it.kind === "EXEC" && it.exec === this.selectedExec ? " selected" : "";
+			const sel = it.kind === "EXEC" && it.exec === this.selectedExec ? " is-selected" : "";
 			html +=
-				`<div class="events-row${sel}" data-n="${n}" style="top:${n * ROW}px">` +
+				`<div class="vrow events-cols${sel}" data-n="${n}" style="top:${n * ROW}px">` +
 				`<span class="num">${it.n}</span>` +
 				`<span class="num">${fmtTime(it.t, this.unit)}</span>` +
-				`<span><span class="tag tag-${it.kind.toLowerCase()}">${it.kind}</span></span>` +
+				`<span><span class="tag tag--${KIND_COLOR[it.kind]}"><span>${it.kind}</span></span></span>` +
 				`<span title="${esc(it.task)}">${esc(it.task)}</span>` +
 				`<span title="${esc(it.sig)}">${esc(it.sig)}</span>` +
 				`<span title="${esc(it.from)}">${esc(it.from)}</span>` +

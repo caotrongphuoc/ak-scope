@@ -7,7 +7,7 @@ export class DetailView {
 		this.onPick = onPick;
 		this.unit = "ms";
 		root.addEventListener("click", (e) => {
-			const b = e.target.closest("button[data-exec]");
+			const b = e.target.closest("[data-exec]");
 			if (b) this.onPick(+b.dataset.exec);
 		});
 	}
@@ -26,7 +26,7 @@ export class DetailView {
 	show(index) {
 		this.current = index;
 		if (index < 0) {
-			this.root.innerHTML = `<p class="muted">Click a block on the timeline or a row below.</p>`;
+			this.root.innerHTML = `<p class="detail-empty">Click a block on the timeline, or a row of Events or Flow.</p>`;
 			return;
 		}
 		const tr = this.trace;
@@ -40,12 +40,14 @@ export class DetailView {
 		if (post) {
 			// the handler that made the post, if it was traced
 			const parent = tr.execs.find((x) => x.task === post.src && x.t <= post.t && post.t <= x.t + x.dur);
-			if (parent) from = `<button class="btn-text" data-exec="${parent.i}">${esc(e.src_name)}</button>`;
+			if (parent) {
+				from = `<button class="btn btn--link" type="button" data-exec="${parent.i}"><span class="btn-label">${esc(e.src_name)}</span></button>`;
+			}
 		}
 
 		let html =
-			`<h2>${esc(e.sig_name)}</h2>` +
-			`<p class="sub">${esc(name(e.task))}</p>` +
+			`<h2 class="detail-title">${esc(e.sig_name)}</h2>` +
+			`<p class="detail-sub">${esc(name(e.task))}</p>` +
 			`<dl class="kv">` +
 			`<dt>start</dt><dd>${fmtTime(e.t, this.unit)}</dd>` +
 			`<dt>exe</dt><dd class="${exeClass(e.dur)}">${fmtDur(e.dur)}</dd>` +
@@ -56,23 +58,20 @@ export class DetailView {
 			`<dt>from</dt><dd>${from}</dd>` +
 			`</dl>`;
 
-		html += `<h3>Posted in this handler (${posted.length})</h3>`;
-		if (posted.length) {
-			html += `<ul class="link-list">` + posted.map((p) => {
-				const label = `${esc(name(p.des))} / ${esc(p.sig_name)}`;
-				return p.exec >= 0
-					? `<li><button data-exec="${p.exec}">${label}</button></li>`
-					: `<li>${label} <span class="muted">(not handled in the trace)</span></li>`;
-			}).join("") + `</ul>`;
-		} else {
-			html += `<p class="muted">None</p>`;
-		}
+		// the posts and timers are the items of a Figma Dropdown menu: a handled post opens its run
+		const item = (label, sub, exec) =>
+			`<button class="menu-item${exec >= 0 ? "" : " is-disabled"}" type="button"${exec >= 0 ? ` data-exec="${exec}"` : ""}>` +
+			`<span class="menu-label"><span>${label}${sub ? ` <span class="detail-empty">${sub}</span>` : ""}</span></span>` +
+			(exec >= 0 ? `<span class="icon menu-more" style="--icon:url(/icons/chevron-right1.svg)"></span>` : "") + `</button>`;
+		html += `<div class="detail-section">Posted in this handler (${posted.length})</div>`;
+		html += posted.length
+			? posted.map((p) => item(`${esc(name(p.des))} / ${esc(p.sig_name)}`, p.exec >= 0 ? "" : "not handled in the trace", p.exec)).join("")
+			: `<p class="detail-empty">None</p>`;
 
 		if (timers.length) {
-			html += `<h3>Timers in this handler (${timers.length})</h3><ul class="link-list">` +
-				timers.map((t) => `<li>${t.kind === "TIMER_SET" ? "set" : "remove"} ${esc(name(t.des))} / ${esc(t.sig_name)}` +
-					(t.kind === "TIMER_SET" ? ` <span class="muted">${t.duty_ms} ms ${t.periodic ? "periodic" : "one shot"}</span>` : "") +
-					`</li>`).join("") + `</ul>`;
+			html += `<div class="detail-section" style="margin-top:16px">Timers in this handler (${timers.length})</div>` +
+				timers.map((t) => item(`${t.kind === "TIMER_SET" ? "set" : "remove"} ${esc(name(t.des))} / ${esc(t.sig_name)}`,
+					t.kind === "TIMER_SET" ? `${t.duty_ms} ms ${t.periodic ? "periodic" : "one shot"}` : "", -1)).join("");
 		}
 		this.root.innerHTML = html;
 	}

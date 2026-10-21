@@ -18,7 +18,7 @@ include = ["akscope*"]
 
 # the web UI and the firmware module ship inside the package
 [tool.setuptools.package-data]
-akscope = ["web/*.html", "web/css/*.css", "web/js/*.js", "web/theme/*.css",
+akscope = ["web/*.html", "web/css/*.css", "web/js/*.js", "web/gallery/*.js", "web/theme/*.css",
            "web/fonts/*.woff2", "web/fonts/*.txt", "web/icons/*.svg",
            "firmware/akt/*.c", "firmware/akt/*.h", "firmware/akt/*.mk", "firmware/akt/*.md",
            "rules/*.yml"]
