@@ -187,7 +187,8 @@ AK_GCC_SUBDIR = "gcc-arm-none-eabi-10.3-2021.10-x86_64-linux/gcc-arm-none-eabi-1
 
 
 class Builder:
-    def __init__(self, project, tools=None, gcc=None, ring=None, jobs=None, log=print):
+    def __init__(self, project, tools=None, gcc=None, ring=None, console_baud=None, jobs=None,
+                 log=print):
         self.app = find_application_dir(project)
         self.cache = cache_dir(self.app)
         self.obj = self.cache / "obj"
@@ -203,6 +204,8 @@ class Builder:
         if self.gcc is None and self.tools and (self.tools / AK_GCC_SUBDIR).is_dir():
             self.gcc = self.tools / AK_GCC_SUBDIR
         self.ring = ring
+        self._saved_baud = saved.get("console_baud")
+        self.console_baud = console_baud or self._saved_baud
         self.jobs = jobs or os.cpu_count() or 1
         self.log = log
 
@@ -213,6 +216,8 @@ class Builder:
             cmd.append("WORKSPACE_TOOLS_PATH=%s" % self.tools)
         if self.gcc:
             cmd.append("GCC_PATH=%s" % self.gcc)
+        if self.console_baud:
+            cmd.append("SYS_CONSOLE_BAUDRATE=%d" % self.console_baud)
         cmd += ["%s=%s" % kv for kv in variables.items()]
         cmd += goals
         out = subprocess.run(cmd, capture_output=True, text=True)
@@ -227,10 +232,15 @@ class Builder:
             return {}
 
     def prepare(self):
+        # objects do not depend on the flags: a new console baud rate needs a full rebuild
+        if self.console_baud != self._saved_baud and self.obj.is_dir():
+            shutil.rmtree(self.obj)
+        self._saved_baud = self.console_baud
         self.gen.mkdir(parents=True, exist_ok=True)
         self.obj.mkdir(parents=True, exist_ok=True)
         self.mk.write_text(_WRAPPER_MK.format(akt=AKT_DIR, gen=self.gen))
-        cfg = {"tools": str(self.tools) if self.tools else None, "gcc": str(self.gcc) if self.gcc else None}
+        cfg = {"tools": str(self.tools) if self.tools else None, "gcc": str(self.gcc) if self.gcc else None,
+               "console_baud": self.console_baud}
         (self.cache / "config.json").write_text(json.dumps(cfg))
 
     def build(self):

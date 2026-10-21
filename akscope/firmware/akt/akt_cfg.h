@@ -15,9 +15,10 @@
 #endif
 #endif
 
-/* most bytes moved into the console TX ring (512 bytes) in one burst */
+/* most bytes moved into the console TX ring (512 bytes) in one burst. A busy game runs the
+ * polling task rarely; with 128 the 11m-game play lost 43 % of its records at 115200 baud. */
 #ifndef AKT_TX_BURST_MAX
-#define AKT_TX_BURST_MAX			(128)
+#define AKT_TX_BURST_MAX			(384)
 #endif
 
 /* POOL record period, also bounds the gap between timestamps (CYCCNT wraps every 134 s) */

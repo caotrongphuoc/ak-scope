@@ -44,7 +44,8 @@ What the wrapper does:
 
 Options: `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH`; `--gcc` sets
 `GCC_PATH` directly, for Makefiles that hard-code it; `--ring` sets `AKT_RING_SIZE`
-(default 512 bytes, use 256 when RAM is short).
+(default 512 bytes, use 256 when RAM is short); `--console-baud` sets `SYS_CONSOLE_BAUDRATE`
+(460800 for busy games; the trace follows it through `AKT_BAUD`).
 
 Limits of this mode:
 

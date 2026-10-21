@@ -39,6 +39,11 @@ akscope verify ~/workspace/github/11m-game --trace captures/run-20261020-161828.
 `gcc-arm-none-eabi-10.3-2021.10-x86_64-linux`). It is remembered for the project, so later
 commands do not need it.
 
+For a game that sends many messages, build with `--console-baud 460800`. At 115200 a busy
+`11m-game` lost 43 % of its records while being played; at 460800 it lost 0.2 %. `record` and
+`serve` pick up the rate of the project; the bootloader keeps its own rate, so its banner reads
+as noise and is ignored.
+
 ## Commands
 
 | Command | Does |

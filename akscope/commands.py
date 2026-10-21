@@ -95,6 +95,9 @@ def cmd_record(args, out=None):
             p = Builder(p).symbols_path
         symbols = json.loads(p.read_text())
 
+    if args.baud is None:
+        args.baud = _project_baud(args.flash, args.sym) or 115200
+
     if args.flash:
         # flash first and open the port right after, so INFO and the init records are kept
         binary = _resolve_binary(args.flash)
@@ -237,7 +240,8 @@ def cmd_build(args, out=None):
     from akscope.build import Builder, BuildError
 
     try:
-        b = Builder(args.project, tools=args.tools, gcc=args.gcc, ring=args.ring, log=_log_err)
+        b = Builder(args.project, tools=args.tools, gcc=args.gcc, ring=args.ring,
+                    console_baud=args.console_baud, log=_log_err)
         if args.clean:
             b.clean()
         binary, handlers = b.build()
@@ -246,6 +250,21 @@ def cmd_build(args, out=None):
         return 2
     (out or sys.stdout).write("%s\n" % binary)
     return 0
+
+
+def _project_baud(*paths):
+    """Console baud rate of the first of paths that is a project built by akscope build."""
+    from akscope.build import Builder, BuildError
+
+    for p in paths:
+        if p and pathlib.Path(p).expanduser().is_dir():
+            try:
+                baud = Builder(p, log=lambda m: None).console_baud
+            except BuildError:
+                continue
+            if baud:
+                return baud
+    return None
 
 
 def _resolve_binary(target):
@@ -302,6 +321,9 @@ def cmd_serve(args, out=None):
         flash_target = _resolve_binary(args.project)
         if flash_target is None:
             return 2
+
+    if args.baud is None:
+        args.baud = _project_baud(args.project) or 115200
 
     live = LiveSession(symbols=sym, symbols_raw=sym_raw, out_dir=args.captures,
                        flash_target=flash_target)
@@ -395,7 +417,7 @@ def register(subparsers):
 
     p = subparsers.add_parser("record", help="capture the console UART to a .akt file")
     p.add_argument("--port", required=True, help="serial port, e.g. /dev/ttyUSB0")
-    p.add_argument("--baud", type=int, default=115200)
+    p.add_argument("--baud", type=int, help="default: the project's --console-baud, else 115200")
     p.add_argument("-o", "--output", default="run.akt")
     p.add_argument("--duration", type=float, help="seconds, default until Ctrl-C")
     p.add_argument("-q", "--quiet", action="store_true", help="do not echo console text")
@@ -415,7 +437,10 @@ def register(subparsers):
     p.add_argument("--tools", help="folder holding gcc-arm-none-eabi-10.3-2021.10-x86_64-linux "
                                    "(WORKSPACE_TOOLS_PATH of the AK Makefile)")
     p.add_argument("--gcc", help="toolchain folder (GCC_PATH), for projects that hard-code it")
-    p.add_argument("--ring", type=int, help="bytes of RAM for queued frames (default 512)")
+    p.add_argument("--ring", type=int, help="bytes of RAM for queued records (default 512)")
+    p.add_argument("--console-baud", type=int, metavar="BAUD",
+                   help="console UART rate (SYS_CONSOLE_BAUDRATE), e.g. 460800 for busy games; "
+                        "remembered, record and serve use it for this project")
     p.add_argument("--clean", action="store_true", help="drop the cached objects first")
     p.set_defaults(func=cmd_build)
 
@@ -439,7 +464,7 @@ def register(subparsers):
                                      "the Flash button writes")
     p.add_argument("--sym", help="symbols.json or built project, instead of the names in the file")
     p.add_argument("--dev", help="serial port preselected in the page, e.g. /dev/ttyUSB0")
-    p.add_argument("--baud", type=int, default=115200)
+    p.add_argument("--baud", type=int, help="default: the project's --console-baud, else 115200")
     p.add_argument("--captures", default="captures", help="folder for live captures")
     p.add_argument("--rules", help="rules file for the Verify tab")
     p.add_argument("--base", help="AK base kit folder for the static rules")
