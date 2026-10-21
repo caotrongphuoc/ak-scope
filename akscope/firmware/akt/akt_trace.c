@@ -19,6 +19,14 @@
 
 #include "akt_trace.h"
 
+/* cycle counter: the port function by default. A build that knows where the counter is can
+ * define AKT_CYCLE_NOW() to read it inline; akscope build reads DWT->CYCCNT that way. */
+#if defined(AKT_CYCLE_NOW)
+#define akt_now()					AKT_CYCLE_NOW()
+#else
+#define akt_now()					akt_port.cycle_now()
+#endif
+
 /* the longest record is INFO (20 bytes); a frame adds the crc and one COBS code byte */
 #define AKT_RECORD_MAX				(20)
 #define AKT_FRAME_MAX				(AKT_RECORD_MAX + 2)
@@ -57,19 +65,22 @@ static uint8_t akt_pool_count;
 
 static void akt_info();
 
-static inline void put_u16(uint8_t* p, uint16_t v) {
+/* -Os does not inline these by itself; each call costs more than the body on the record path */
+#define AKT_INLINE					static inline __attribute__((always_inline))
+
+AKT_INLINE void put_u16(uint8_t* p, uint16_t v) {
 	p[0] = (uint8_t)v;
 	p[1] = (uint8_t)(v >> 8);
 }
 
-static inline void put_u32(uint8_t* p, uint32_t v) {
+AKT_INLINE void put_u32(uint8_t* p, uint32_t v) {
 	p[0] = (uint8_t)v;
 	p[1] = (uint8_t)(v >> 8);
 	p[2] = (uint8_t)(v >> 16);
 	p[3] = (uint8_t)(v >> 24);
 }
 
-static inline uint16_t sat_u16(uint32_t v) {
+AKT_INLINE uint16_t sat_u16(uint32_t v) {
 	return (v > 0xFFFF) ? 0xFFFF : (uint16_t)v;
 }
 
@@ -131,42 +142,68 @@ static uint8_t akt_encode(uint8_t* record, uint8_t len, uint8_t* frame) {
 	return akt_cobs(record, len + 1, frame);
 }
 
+/* the record path saves and restores PRIMASK instead of calling entry_critical(): it is
+ * cheaper, and it nests inside AK critical sections and ISRs (Cortex-M) */
+AKT_INLINE uint32_t akt_lock() {
+	uint32_t primask;
+	__asm volatile ("mrs %0, primask\n\tcpsid i" : "=r" (primask) :: "memory");
+	return primask;
+}
+
+AKT_INLINE void akt_unlock(uint32_t primask) {
+	__asm volatile ("msr primask, %0" :: "r" (primask) : "memory");
+}
+
 /* called with interrupts off */
-static void akt_ring_put(const uint8_t* record, uint8_t len) {
+AKT_INLINE void akt_ring_put(const uint8_t* record, uint8_t len) {
 	uint16_t i = akt_ring_head + akt_ring_used;
+	uint8_t* dst;
 
 	if (i >= AKT_RING_SIZE) {
 		i -= AKT_RING_SIZE;
 	}
+	akt_ring_used += len + 1;
+
+	if (i + len < AKT_RING_SIZE) {
+		/* the usual case: room up to the end of the ring, no wrap check per byte */
+		dst = &akt_ring[i];
+		*dst++ = len;
+		while (len--) {
+			*dst++ = *record++;
+		}
+		return;
+	}
+
 	akt_ring[i] = len;
-	for (uint8_t k = 0; k < len; k++) {
+	while (len--) {
 		if (++i == AKT_RING_SIZE) {
 			i = 0;
 		}
-		akt_ring[i] = record[k];
+		akt_ring[i] = *record++;
 	}
-	akt_ring_used += len + 1;
 }
 
 /* called from tasks and ISRs */
 static void akt_push(const uint8_t* record, uint8_t len) {
+	uint32_t primask;
+
 	if (!akt_ready) {
 		return;
 	}
 
-	ENTRY_CRITICAL();
+	primask = akt_lock();
 
 	if (akt_dropped) {
 		uint8_t ovf[7];
 
 		if (akt_ring_used + sizeof(ovf) + 1 + len + 1 > AKT_RING_SIZE) {
 			akt_dropped = sat_u16((uint32_t)akt_dropped + 1);
-			EXIT_CRITICAL();
+			akt_unlock(primask);
 			return;
 		}
 
 		ovf[0] = AKT_ID_OVERFLOW;
-		put_u32(&ovf[1], akt_port.cycle_now());
+		put_u32(&ovf[1], akt_now());
 		put_u16(&ovf[5], akt_dropped);
 		akt_ring_put(ovf, sizeof(ovf));
 		akt_dropped = 0;
@@ -179,7 +216,7 @@ static void akt_push(const uint8_t* record, uint8_t len) {
 		akt_ring_put(record, len);
 	}
 
-	EXIT_CRITICAL();
+	akt_unlock(primask);
 }
 
 static uint8_t akt_src() {
@@ -194,7 +231,7 @@ static void akt_post(task_id_t des, uint8_t sig, uint8_t type, uint32_t len) {
 	uint8_t r[11 + 1];
 
 	r[0] = AKT_ID_POST;
-	put_u32(&r[1], akt_ready ? akt_port.cycle_now() : 0);
+	put_u32(&r[1], akt_ready ? akt_now() : 0);
 	r[5] = akt_src();
 	r[6] = des;
 	r[7] = sig;
@@ -207,7 +244,7 @@ static void akt_pool() {
 	uint8_t r[9 + 1];
 
 	r[0] = AKT_ID_POOL;
-	put_u32(&r[1], akt_port.cycle_now());
+	put_u32(&r[1], akt_now());
 	r[5] = (uint8_t)get_pure_msg_pool_used_max();
 	r[6] = (uint8_t)get_common_msg_pool_used_max();
 	r[7] = (uint8_t)get_dynamic_msg_pool_used_max();
@@ -219,7 +256,7 @@ static void akt_info() {
 	uint8_t r[20 + 1];
 
 	r[0] = AKT_ID_INFO;
-	put_u32(&r[1], akt_port.cycle_now());
+	put_u32(&r[1], akt_now());
 	r[5] = AKT_FORMAT_VERSION;
 	put_u32(&r[6], akt_port.cpu_hz);
 	r[10] = akt_port.task_count;
@@ -257,7 +294,7 @@ void akt_trace_poll() {
 		return;
 	}
 
-	now = akt_port.cycle_now();
+	now = akt_now();
 
 	if (now - akt_last_pool >= akt_cycles_per_pool) {
 		akt_last_pool = now;
@@ -319,7 +356,7 @@ void akt_trace_mark(uint8_t id, uint32_t value) {
 	uint8_t r[10 + 1];
 
 	r[0] = AKT_ID_USER;
-	put_u32(&r[1], akt_ready ? akt_port.cycle_now() : 0);
+	put_u32(&r[1], akt_ready ? akt_now() : 0);
 	r[5] = id;
 	put_u32(&r[6], value);
 	akt_push(r, 10);
@@ -337,7 +374,7 @@ uint32_t akt_exec_begin(ak_msg_t* msg) {
 #endif
 	akt_running = msg->des_task_id;
 
-	return akt_ready ? akt_port.cycle_now() : 0;
+	return akt_ready ? akt_now() : 0;
 }
 
 void akt_exec_end(uint32_t t_begin) {
@@ -351,7 +388,7 @@ void akt_exec_end(uint32_t t_begin) {
 
 	r[0] = AKT_ID_EXEC;
 	put_u32(&r[1], t_begin);
-	put_u32(&r[5], akt_port.cycle_now() - t_begin);
+	put_u32(&r[5], akt_now() - t_begin);
 	r[9] = akt_exec.task_id;
 	r[10] = akt_exec.sig;
 	r[11] = akt_exec.type;
@@ -387,7 +424,7 @@ uint8_t __wrap_timer_set(task_id_t des_task_id, timer_sig_t sig, uint32_t duty, 
 	uint8_t r[12 + 1];
 
 	r[0] = AKT_ID_TIMER_SET;
-	put_u32(&r[1], akt_ready ? akt_port.cycle_now() : 0);
+	put_u32(&r[1], akt_ready ? akt_now() : 0);
 	r[5] = des_task_id;
 	r[6] = sig;
 	r[7] = (type == TIMER_PERIODIC) ? 1 : 0;
@@ -401,7 +438,7 @@ uint8_t __wrap_timer_remove_attr(task_id_t des_task_id, timer_sig_t sig) {
 	uint8_t r[7 + 1];
 
 	r[0] = AKT_ID_TIMER_REMOVE;
-	put_u32(&r[1], akt_ready ? akt_port.cycle_now() : 0);
+	put_u32(&r[1], akt_ready ? akt_now() : 0);
 	r[5] = des_task_id;
 	r[6] = sig;
 	akt_push(r, 7);

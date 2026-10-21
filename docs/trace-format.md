@@ -14,8 +14,8 @@ bytes can be 0x0A.
 
 Recording an event only copies the raw record into the akt ring (512 bytes by default) with
 interrupts off. The polling task takes records out, adds the CRC and the COBS encoding, and
-writes the frame. That keeps the cost inside handlers and ISRs to 356 cycles per record on
-the AK kit.
+writes the frame. That keeps the cost inside handlers and ISRs to 219 cycles (6.8 us) per
+record on the AK kit.
 
 The console TX ring overwrites its oldest bytes when full, so `akt_trace` never pushes faster
 than the line can drain. It keeps a byte budget refilled from the elapsed time and the configured baud
