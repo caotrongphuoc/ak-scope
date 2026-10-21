@@ -69,6 +69,25 @@
 	color: var(--color-foreground-primary);
 }
 
+/* the small size of the Figma spacing modes, used inside alerts */
+.btn--small {
+	gap: 4px;
+	height: 22px;
+	padding: 4px 8px;
+	border-radius: var(--radius-sm-6);
+	font-size: 10px;
+}
+
+.btn--small .btn-label {
+	height: 14px;
+	line-height: 13px;
+}
+
+.btn--small .icon {
+	width: 14px;
+	height: 14px;
+}
+
 /* icon only: Content=No, and the icon button types */
 .btn--square {
 	width: 34px;
@@ -122,6 +141,12 @@
 .btn--primary.btn--danger:not(.btn--square)[disabled],
 .btn--primary.btn--danger:not(.btn--square).is-disabled {
 	--btn-overlay: transparent;
+}
+
+/* and its right icon stays white */
+.btn--primary.btn--danger:not(.btn--square)[disabled] > .icon:last-child,
+.btn--primary.btn--danger:not(.btn--square).is-disabled > .icon:last-child {
+	color: var(--color-foreground-on-color);
 }
 
 .btn--tertiary.btn--danger[disabled],
@@ -679,4 +704,605 @@
 .tab.is-disabled .badge,
 .tab[disabled] .badge {
 	color: var(--color-foreground-disabled);
+}
+
+/* Input ------------------------------------------------------------------------------------- */
+
+/* <label class="input"><input placeholder="Input search"><span class="icon input-clear"></span>
+ *   <button class="input-addon"><span class="icon"></span></button></label>
+ * the box draws border and background; the input inside it is bare */
+.input {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	box-sizing: border-box;
+	height: 34px;
+	/* Figma's 12 px are from the outer edge, the inside stroke takes no room */
+	padding: 0 11px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-input-field);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	cursor: text;
+}
+
+.input > input {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+}
+
+.input > input::placeholder {
+	color: var(--color-foreground-placeholder);
+	opacity: 1;
+}
+
+.input .input-clear {
+	margin-left: -8px;
+	color: var(--color-foreground-secondary);
+	cursor: pointer;
+}
+
+/* a button at the end, behind a line */
+.input-addon {
+	display: inline-flex;
+	align-items: center;
+	align-self: stretch;
+	margin: -1px 0;
+	padding: 0 0 0 12px;
+	border: 0;
+	border-left: 1px solid var(--color-border-base);
+	background: none;
+	color: var(--color-foreground-base);
+	cursor: pointer;
+}
+
+.input:focus-within,
+.input.is-focus {
+	border-color: var(--color-border-primary);
+}
+
+.input.is-error {
+	border-color: var(--color-border-danger);
+}
+
+.input.is-disabled,
+.input:has(> input:disabled) {
+	color: var(--color-foreground-disabled);
+	cursor: default;
+}
+
+.input.is-disabled > input::placeholder,
+.input > input:disabled::placeholder {
+	color: var(--color-foreground-disabled);
+}
+
+/* Select ------------------------------------------------------------------------------------ */
+
+/* <button class="select"><span class="select-value">Please select</span><span class="icon"></span></button>
+ * .is-empty shows the value as a placeholder */
+.select {
+	--select-bg: var(--color-background-input-field);
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	box-sizing: border-box;
+	height: 34px;
+	margin: 0;
+	padding: 7px 11px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: var(--select-bg);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	text-align: left;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.select .select-value {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 18px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.select .icon {
+	width: 16px;
+	height: 16px;
+}
+
+.select.is-empty .select-value {
+	color: var(--color-foreground-placeholder);
+}
+
+.select:not(.is-disabled):not([disabled]):hover,
+.select.is-hover {
+	--select-bg: var(--color-on-background-default-hover);
+}
+
+.select.is-active,
+.select[aria-expanded="true"] {
+	--select-bg: var(--color-background-input-field);
+	border-color: var(--color-border-primary);
+}
+
+.select.is-disabled,
+.select[disabled] {
+	border-color: var(--color-border-secondary-disable);
+	cursor: default;
+}
+
+.select.is-disabled .select-value,
+.select[disabled] .select-value {
+	color: var(--color-foreground-secondary);
+}
+
+.select.is-disabled .icon,
+.select[disabled] .icon {
+	color: var(--color-foreground-disabled);
+}
+
+/* Dropdown menu ----------------------------------------------------------------------------- */
+
+/* <div class="menu"><div class="menu-group">Group title</div>
+ *   <button class="menu-item"><span class="menu-label"><span class="icon"></span>Menu</span>
+ *   <span class="icon menu-more"></span></button></div>
+ * a multi select item starts with a .checkbox, a selected single select item ends with .menu-tick */
+.menu {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 4px;
+	box-sizing: border-box;
+	padding: 5px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-pop-up);
+	box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+}
+
+.menu-group {
+	padding: 4px 6px;
+	color: var(--color-foreground-secondary);
+	font: 500 12px / 14px "Inter", sans-serif;
+	white-space: nowrap;
+}
+
+.menu-item {
+	--item-bg: transparent;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	box-sizing: border-box;
+	width: 100%;
+	height: 30px;
+	margin: 0;
+	padding: 6px;
+	border: 0;
+	border-radius: var(--radius-md-8);
+	background: var(--item-bg);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	text-align: left;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.menu-label {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+	height: 18px;
+}
+
+.menu-item .menu-more {
+	width: 12px;
+	height: 12px;
+}
+
+.menu-item .menu-tick {
+	width: 14px;
+	height: 14px;
+	--icon: url(../icons/tick-02-bold.svg);
+}
+
+.menu-item:not(.is-disabled):not([disabled]):hover,
+.menu-item.is-hover {
+	--item-bg: var(--color-on-background-default-hover);
+}
+
+.menu-item.is-selected {
+	--item-bg: var(--color-on-background-selected);
+	color: var(--color-foreground-primary);
+}
+
+.menu-item.is-selected:not(.is-disabled):hover,
+.menu-item.is-selected.is-hover {
+	--item-bg: var(--color-on-background-default-hover);
+}
+
+.menu-item--danger,
+.menu-item--danger.is-selected {
+	--item-bg: transparent;
+	color: var(--color-foreground-danger);
+}
+
+.menu-item--danger:not(.is-disabled):not([disabled]):hover,
+.menu-item--danger.menu-item.is-hover {
+	--item-bg: var(--color-background-danger);
+	color: var(--color-foreground-on-color);
+}
+
+.menu-item--danger.is-hover .checkbox-box,
+.menu-item--danger:not(.is-disabled):hover .checkbox-box {
+	border-color: var(--color-border-on-color);
+}
+
+/* Figma draws the tick of a hovered danger item in the red of the row */
+.menu-item--danger.is-hover .menu-tick,
+.menu-item--danger:not(.is-disabled):hover .menu-tick {
+	color: var(--color-background-danger);
+}
+
+.menu-item.is-disabled,
+.menu-item[disabled] {
+	color: var(--color-foreground-disabled);
+	cursor: default;
+}
+
+.menu-item--danger.is-disabled,
+.menu-item--danger[disabled] {
+	color: var(--color-foreground-danger-disabled);
+}
+
+.menu-item--danger.is-disabled .menu-more,
+.menu-item--danger[disabled] .menu-more {
+	color: var(--color-foreground-disabled);
+}
+
+/* Alert ------------------------------------------------------------------------------------- */
+
+/* <div class="alert alert--info"><span class="icon alert-icon"></span><span class="alert-text">Text</span>
+ *   <span class="alert-actions"><button class="btn btn--secondary btn--small">..</button>
+ *   <span class="icon alert-close"></span></span></div>
+ * .alert--large stacks a title over the text and puts the buttons on their own row */
+.alert {
+	--alert-color: var(--color-border-primary);
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	position: relative;
+	box-sizing: border-box;
+	padding: 8px 12px;
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-pop-up);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+/* a 3 px line centered on the top edge, as Figma strokes it: half of it is outside the box, so
+ * 1.5 px show, and the inner edge follows the corners down to 10 px. Firefox puts borders and
+ * shadows on whole pixels, so the line is a colored cap with the background laid over it from
+ * the second row down, that row at half strength */
+.alert {
+	isolation: isolate;
+}
+
+.alert::before,
+.alert::after {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	right: 0;
+	left: 0;
+	height: 10px;
+	pointer-events: none;
+}
+
+.alert::before {
+	top: 0;
+	border-radius: 10px 10px 0 0;
+	background: var(--alert-color);
+}
+
+.alert::after {
+	top: 1px;
+	border-radius: 10px 10px 0 0 / 9px 9px 0 0;
+	background: linear-gradient(color-mix(in srgb, var(--color-background-pop-up) 50%, transparent) 0 1px,
+		var(--color-background-pop-up) 1px);
+}
+
+.alert--info { --alert-color: var(--color-border-primary); --alert-fg: var(--color-foreground-primary); }
+.alert--success { --alert-color: var(--color-border-success); --alert-fg: var(--color-foreground-success); }
+.alert--warning { --alert-color: var(--color-border-warning); --alert-fg: var(--color-foreground-warning); }
+.alert--error { --alert-color: var(--color-border-danger); --alert-fg: var(--color-foreground-danger); }
+
+.alert .alert-icon {
+	color: var(--alert-fg);
+}
+
+/* Figma sets these texts 16 px high in an 18 px box */
+.alert-text,
+.alert-content > :last-child {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 18px;
+	line-height: 16px;
+}
+
+.alert-actions {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 4px;
+}
+
+.alert-close {
+	cursor: pointer;
+}
+
+.alert--large {
+	flex-direction: column;
+	align-items: stretch;
+	gap: 10px;
+}
+
+.alert--large .alert-body {
+	display: flex;
+	gap: 8px;
+	min-height: 42px;
+}
+
+.alert--large .alert-content {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.alert-title {
+	height: 14px;
+	color: var(--alert-fg);
+	font: 500 12px / 14px "Inter", sans-serif;
+}
+
+.alert--large .alert-actions {
+	justify-content: flex-end;
+}
+
+/* Message ----------------------------------------------------------------------------------- */
+
+.message {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	box-sizing: border-box;
+	height: 34px;
+	padding: 7px 11px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-base);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	white-space: nowrap;
+}
+
+.message .message-close {
+	cursor: pointer;
+}
+
+.message--info .icon:first-child { color: var(--color-foreground-primary); }
+.message--success .icon:first-child { color: var(--color-foreground-success); }
+.message--warning .icon:first-child { color: var(--color-foreground-warning); }
+.message--error .icon:first-child { color: var(--color-foreground-danger); }
+
+/* Tooltip ----------------------------------------------------------------------------------- */
+
+/* the placement names where the tooltip sits: .tooltip--top is above its target, arrow down */
+.tooltip {
+	position: relative;
+	display: inline-block;
+	box-sizing: border-box;
+	max-width: 244px;
+	padding: 8px 12px;
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-pop-up);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.tooltip::after {
+	content: "";
+	position: absolute;
+	background: var(--color-background-pop-up);
+}
+
+.tooltip--top { margin-bottom: 7px; }
+.tooltip--bottom { margin-top: 8px; }
+.tooltip--left { margin-right: 8px; }
+.tooltip--right { margin-left: 8px; }
+
+.tooltip--top::after {
+	top: 100%;
+	left: calc(50% - 7px);
+	width: 14px;
+	height: 7px;
+	clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.tooltip--bottom::after {
+	bottom: calc(100% + 1px);
+	left: calc(50% - 7px);
+	width: 14px;
+	height: 7px;
+	clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.tooltip--left::after {
+	top: calc(50% - 7px);
+	left: 100%;
+	width: 7px;
+	height: 14px;
+	clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.tooltip--right::after {
+	top: calc(50% - 7px);
+	right: calc(100% + 1px);
+	width: 7px;
+	height: 14px;
+	clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+/* Table ------------------------------------------------------------------------------------- */
+
+/* <table class="table"> with th / td; a cell holds a .cell-line (icon and text) and an optional
+ * .cell-sub line under it. Rows are 50 px with a sub line, 34 px for the header */
+.table {
+	border-collapse: separate;
+	border-spacing: 0;
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+.table th,
+.table td {
+	--cell-bg: var(--color-background-base);
+	--cell-overlay: transparent;
+	box-sizing: border-box;
+	padding: 8px 12px 7px;
+	border-bottom: 1px solid var(--color-border-base);
+	background: linear-gradient(var(--cell-overlay), var(--cell-overlay)), var(--cell-bg);
+	overflow: hidden;
+	text-align: left;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.table th {
+	height: 34px;
+	color: var(--color-foreground-secondary);
+	font-weight: 500;
+}
+
+.table th > .cell-line {
+	gap: 8px;
+}
+
+.table th .cell-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.table th .icon {
+	width: 16px;
+	height: 16px;
+}
+
+.table th:hover,
+.table th.is-hover {
+	--cell-bg: var(--color-background-secondary);
+	--cell-overlay: var(--color-on-background-default-hover);
+	color: var(--color-foreground-secondary-hover);
+}
+
+.table tr:hover > td,
+.table td.is-hover {
+	--cell-overlay: var(--color-on-background-default-hover);
+}
+
+.table .status {
+	display: flex;
+}
+
+.cell-line {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	height: 18px;
+}
+
+.cell-sub {
+	height: 12px;
+	margin-top: 4px;
+	color: var(--color-foreground-secondary);
+	font-size: 10px;
+	line-height: 12px;
+}
+
+/* the sub line of a cell with an icon starts under the text */
+.cell-line > .icon + * ~ .cell-sub,
+.cell-sub.is-indented {
+	padding-left: 22px;
+}
+
+/* sort carets: two 12 x 10 icons overlapping by 4 px; the active one is primary */
+.sort {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 0;
+	width: 12px;
+	height: 16px;
+	color: var(--color-foreground-secondary);
+	cursor: pointer;
+}
+
+.sort > span {
+	display: block;
+	width: 12px;
+	height: 10px;
+	background: currentColor;
+	/* Figma stretches the 24 px icons to the 12 x 10 box */
+	-webkit-mask: var(--icon) center / 100% 100% no-repeat;
+	mask: var(--icon) center / 100% 100% no-repeat;
+}
+
+.sort > span + span {
+	margin-top: -4px;
+}
+
+.sort-up { --icon: url(../icons/caret-rectangle-up-bold.svg); }
+.sort-down { --icon: url(../icons/caret-rectangle-down-bold.svg); }
+
+.sort:hover,
+.sort.is-hover {
+	color: var(--color-foreground-base);
+}
+
+.sort.is-hover.is-ascend .sort-up,
+.sort.is-hover.is-descend .sort-down,
+.sort:hover.is-ascend .sort-up,
+.sort:hover.is-descend .sort-down {
+	color: var(--color-foreground-base);
+}
+
+.sort.is-ascend .sort-down,
+.sort.is-descend .sort-up {
+	color: var(--color-foreground-primary);
+}
+
+.sort.is-hover.is-ascend .sort-up,
+.sort.is-hover.is-descend .sort-down,
+.sort:hover.is-ascend .sort-up,
+.sort:hover.is-descend .sort-down {
+	color: var(--color-foreground-base);
+}
+
+th:hover .sort:not(.is-ascend):not(.is-descend),
+th.is-hover .sort:not(.is-ascend):not(.is-descend) {
+	color: var(--color-foreground-secondary-hover);
 }

@@ -23,7 +23,9 @@ window.GALLERY = ENTRIES.map((e, n) => ({ n, page: e.page, ref: e.ref, mode: e.m
 // pixel grid; whole pixel cells keep each target where the Figma reference is drawn
 document.fonts.ready.then(() => {
 	for (const cell of root.querySelectorAll(".g-cell")) {
-		cell.style.width = Math.ceil(cell.getBoundingClientRect().width) + "px";
+		const r = cell.getBoundingClientRect();
+		cell.style.width = Math.ceil(r.width) + "px";
+		cell.style.height = Math.ceil(r.height) + "px";
 	}
 	window.GALLERY_READY = true;
 });
