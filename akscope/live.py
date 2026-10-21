@@ -228,7 +228,8 @@ class LiveSession:
             self.stop()
             self._set_status(state="flashing", port=port, message="flashing %s" % self.flash_target)
             try:
-                flash(port, self.flash_target,
+                # the firmware on the kit runs its console at the rate it is recorded at
+                flash(port, self.flash_target, console_baud=baud,
                       log=lambda msg: self._set_status(message=msg.replace("akscope: ", "")))
             except FlashError as e:
                 self._set_status(state="idle", message=str(e))

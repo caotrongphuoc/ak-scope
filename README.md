@@ -36,9 +36,10 @@ sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.0
 Tested on Ubuntu 22.04 with the AK kit on a CH340 USB serial adapter. Windows is not tested yet.
 
 ak-flash asks the running firmware for its bootloader at 115200 baud. A build with another
-console rate (`akscope build --console-baud 460800`) does not answer, so Flash fails with
-"handshake faulted"; put the kit in boot mode by hand (hold MODE, press and release RESET, keep
-MODE held until the LIFE LED blinks fast) and flash again.
+console rate (`akscope build --console-baud 460800`) does not understand that, so ak-scope first
+types the base kit shell command `fwu` at the console rate, which restarts the kit into the
+bootloader. A firmware without that command needs the boot mode buttons (hold MODE, press and
+release RESET, keep MODE held until the LIFE LED blinks fast); the error message says so.
 
 ## Quick start
 
@@ -67,7 +68,7 @@ as noise and is ignored.
 | Command | Does |
 | --- | --- |
 | `akscope build <project>` | builds the project with the trace linked in, objects in `~/.cache/akscope/build/`; also writes the task and signal names |
-| `akscope flash --port <dev> <project or .bin>` | flashes with `ak-flash`, retrying when the running trace breaks the handshake |
+| `akscope flash --port <dev> <project or .bin>` | flashes with `ak-flash`, retrying when the running trace breaks the handshake; `--baud` is the console rate of the firmware on the kit |
 | `akscope record --port <dev> -o run.akt [--flash <project>]` | captures the UART to a `.akt` file; with `--flash`, flashes first and records from boot |
 | `akscope dump run.akt` | prints the records with task and signal names |
 | `akscope serve [run.akt] [--project <project>] [--dev <dev>]` | web page on `http://127.0.0.1:8730` |

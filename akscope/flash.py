@@ -7,13 +7,22 @@ bootloader, so a later run goes through. flash() retries for that reason.
 
 ak-flash asks the running firmware for the bootloader at 115200 baud. A firmware built with
 another console rate (akscope build --console-baud) does not understand it, and every attempt
-ends in "handshake faulted". The kit then has to be put in boot mode by hand; the error says how.
+ends in "handshake faulted". For that case flash() first types the base kit shell command
+"fwu" at the console rate: it stores a UART update request for the bootloader and resets, so
+the bootloader waits for ak-flash. A firmware without that command needs the boot mode
+buttons; the error says how.
 """
 
 import re
 import shutil
 import subprocess
 import time
+
+AK_FLASH_BAUD = 115200
+# rates tried for "fwu" after the console rate itself, in case the kit runs another build
+WAKE_RATES = (460800, 230400, 921600)
+# from the reset to the bootloader listening, measured on the AK kit: well under 1 s
+WAKE_DELAY_S = 1.0
 
 APP_START_ADDR = 0x08003000
 
@@ -28,14 +37,41 @@ _ANSI = re.compile(r"\x1b\[[0-9;]*m")
 # what ak-flash itself prints for a board that does not answer the handshake
 BOOT_MODE_HINT = ("Put the kit in boot mode: hold MODE, press and release RESET, keep MODE held until "
                   "the LIFE LED blinks fast, then flash again (the firmware may run its console at "
-                  "another rate than the 115200 ak-flash uses)")
+                  "another rate than the 115200 ak-flash uses, and have no fwu command)")
 
 
 class FlashError(Exception):
     pass
 
 
-def flash(port, binary, address=APP_START_ADDR, attempts=DEFAULT_ATTEMPTS, log=print):
+def wake_bootloader(port, baud):
+    """type "fwu" on the console at baud; False when the port cannot be opened"""
+    try:
+        import serial
+    except ImportError:
+        return False
+    try:
+        with serial.Serial(port, baud, timeout=0.2) as s:
+            s.reset_input_buffer()
+            s.write(b"\r\nfwu\r\n")
+            s.flush()
+            time.sleep(0.05)
+    except (OSError, serial.SerialException):
+        return False
+    time.sleep(WAKE_DELAY_S)
+    return True
+
+
+def _wake_rate(console_baud, attempt):
+    """the rate to send "fwu" at before an attempt, None when ak-flash can talk to the firmware"""
+    if console_baud is None or console_baud == AK_FLASH_BAUD:
+        return None
+    rates = [console_baud] + [r for r in WAKE_RATES if r != console_baud]
+    return rates[(attempt - 1) % len(rates)]
+
+
+def flash(port, binary, address=APP_START_ADDR, attempts=DEFAULT_ATTEMPTS, log=print, console_baud=None):
+    """console_baud: the console rate of the firmware running on the kit, when it is not 115200"""
     tool = shutil.which("ak-flash")
     if tool is None:
         raise FlashError("ak-flash not found, see https://github.com/ak-embedded-software/ak-flash")
@@ -44,6 +80,9 @@ def flash(port, binary, address=APP_START_ADDR, attempts=DEFAULT_ATTEMPTS, log=p
     for attempt in range(1, attempts + 1):
         if attempt > 1:
             time.sleep(RETRY_DELAY_S)
+        rate = _wake_rate(console_baud, attempt)
+        if rate is not None and wake_bootloader(port, rate):
+            log("akscope: asked the firmware for the bootloader (fwu at %d baud)" % rate)
         out = subprocess.run([tool, port, str(binary), "0x%08X" % address],
                              capture_output=True, text=True, errors="replace")
         text = _ANSI.sub("", (out.stdout + out.stderr).replace("\r", "\n"))

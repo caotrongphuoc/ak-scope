@@ -36,6 +36,21 @@ class TestFlash(unittest.TestCase):
                 flash.flash("/dev/ttyUSB0", "app.bin", attempts=1, log=lambda *a: None)
         self.assertNotIn("boot mode", str(cm.exception))
 
+    def test_wakes_firmware_at_console_rate(self):
+        replies = [result("[ERROR] handshake faulted !\n", 1), result("[INFO] firmware update completed\n")]
+        with mock.patch("subprocess.run", side_effect=replies), \
+                mock.patch.object(flash, "wake_bootloader", return_value=True) as wake:
+            self.assertEqual(flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None, console_baud=460800), 2)
+        # the console rate first, then the other common rates
+        self.assertEqual([c.args for c in wake.call_args_list], [("/dev/ttyUSB0", 460800), ("/dev/ttyUSB0", 230400)])
+
+    def test_no_wake_at_115200(self):
+        with mock.patch("subprocess.run", return_value=result("[INFO] firmware update completed\n")), \
+                mock.patch.object(flash, "wake_bootloader") as wake:
+            flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None, console_baud=115200)
+            flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None)
+        wake.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

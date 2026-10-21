@@ -105,7 +105,7 @@ def cmd_record(args, out=None):
             return 2
         from akscope.flash import FlashError, flash
         try:
-            flash(args.port, binary, log=_log_err)
+            flash(args.port, binary, log=_log_err, console_baud=args.baud)
         except FlashError as e:
             _log_err("akscope: %s" % e)
             return 2
@@ -292,8 +292,9 @@ def cmd_flash(args, out=None):
     if target is None:
         return 2
 
+    baud = args.baud or _project_baud(args.target)
     try:
-        flash(args.port, target, attempts=args.attempts, log=_log_err)
+        flash(args.port, target, attempts=args.attempts, log=_log_err, console_baud=baud)
     except FlashError as e:
         _log_err("akscope: %s" % e)
         return 2
@@ -526,4 +527,7 @@ def register(subparsers):
     p.add_argument("--port", required=True)
     p.add_argument("target", help=".bin file, or a project folder built by akscope build")
     p.add_argument("--attempts", type=int, default=4)
+    p.add_argument("--baud", type=int, help="console rate of the firmware on the kit (default: the "
+                                            "project's --console-baud); other than 115200, the "
+                                            "firmware is asked for the bootloader first")
     p.set_defaults(func=cmd_flash)
