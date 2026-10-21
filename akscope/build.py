@@ -312,7 +312,38 @@ class Builder:
         with concurrent.futures.ThreadPoolExecutor(self.jobs) as pool:
             texts = dict(pool.map(run, files))
         self._macro_flags = (cxx, cxx_flags)
+        self._c_flags = (cc, c_flags)
         return texts
+
+    def probe_sizes(self, src, exprs):
+        """sizeof() of each expression, evaluated with the project's compiler in the scope of
+        source file src (after preprocess() ran). None where it does not compile.
+
+        Each probe sits on its own line of a file that includes src. The compiler is made to
+        print the size: an incomplete template instance in C++, a pointer to array in C.
+        """
+        cpp = src.endswith(".cpp")
+        compiler, flags = self._macro_flags if cpp else self._c_flags
+        probe = self.gen / ("probe.cpp" if cpp else "probe.c")
+        lines = ['#include "%s"' % (self.app / src)]
+        if cpp:
+            lines.append("template <unsigned long N> struct akscope_size_of;")
+        first = len(lines) + 1
+        for i, e in enumerate(exprs):
+            if cpp:
+                lines.append("akscope_size_of<sizeof(%s)> akscope_probe_%d;" % (e, i))
+            else:
+                lines.append("char (*akscope_probe_%d)[sizeof(%s)] = 1;" % (i, e))
+        probe.write_text("\n".join(lines) + "\n")
+        out = subprocess.run([compiler] + flags + ["-fsyntax-only", "-fmax-errors=0", str(probe)],
+                             cwd=self.app, capture_output=True, text=True, errors="replace")
+        sizes = [None] * len(exprs)
+        pat = re.compile(re.escape(probe.name) + r":(\d+):\d+: .*?(?:akscope_size_of<(\d+)[a-z]*>|char \(\*\)\[(\d+)\])")
+        for m in pat.finditer(out.stderr):
+            i = int(m.group(1)) - first
+            if 0 <= i < len(exprs) and sizes[i] is None:
+                sizes[i] = int(m.group(2) or m.group(3))
+        return sizes
 
     def macros(self, src):
         """`-dM -E` output for one C++ source, after preprocess() ran."""

@@ -43,7 +43,6 @@ _REGISTER = re.compile(r"_TypeDef\s*\*\s*\)[^;]{0,80}?\)\s*->\s*[A-Z][A-Z0-9_]*\
 _WHILE = re.compile(r"\bwhile\s*\(")
 _POST_ARGS = re.compile(r"\b(task_post_pure_msg|task_post_common_msg|task_post_dynamic_msg|timer_set|"
                         r"timer_remove_attr)\s*\(\s*(" + IDENT + r")\s*,\s*(" + IDENT + r")\b")
-_COMMON_LEN = re.compile(r"\btask_post_common_msg\s*\(([^;]*)\)\s*;")
 _WRITE_OPS = r"(?:=(?!=)|\+=|-=|\*=|/=|%=|\|=|&=|\^=|<<=|>>=|\+\+|--)"
 
 
@@ -427,22 +426,103 @@ def s08_dead_signals(p):
     return out
 
 
-def s09_common_payload(p):
-    """S09: common message payload at most 64 bytes (literal lengths only)."""
-    findings = []
+def _split_args(text):
+    """Top level comma split of a call's argument text."""
+    out, d, cur = [], 0, []
+    for ch in text:
+        if ch in "([{":
+            d += 1
+        elif ch in ")]}":
+            d -= 1
+        if ch == "," and d == 0:
+            out.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    out.append("".join(cur).strip())
+    return out
+
+
+def _decl_type(fn, name, before):
+    """Type of a local variable or parameter `name` declared before offset `before` in fn, as a
+    type-id usable in sizeof(), or None."""
+    text = fn.params + ";" + fn.body[:before]
+    pat = re.compile(r"(?:^|[;{}(,])\s*((?:(?:const|volatile|struct|union|enum|unsigned|signed|static)\s+)*"
+                     r"[A-Za-z_][\w:]*(?:\s*<[^;{}()]*?>)?(?:\s*\*+)?)\s*\b" + re.escape(name) +
+                     r"\s*(\[[^\]]*\])?\s*(?:=|;|,|\)|$)")
+    found = None
+    for m in pat.finditer(text):
+        t = re.sub(r"\b(static|const|volatile)\s+", "", m.group(1)).strip()
+        if t not in ("return", "case", "else", "sizeof") and not t.endswith(("return", "sizeof")):
+            found = t + (m.group(2) or "")
+    return found
+
+
+def common_posts(p):
+    """[(unit name, file, line, length text, size expression or None)] for task_post_common_msg
+    calls in app and driver code. The size expression is what to put in sizeof() at file scope:
+    sizeof(local) becomes sizeof(type of local)."""
+    out = []
     for fn in p.all_functions():
         if not fn.file.startswith(("sources/app/", "sources/driver/")):
             continue
         base = fn.brace + 1
-        for m in _COMMON_LEN.finditer(fn.body):
-            args = [a.strip() for a in m.group(1).split(",")]
-            if len(args) == 4 and re.fullmatch(r"\(?\s*\d+\s*\)?", args[3]):
-                n = int(args[3].strip("() "))
-                if n > 64:
-                    f, ln = fn.unit.where(base + m.start())
-                    findings.append(Finding("S09", ERROR, "common message of %d bytes, the limit is "
-                                            "AK_COMMON_MSG_DATA_SIZE (64); use a dynamic message" % n,
-                                            _norm(f), ln))
+        for m in re.finditer(r"\btask_post_common_msg\s*\(", fn.body):
+            close = _matching_paren(fn.body, m.end() - 1)
+            if close < 0:
+                continue
+            args = _split_args(fn.body[m.end():close])
+            if len(args) != 4:
+                continue
+            length = args[3]
+            f, ln = fn.unit.where(base + m.start())
+            size = None
+            sm = re.fullmatch(r"sizeof\s*\(\s*(.+?)\s*\)", length, re.S)
+            if sm:
+                inner = sm.group(1)
+                if re.fullmatch(IDENT, inner):
+                    size = _decl_type(fn, inner, m.start()) or inner
+                else:
+                    size = inner
+            out.append((fn.unit.name, _norm(f), ln, length, size))
+    return out
+
+
+def _matching_paren(text, open_index):
+    d = 0
+    for i in range(open_index, len(text)):
+        if text[i] == "(":
+            d += 1
+        elif text[i] == ")":
+            d -= 1
+            if d == 0:
+                return i
+    return -1
+
+
+def size_probes(p):
+    """{unit name: [((file, line), size expression)]} for the compiler to evaluate."""
+    out = {}
+    for unit, f, ln, length, size in common_posts(p):
+        if size is not None:
+            out.setdefault(unit, []).append(((f, ln), size))
+    return out
+
+
+def s09_common_payload(p):
+    """S09: common message payload at most 64 bytes. Literal lengths are read directly,
+    sizeof() lengths come from the compiler (p.common_sizes, filled by run_static)."""
+    sizes = getattr(p, "common_sizes", {})
+    findings = []
+    for unit, f, ln, length, size in common_posts(p):
+        n = None
+        if re.fullmatch(r"\(?\s*\d+\s*\)?", length):
+            n = int(length.strip("() "))
+        elif (f, ln) in sizes:
+            n = sizes[(f, ln)]
+        if n is not None and n > 64:
+            findings.append(Finding("S09", ERROR, "common message of %d bytes (%s), the limit is "
+                                    "AK_COMMON_MSG_DATA_SIZE (64); use a dynamic message" % (n, length), f, ln))
     return findings
 
 

@@ -46,7 +46,7 @@ everything.
 | S06 | error | task priorities are `TASK_PRI_LEVEL_1` to `TASK_PRI_LEVEL_7` | level 0 is reserved |
 | S07 | error | a signal posted to a task (or armed with `timer_set`) has a `case` in that task | an unhandled message is silently dropped |
 | S08 | warning | every signal declared next to used signals is posted, armed or handled somewhere | dead signals hide removed features and confuse traces |
-| S09 | error | `task_post_common_msg()` with a literal length over 64 | `AK_COMMON_MSG_DATA_SIZE` is 64; more is a FATAL at run time |
+| S09 | error | `task_post_common_msg()` with a length over 64 bytes, literal or `sizeof()` | `AK_COMMON_MSG_DATA_SIZE` is 64; more is a FATAL at run time |
 | S10 | warning | a file scope variable written from more than one task | tasks share data by messages; shared globals make the order of events matter |
 | S11 | error | an ISR that reaches the kernel calls `task_entry_interrupt()` and `task_exit_interrupt()` | the kernel needs them to post safely from interrupt context |
 | S12 | error | no `get_dynamic_msg()` or `task_post_dynamic_msg()` from an ISR | dynamic messages allocate from the heap |
@@ -56,8 +56,9 @@ Limits worth knowing:
 - S07 and R06 need the handler to switch on `msg->sig`. Handlers that run code for every
   message (statements after the switch, a `default:` that does work) count as handling all
   signals. FSM and TSM style handlers (`fsm_dispatch`, `tsm_dispatch`) are skipped.
-- S09 only sees literal lengths; `sizeof(...)` is not evaluated. The `len` field of every
-  `POST` record in a trace has the real size.
+- S09 has the project's compiler evaluate `sizeof()`: `sizeof(local)` becomes the size of the
+  local's declared type, in a probe file that includes the source. Lengths computed at run
+  time (`n + 2`) are not checked; the `len` field of every `POST` record in a trace has them.
 - S10 finds writes by name (`x =`, `x++`, `x.f =`, `x[i] =`...). Writes through pointers or
   `memcpy()` are not seen.
 - S02 busy waits include short hardware waits such as SPI flags. They are warnings for that

@@ -118,6 +118,12 @@ def run_static(project, tools=None, gcc=None, base=None, include_base=False, log
     log("akscope: preprocessing %s" % b.app)
     texts = b.preprocess(static.SCAN_PREFIXES, static.SCAN_EXTRA)
     model = static.Project(texts)
+    # sizeof() lengths of common messages, evaluated by the project's compiler for S09
+    model.common_sizes = {}
+    for src, probes in static.size_probes(model).items():
+        for (key, _), n in zip(probes, b.probe_sizes(src, [e for _, e in probes])):
+            if n is not None:
+                model.common_sizes[key] = n
     root = b.app.parent
     if base is None:
         base = find_base_kit(root)

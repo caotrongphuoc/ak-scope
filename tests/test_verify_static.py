@@ -192,6 +192,47 @@ class TestRules(unittest.TestCase):
         self.assertIn("task_post_dynamic_msg", self.f["S12"][0].message)
 
 
+SIZES = '''# 1 "sources/app/sizes.cpp"
+struct big_t { uint8_t data[80]; };
+struct small_t { uint8_t a; };
+static struct { small_t view; } holder;
+void sizes_handle(ak_msg_t* msg, int n) {
+ big_t big;
+ small_t small = {0};
+ uint8_t raw[70];
+ task_post_common_msg(1, 10, (uint8_t*)&big, sizeof(big));
+ task_post_common_msg(1, 11, (uint8_t*)&small, sizeof(small));
+ task_post_common_msg(1, 12, raw, sizeof(raw));
+ task_post_common_msg(1, 13, (uint8_t*)&holder.view, sizeof(holder.view));
+ task_post_common_msg(1, 14, raw, n + 2);
+}
+'''
+
+
+class TestS09Sizeof(unittest.TestCase):
+    def setUp(self):
+        self.p = static.Project({"sources/app/task_list.cpp": TASK_LIST, "sources/app/sizes.cpp": SIZES})
+
+    def test_size_expressions(self):
+        got = [(ln, length, size) for _, _, ln, length, size in static.common_posts(self.p)]
+        self.assertEqual(got, [
+            (8, "sizeof(big)", "big_t"),
+            (9, "sizeof(small)", "small_t"),
+            (10, "sizeof(raw)", "uint8_t[70]"),
+            (11, "sizeof(holder.view)", "holder.view"),
+            (12, "n + 2", None),
+        ])
+        self.assertEqual(len(static.size_probes(self.p)["sources/app/sizes.cpp"]), 4)
+
+    def test_sizes_from_the_compiler(self):
+        # what Builder.probe_sizes() returns for those expressions
+        self.p.common_sizes = {("sources/app/sizes.cpp", 8): 80, ("sources/app/sizes.cpp", 9): 1,
+                               ("sources/app/sizes.cpp", 10): 70}
+        f = static.s09_common_payload(self.p)
+        self.assertEqual([(x.line, x.message.split(" (")[0]) for x in f],
+                         [(8, "common message of 80 bytes"), (10, "common message of 70 bytes")])
+
+
 class TestS01(unittest.TestCase):
     def test_compare_with_base(self):
         with tempfile.TemporaryDirectory() as d:
