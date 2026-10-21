@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="utf-8">
+	<title>ak-scope components</title>
+	<link rel="stylesheet" href="css/fonts.css">
+	<link rel="stylesheet" href="theme/figma-tokens.css">
+	<link rel="stylesheet" href="css/components.css">
+	<style>
+		body {
+			margin: 0;
+			padding: 24px;
+			background: #808080;
+			font: 13px / 1.4 "Inter", sans-serif;
+		}
+		.g-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		/* each target sits on a plain surface the reference is drawn on as well */
+		.g-cell {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			box-sizing: border-box;
+			padding: 8px;
+			background: var(--color-background-surface);
+		}
+		/* no line box of the body font around the target, it would move it off whole pixels */
+		.g-target {
+			line-height: 0;
+		}
+		.g-target > * {
+			vertical-align: top;
+		}
+		.g-name {
+			margin-top: 4px;
+			max-width: 220px;
+			font-size: 10px;
+			line-height: 1.3;
+			color: var(--color-foreground-secondary);
+		}
+	</style>
+</head>
+<body>
+	<div id="gallery"></div>
+	<script type="module" src="gallery/gallery.js"></script>
+</body>
+</html>
