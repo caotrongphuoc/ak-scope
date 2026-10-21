@@ -83,9 +83,18 @@ class TestStream(unittest.TestCase):
     def test_frame_broken_by_text(self):
         frame = akt.encode_frame(post(1, 2, 3, 4))
         broken = frame[:5] + b"ISR" + frame[5:]
-        records, text, stats = akt.decode_bytes(broken + akt.encode_frame(post(9, 2, 3, 4)))
-        self.assertEqual([r.t for r in records], [9])
+        # once in sync, a frame with text printed into it counts as corrupt
+        data = akt.encode_frame(post(5, 2, 3, 4)) + broken + akt.encode_frame(post(9, 2, 3, 4))
+        records, text, stats = akt.decode_bytes(data)
+        self.assertEqual([r.t for r in records], [5, 9])
         self.assertEqual(stats.corrupt, 1)
+
+    def test_noise_before_first_frame_is_text(self):
+        # a bootloader banner at another baud rate, then frames
+        noise = b"\xf8\x80x\x00\xf8\xf8\x00\x80"
+        records, text, stats = akt.decode_bytes(noise + akt.encode_frame(post(1, 2, 3, 4)))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(stats.corrupt, 0)
 
     def test_unwrap(self):
         data = b"".join(akt.encode_frame(post(t, 1, 2, 3)) for t in

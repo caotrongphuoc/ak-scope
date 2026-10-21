@@ -118,11 +118,17 @@ def r05_timer_drift(tl, sym, rules):
     for e in tl.execs:
         if e.src == "timer":
             events.append((tl.us(e.t_begin), 1, "EXEC", e.task, e.sig, 0, e))
+    for t in tl.gaps:
+        events.append((tl.us(t), 2, "GAP", None, None, 0, None))
     events.sort(key=lambda x: (x[0], x[1]))
     last = {}
     worst = {}
     for t, _, kind, des, sig, periodic, extra in events:
         key = (des, sig)
+        if kind == "GAP":
+            # runs may be missing before an OVERFLOW: no interval across it
+            last.clear()
+            continue
         if kind == "TIMER_SET":
             periods[key] = extra * 1e3 if periodic else None
             last.pop(key, None)

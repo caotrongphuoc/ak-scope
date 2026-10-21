@@ -82,6 +82,11 @@ class TestRules(unittest.TestCase):
         self.assertEqual(len(f), 1)
         self.assertIn("fired 150.0 ms after the previous run, period 100 ms", f[0].message)
 
+    def test_r05_not_across_overflow(self):
+        records = [timer_set(0, 4, 10, 100), exe(100, 0.01, 4, 10), rec("OVERFLOW", 250, dropped=2),
+                   exe(400, 0.01, 4, 10), exe(500, 0.01, 4, 10)]
+        self.assertEqual([x for x in run(records) if x.rule == "R05"], [])
+
     def test_r06_needs_handled_set(self):
         records = [exe(10, 1, 9, 12)]
         self.assertEqual([x for x in run(records) if x.rule == "R06"], [])

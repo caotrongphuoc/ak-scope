@@ -2,7 +2,8 @@
 and per task / per signal statistics. Used by the web UI and by verify.
 
 Pairing: AK keeps FIFO order per priority queue, so per destination task the n-th EXEC of
-(task, sig) is caused by the n-th POST of (task, sig) still waiting. An EXEC with no POST
+(task, sig) is caused by the n-th POST of (task, sig) still waiting. After an OVERFLOW the
+waiting posts are dropped from pairing, since their runs may be lost. An EXEC with no POST
 waiting was posted inside the kernel; if a TIMER_SET for (task, sig) was seen it is a timer
 expiry, otherwise its source is unknown.
 """
@@ -85,6 +86,7 @@ class Timeline:
     pools: list = field(default_factory=list)  # (t, pure, common, dynamic, timer)
     marks: list = field(default_factory=list)  # (t, user_id, value)
     dropped: int = 0
+    gaps: list = field(default_factory=list)  # t of each OVERFLOW: records are missing before it
     task_agg: dict = field(default_factory=dict)  # task -> Agg
     sig_agg: dict = field(default_factory=dict)  # (task, sig) -> Agg
 
@@ -141,6 +143,10 @@ class TimelineBuilder:
             tl.pools.append((t, f["pure"], f["common"], f["dynamic"], f["timer"]))
         elif r.kind == "OVERFLOW":
             tl.dropped += f["dropped"]
+            tl.gaps.append(t)
+            # the runs that would pair with the posts still waiting may be among the dropped
+            # records; pairing across the gap would invent waits of many seconds
+            self._waiting.clear()
         elif r.kind == "USER":
             tl.marks.append((t, f["user_id"], f["value"]))
         elif r.kind == "INFO" and not tl.info:

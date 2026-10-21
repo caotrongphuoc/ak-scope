@@ -150,6 +150,9 @@ class StreamDecoder:
         self.stats = StreamStats()
         self._segment = bytearray()
         self._in_frame = False
+        # until the first good frame, nothing counts as a corrupt frame: the bootloader prints
+        # its banner at its own baud rate, which reads as noise at a faster console rate
+        self._synced = False
 
     def feed(self, data):
         items = []
@@ -173,6 +176,7 @@ class StreamDecoder:
             rec = decode_record(body) if body is not None else None
             if isinstance(rec, Record):
                 self.stats.frames += 1
+                self._synced = True
                 items.append(rec)
                 self._in_frame = False
                 return
@@ -180,7 +184,8 @@ class StreamDecoder:
                 self.stats.unknown += 1
                 self._in_frame = False
                 return
-            self.stats.corrupt += 1
+            if self._synced:
+                self.stats.corrupt += 1
         # text, or a frame broken by text: the next 00 may start a frame
         self.stats.text_bytes += len(seg)
         items.append(seg.decode("latin-1"))

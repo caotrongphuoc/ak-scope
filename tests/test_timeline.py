@@ -58,6 +58,13 @@ class TestPairing(unittest.TestCase):
         self.assertEqual(tl.execs[1].post, 0)
         self.assertEqual(tl.execs[1].src, 3)
 
+    def test_no_pairing_across_overflow(self):
+        # the run of the first post was dropped; the next run must not take that post
+        records = [post(100, 5, 7, 10), rec("OVERFLOW", 500, dropped=3), exe(900, 10, 7, 10)]
+        tl = timeline.build_timeline(records)
+        self.assertEqual(tl.execs[0].post, -1)
+        self.assertEqual(tl.gaps, [400])
+
     def test_overflow_counted(self):
         tl = timeline.build_timeline([rec("OVERFLOW", 5, dropped=3), rec("OVERFLOW", 9, dropped=2)])
         self.assertEqual(tl.dropped, 5)
