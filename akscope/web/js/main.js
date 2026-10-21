@@ -297,7 +297,10 @@ async function openFile(file) {
 		return;
 	}
 	if (!body.execs.length && !body.posts.length) {
-		showError(file.name + " has no trace records. Was the firmware built with akscope build?");
+		// a terminal log (minicom, screen) decodes to console text only
+		showError(body.text && body.text.trim()
+			? file.name + " is console text, not an ak-scope trace. Open an .akt file that akscope record or the Record button wrote."
+			: file.name + " has no trace records. Was the firmware built with akscope build?");
 		return;
 	}
 	$("load-error").hidden = true;

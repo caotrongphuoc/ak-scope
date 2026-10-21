@@ -111,7 +111,7 @@ def cmd_record(args, out=None):
             return 2
 
     try:
-        port = serial.Serial(args.port, args.baud, timeout=0.1)
+        port = serial.Serial(args.port, args.baud, timeout=0.1, exclusive=True)
     except serial.SerialException as e:
         sys.stderr.write("akscope: %s\n" % e)
         return 2

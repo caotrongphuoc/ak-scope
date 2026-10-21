@@ -150,7 +150,9 @@ class LiveSession:
         self.stop()
         try:
             # serial_for_url opens device paths as usual, and loop:// for the tests
-            ser = serial.serial_for_url(port, baud, timeout=0.1)
+            # exclusive: a second ak-scope (or minicom) on the same port gets "busy" instead of
+            # taking half of the bytes
+            ser = serial.serial_for_url(port, baud, timeout=0.1, exclusive=True)
         except serial.SerialException as e:
             self._set_status(state="idle", message=str(e))
             return False

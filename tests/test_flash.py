@@ -12,7 +12,7 @@ def result(text, code=0):
 class TestFlash(unittest.TestCase):
     def setUp(self):
         patches = [mock.patch("shutil.which", return_value="/usr/local/bin/ak-flash"),
-                   mock.patch("time.sleep")]
+                   mock.patch("time.sleep"), mock.patch.object(flash, "port_busy", return_value="")]
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -50,6 +50,14 @@ class TestFlash(unittest.TestCase):
             flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None, console_baud=115200)
             flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None)
         wake.assert_not_called()
+
+    def test_busy_port_is_not_flashed(self):
+        with mock.patch.object(flash, "port_busy", return_value="[Errno 16] Device or resource busy"), \
+                mock.patch("subprocess.run") as run:
+            with self.assertRaises(flash.FlashError) as cm:
+                flash.flash("/dev/ttyUSB0", "app.bin", log=lambda *a: None)
+        run.assert_not_called()
+        self.assertIn("in use by another program", str(cm.exception))
 
 
 if __name__ == "__main__":

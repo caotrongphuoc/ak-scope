@@ -51,7 +51,7 @@ def wake_bootloader(port, baud):
     except ImportError:
         return False
     try:
-        with serial.Serial(port, baud, timeout=0.2) as s:
+        with serial.Serial(port, baud, timeout=0.2, exclusive=True) as s:
             s.reset_input_buffer()
             s.write(b"\r\nfwu\r\n")
             s.flush()
@@ -60,6 +60,22 @@ def wake_bootloader(port, baud):
         return False
     time.sleep(WAKE_DELAY_S)
     return True
+
+
+def port_busy(port):
+    """why port cannot be opened for itself alone, or "" when it can (or cannot be checked)"""
+    try:
+        import serial
+    except ImportError:
+        return ""
+    try:
+        serial.Serial(port, exclusive=True).close()
+    except serial.SerialException as e:
+        if "busy" in str(e).lower() or "lock" in str(e).lower():
+            return str(e)
+    except OSError:
+        pass
+    return ""
 
 
 def _wake_rate(console_baud, attempt):
@@ -75,6 +91,10 @@ def flash(port, binary, address=APP_START_ADDR, attempts=DEFAULT_ATTEMPTS, log=p
     tool = shutil.which("ak-flash")
     if tool is None:
         raise FlashError("ak-flash not found, see https://github.com/ak-embedded-software/ak-flash")
+
+    busy = port_busy(port)
+    if busy:
+        raise FlashError("%s is in use by another program (%s); stop it first" % (port, busy))
 
     last = ""
     for attempt in range(1, attempts + 1):
