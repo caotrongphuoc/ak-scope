@@ -173,7 +173,7 @@ function searchBox(state, value) {
 	if (state === "disable") cls.push("is-disabled");
 	const clear = value ? icon("close-circle-bold").replace('class="icon"', 'class="icon input-clear"') : "";
 	return `<label class="${cls.join(" ")}" style="width:296px"><input placeholder="Input search" value="${value}"` +
-		`${state === "disable" ? " disabled" : ""}>${clear}<button class="input-addon" type="button">${icon("setting2")}</button></label>`;
+		`${state === "disable" ? " disabled" : ""}>${clear}<button class="input-addon" type="button">${icon("search-normal")}</button></label>`;
 }
 
 function select(state, filled) {
@@ -300,4 +300,75 @@ for (const mode of ["dark", "light"]) {
 		["descend", "no", " is-descend"], ["ascend", "yes", " is-ascend is-hover"], ["descend", "yes", " is-descend is-hover"]]) {
 		ENTRIES.push({ group: "Table", page: "Table", mode, ref: `Type=${type}, Hover=${hover}`, html: sort(cls) });
 	}
+}
+
+function treeItem(state, expand, chevron) {
+	const cls = ["tree-item"];
+	if (expand) cls.push("is-open");
+	if (state === "Hover" || state === "Selected_hover") cls.push("is-hover");
+	if (state === "Selected" || state === "Selected_hover") cls.push("is-selected");
+	if (state === "disable") cls.push("is-disabled");
+	const cb = ["checkbox"];
+	if (state.startsWith("Selected")) cb.push("is-checked");
+	const action = `<button class="btn btn--icon btn--square btn--small" type="button">${icon("edit2")}</button>`;
+	return `<div class="${cls.join(" ")}" style="width:260px"><span class="tree-caret${chevron ? "" : " is-leaf"}"></span>` +
+		`<span class="${cb.join(" ")}"><span class="checkbox-box"></span></span>${icon("home")}` +
+		`<span class="tree-title">Menu</span>${action}</div>`;
+}
+
+const TREE_ITEMS = [["Default", false, true], ["Default", false, false], ["disable", false, true], ["disable", false, false],
+	["Default", true, true], ["disable", true, true], ["Hover", false, true], ["Hover", false, false], ["Hover", true, true],
+	["Selected", false, true], ["Selected_hover", false, true], ["Selected", false, false], ["Selected_hover", false, false],
+	["Selected", true, true], ["Selected_hover", true, true]];
+for (const mode of ["dark", "light"]) {
+	for (const [state, expand, chevron] of TREE_ITEMS) {
+		ENTRIES.push({ group: "Tree", page: "Tree", mode,
+			ref: `State=${state}, Expand=${expand ? "Yes" : "No"}, Show_chevron=${chevron ? "True" : "False"}`,
+			html: treeItem(state, expand, chevron) });
+	}
+}
+
+// a button with its icons hidden, as the Figma dialogs place it; Figma gives the label a fixed box
+const textButton = (type, text, width, danger = "No") =>
+	button(type, "Yes", danger, "Default").replace(/<span class="icon"[^>]*><\/span>/g, "").replace(label("Button", 45), label(text, width));
+// the dashed "Swap" block of the Figma slots is left out of the comparison
+const slot = (w, h) => `<div style="width:${w}px;height:${h}px"></div>`;
+
+for (const mode of ["dark", "light"]) {
+	for (const [size, width] of [["small", 480], ["medium", 640], ["large", 1024]]) {
+		ENTRIES.push({ group: "Modal", page: "Modal", ref: `size=${size}`, mode, ignore: [[20, 68, width - 40, 36]],
+			html: `<div class="modal${size === "small" ? "" : " modal--" + size}"><div class="modal-header">` +
+				`<span class="modal-title">Basic Modal</span><span class="icon modal-close"></span></div>` +
+				`<div class="modal-body">${slot(width - 40, 36)}</div><div class="modal-footer">${textButton("Tertiary", "Đặt lại", 48)}` +
+				`<span class="modal-actions">${textButton("Secondary", "Hủy", 40)}${textButton("Primary", "Xác nhận", 63)}</span></div></div>` });
+	}
+	ENTRIES.push({ group: "Empty", page: "Empty", ref: "Title?=Yes", mode,
+		html: `<div class="empty" style="width:302px">${icon("lock")}<div class="empty-text"><span class="empty-title">Title</span>` +
+			`<span class="empty-desc">description</span></div>${button("Secondary", "Yes", "No", "Default")}</div>` });
+	ENTRIES.push({ group: "Empty", page: "Empty", ref: "Title?=No", mode,
+		html: `<div class="empty" style="width:302px">${icon("lock")}<div class="empty-text">` +
+			`<span class="empty-desc">description</span></div>${button("Secondary", "Yes", "No", "Default")}</div>` });
+	for (const [status, cls] of [["Increase", ""], ["decrease", " trend--down"], ["unchanged", " trend--flat"]]) {
+		ENTRIES.push({ group: "Statistic", page: "Statistic", ref: `Status=${status}, Label=Yes`, mode,
+			html: `<span class="trend${cls}" style="width:91px"><span class="trend-value"><span style="width:46px">Number</span></span>` +
+				`<span class="trend-label">Text</span></span>` });
+	}
+	for (const [variant, cls] of [["Default", ""], ["hover", " is-hover"]]) {
+		ENTRIES.push({ group: "Statistic", page: "Statistic", ref: `Property 1=${variant}`, mode,
+			html: `<div class="metric${cls}" style="width:159px"><div class="metric-main"><span class="metric-label">Label</span>` +
+				`<div class="metric-value"><span class="metric-number" style="width:61px">120</span><span class="metric-unit">Unit</span></div>` +
+				`<span class="trend"><span class="trend-value"><span style="width:46px">Number</span></span><span class="trend-label">Text</span></span>` +
+				`</div>${icon("status-up")}</div>` });
+	}
+}
+
+for (const mode of ["dark", "light"]) {
+	for (const [variant, cls] of [["Default", ""], ["hover", " is-hover"], ["active", " is-active"]]) {
+		ENTRIES.push({ group: "Navbar", page: "Navbar", ref: `Property 1=${variant}`, mode,
+			html: `<button class="nav-item${cls}" type="button">${icon("video")}${icon("video-bold")}<span style="width:29px">Text</span></button>` });
+	}
+	ENTRIES.push({ group: "Drawer", page: "Drawer", ref: "Placement=Right/Left", mode, ignore: [[24, 74, 330, 802]],
+		html: `<div class="drawer" style="height:900px"><div class="drawer-header">${icon("panel-panel-left-open")}` +
+			`<span class="drawer-title">Drawer Title</span>${textButton("Secondary", "Hủy", 40)}${textButton("Primary", "Xác nhận", 63)}</div>` +
+			`<div class="drawer-body">${slot(330, 802)}</div></div>` });
 }

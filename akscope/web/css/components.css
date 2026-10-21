@@ -38,6 +38,7 @@
  * line moves it back to Figma's 14.09 px from the top (measured on the gallery) */
 .btn .btn-label {
 	display: inline-block;
+	text-align: center;
 	height: 18px;
 	line-height: 16.7px;
 }
@@ -92,6 +93,11 @@
 .btn--square {
 	width: 34px;
 	padding: 8px;
+}
+
+.btn--small.btn--square {
+	width: 22px;
+	padding: 4px;
 }
 
 .btn--icon-lg {
@@ -780,6 +786,12 @@
 	cursor: default;
 }
 
+.input.is-disabled .input-addon,
+.input:has(> input:disabled) .input-addon {
+	color: var(--color-foreground-disabled);
+	cursor: default;
+}
+
 .input.is-disabled > input::placeholder,
 .input > input:disabled::placeholder {
 	color: var(--color-foreground-disabled);
@@ -1305,4 +1317,440 @@
 th:hover .sort:not(.is-ascend):not(.is-descend),
 th.is-hover .sort:not(.is-ascend):not(.is-descend) {
 	color: var(--color-foreground-secondary-hover);
+}
+
+/* Tree -------------------------------------------------------------------------------------- */
+
+/* <div class="tree-item"><span class="tree-caret"></span><label class="checkbox">..</label>
+ *   <span class="icon"></span><span class="tree-title">Menu</span><button class="btn ..">..</button></div>
+ * .is-open turns the caret down; a leaf keeps the caret's place with .tree-caret.is-leaf.
+ * Children sit in a .tree-children block, indented and lined from the second level on */
+.tree-item {
+	--tree-bg: transparent;
+	--tree-overlay: transparent;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	box-sizing: border-box;
+	height: 34px;
+	padding: 6px 12px;
+	border-radius: var(--radius-md-8);
+	background: linear-gradient(var(--tree-overlay), var(--tree-overlay)), var(--tree-bg);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.tree-caret {
+	flex: 0 0 auto;
+	width: 14px;
+	height: 14px;
+	background: currentColor;
+	-webkit-mask: url(../icons/caret-rectangle-right-bold.svg) center / contain no-repeat;
+	mask: url(../icons/caret-rectangle-right-bold.svg) center / contain no-repeat;
+}
+
+.tree-item.is-open .tree-caret {
+	-webkit-mask-image: url(../icons/caret-rectangle-down-bold.svg);
+	mask-image: url(../icons/caret-rectangle-down-bold.svg);
+}
+
+.tree-caret.is-leaf {
+	visibility: hidden;
+}
+
+.tree-item .checkbox-box {
+	width: 18px;
+	height: 18px;
+	border-color: var(--color-border-base);
+}
+
+.tree-item .checkbox.is-checked .checkbox-box::after {
+	top: 2px;
+	left: 2px;
+}
+
+.tree-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tree-item:hover,
+.tree-item.is-hover {
+	--tree-bg: var(--color-background-secondary);
+	--tree-overlay: var(--color-on-background-default-hover);
+}
+
+.tree-item.is-selected {
+	--tree-bg: var(--color-on-background-selected);
+	--tree-overlay: transparent;
+}
+
+.tree-item.is-selected:hover,
+.tree-item.is-selected.is-hover {
+	--tree-bg: var(--color-on-background-selected-hover);
+}
+
+.tree-item.is-disabled {
+	--tree-bg: transparent;
+	--tree-overlay: transparent;
+	color: var(--color-foreground-disabled);
+	cursor: default;
+}
+
+/* the caret and the row's own button keep their colors */
+.tree-item.is-disabled .tree-caret,
+.tree-item.is-disabled .btn {
+	color: var(--color-foreground-base);
+}
+
+.tree-item.is-disabled .checkbox-box {
+	--cb-bg: var(--color-on-background-default-hover);
+	border-color: var(--color-border-secondary);
+}
+
+.tree-children {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding-left: 6px;
+}
+
+.tree-children .tree-children {
+	margin-left: 18px;
+	padding-left: 4px;
+	border-left: 1px solid var(--color-border-base);
+}
+
+/* Modal ------------------------------------------------------------------------------------- */
+
+/* <div class="modal"><div class="modal-header"><span class="modal-title">..</span>
+ *   <span class="icon modal-close"></span></div><div class="modal-body">..</div>
+ *   <div class="modal-footer"><button ..>Đặt lại</button><span class="modal-actions">..</span></div></div>
+ * widths: 480 small, 640 .modal--medium, 1024 .modal--large */
+.modal {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 480px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-3xl-20);
+	background: var(--color-background-dialog);
+	box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+.modal--medium { width: 640px; }
+.modal--large { width: 1024px; }
+
+/* the border of the box is inside Figma's frame, so the parts start 1 px in */
+.modal-header,
+.modal-footer {
+	box-sizing: border-box;
+}
+
+.modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	height: 51px;
+	padding: 15px 19px;
+	border-bottom: 1px solid var(--color-border-base);
+}
+
+.modal-title {
+	height: 20px;
+	font: 500 16px / 20px "Inter", sans-serif;
+}
+
+.modal-close {
+	width: 16px;
+	height: 16px;
+	--icon: url(../icons/close.svg);
+	cursor: pointer;
+}
+
+.modal-body {
+	padding: 16px 19px;
+}
+
+.modal-footer {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+	height: 65px;
+	padding: 15px 19px;
+	border-top: 1px solid var(--color-border-base);
+}
+
+.modal-footer > .modal-actions {
+	display: flex;
+	flex: 1 1 auto;
+	justify-content: flex-end;
+	gap: 4px;
+}
+
+/* the confirmation dialog: a status icon before the title */
+.modal--alert .modal-header {
+	justify-content: flex-start;
+	align-items: flex-start;
+	height: 55px;
+	padding: 15px 19px;
+}
+
+.modal--alert .modal-header .icon {
+	width: 24px;
+	height: 24px;
+	color: var(--color-foreground-danger);
+}
+
+.modal--alert .modal-body {
+	padding: 8px 19px;
+}
+
+.modal--alert .modal-footer > .modal-actions {
+	gap: 8px;
+}
+
+/* Drawer ------------------------------------------------------------------------------------ */
+
+.drawer {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 378px;
+	overflow: hidden;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: var(--color-background-base);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+.drawer-header {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	box-sizing: border-box;
+	height: 49px;
+	padding: 7px 11px;
+	border-bottom: 1px solid var(--color-border-base);
+}
+
+.drawer-title {
+	flex: 1 1 auto;
+	height: 18px;
+	font-weight: 500;
+}
+
+.drawer-body {
+	flex: 1 1 auto;
+	padding: 24px 23px 23px;
+}
+
+/* Empty ------------------------------------------------------------------------------------- */
+
+.empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	box-sizing: border-box;
+	padding: 16px;
+	text-align: center;
+}
+
+.empty > .icon {
+	width: 34px;
+	height: 34px;
+	color: var(--color-foreground-secondary);
+}
+
+.empty-text {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-self: stretch;
+}
+
+.empty-title {
+	height: 28px;
+	color: var(--color-foreground-base);
+	font: 600 20px / 28px "Inter", sans-serif;
+}
+
+.empty-desc {
+	height: 18px;
+	color: var(--color-foreground-secondary);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+/* Statistic --------------------------------------------------------------------------------- */
+
+.trend {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	height: 16px;
+	color: var(--color-foreground-secondary);
+	font: 400 12px / 14px "Inter", sans-serif;
+	white-space: nowrap;
+}
+
+.trend-value {
+	display: inline-flex;
+	align-items: center;
+	color: var(--color-foreground-success);
+	font-weight: 500;
+}
+
+/* in the 16 px box Figma scales each icon's outline to 2/3 around the outline's own origin,
+ * not around the icon box; the mask positions put it there (origin / 3) */
+.trend-value::before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	background: currentColor;
+	-webkit-mask: url(../icons/caret-rectangle-up-bold.svg) 1.67px 2.73px / 16px 16px no-repeat;
+	mask: url(../icons/caret-rectangle-up-bold.svg) 1.67px 2.73px / 16px 16px no-repeat;
+}
+
+.trend--down .trend-value { color: var(--color-foreground-danger); }
+.trend--down .trend-value::before {
+	-webkit-mask-image: url(../icons/caret-rectangle-down-bold.svg);
+	mask-image: url(../icons/caret-rectangle-down-bold.svg);
+	-webkit-mask-position: 1.67px 5.27px;
+	mask-position: 1.67px 5.27px;
+}
+
+.trend--flat .trend-value { color: var(--color-foreground-warning); }
+/* Figma does not scale the minus like the carets (it ends up 9.3 x 1.7 px); the bar is drawn
+ * where the Figma file has it */
+.trend--flat .trend-value::before {
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='5.1' y='11' width='9.33' height='1.68' rx='0.75'/%3E%3C/svg%3E") 0 0 / 16px 16px no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='5.1' y='11' width='9.33' height='1.68' rx='0.75'/%3E%3C/svg%3E") 0 0 / 16px 16px no-repeat;
+}
+
+.trend-label {
+	opacity: 0.8;
+}
+
+/* a number with a label, unit and trend, on a card */
+.metric {
+	display: flex;
+	justify-content: space-between;
+	gap: 24px;
+	box-sizing: border-box;
+	padding: 11px;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-lg-10);
+	background: linear-gradient(var(--metric-overlay, transparent), var(--metric-overlay, transparent)), var(--color-background-base);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+}
+
+.metric:hover,
+.metric.is-hover {
+	--metric-overlay: var(--color-on-background-default-hover);
+}
+
+.metric-main {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.metric-label {
+	height: 18px;
+	color: var(--color-foreground-secondary);
+}
+
+.metric-value {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 41px;
+}
+
+.metric-number {
+	height: 41px;
+	font: 600 34px / 41px "Inter", sans-serif;
+	letter-spacing: 0.0061em;
+}
+
+.metric-unit {
+	height: 14px;
+	padding-bottom: 4px;
+	color: var(--color-foreground-secondary);
+	font: 400 12px / 14px "Inter", sans-serif;
+}
+
+/* Navigation -------------------------------------------------------------------------------- */
+
+/* the 124 px side bar of the app shell: 100 x 60 items, an icon over a label */
+.navside {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	box-sizing: border-box;
+	width: 124px;
+	padding: 12px;
+	background: var(--color-background-base);
+}
+
+.nav-item {
+	--nav-bg: transparent;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	box-sizing: border-box;
+	width: 100px;
+	height: 60px;
+	margin: 0;
+	padding: 8px 12px;
+	border: 0;
+	border-radius: var(--radius-lg-10);
+	background: var(--nav-bg);
+	color: var(--color-foreground-base);
+	font: 400 14px / 18px "Inter", sans-serif;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.nav-item > span:last-child {
+	height: 18px;
+}
+
+/* the icon is outline at rest and bold when hovered or chosen; both are in the markup */
+.nav-item .icon + .icon,
+.nav-item:hover .icon:first-child,
+.nav-item.is-hover .icon:first-child,
+.nav-item.is-active .icon:first-child {
+	display: none;
+}
+
+.nav-item:hover .icon + .icon,
+.nav-item.is-hover .icon + .icon,
+.nav-item.is-active .icon + .icon {
+	display: inline-block;
+}
+
+.nav-item:hover,
+.nav-item.is-hover {
+	--nav-bg: var(--color-on-background-selected-hover);
+	color: var(--color-foreground-nav-text);
+}
+
+.nav-item.is-active {
+	--nav-bg: var(--color-on-background-selected);
+	color: var(--color-foreground-nav-text);
 }
