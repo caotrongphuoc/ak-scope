@@ -443,11 +443,20 @@ class Renderer:
                          % (cid, -m, -m, w + 2 * m, h + 2 * m, -m, -m, w + 2 * m, h + 2 * m, d))
         return ['<g mask="url(#%s)">%s</g>' % (cid, "".join(strokes))]
 
-    OVERRIDDEN = ("visible", "fillPaints", "strokePaints", "opacity", "componentPropAssignments")
+    OVERRIDDEN = ("visible", "fillPaints", "strokePaints", "opacity", "componentPropAssignments", "overriddenSymbolID")
 
     def instance(self, n, ov, outer=None):
         sd = n.get("symbolData") or {}
-        sym = self.doc.nodes.get(gid(sd["symbolID"])) if sd.get("symbolID") else None
+        sym_id = sd.get("symbolID")
+        # an instance swap, by an override or by a property of the enclosing instance
+        if ov.get("overriddenSymbolID"):
+            sym_id = ov["overriddenSymbolID"]
+        for ref in n.get("componentPropRefs") or []:
+            if ref.get("componentPropNodeField") == "OVERRIDDEN_SYMBOL_ID":
+                value = self.props.get(gid(ref["defID"])) or {}
+                if (value.get("symbolIdValue") or {}).get("guid"):
+                    sym_id = value["symbolIdValue"]["guid"]
+        sym = self.doc.nodes.get(gid(sym_id)) if sym_id else None
         if not sym:
             return ""
         # derived data of this instance, keyed by the guid path of the node inside the symbol

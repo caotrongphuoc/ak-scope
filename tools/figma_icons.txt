@@ -2,12 +2,14 @@ activity
 add
 add-square
 caret-rectangle-down:bold
+caret-rectangle-right:bold
 caret-rectangle-up:bold
 chart
 chevron-down1
 chevron-left1
 chevron-right1
 chevron-up1
+Close
 close-circle
 close-circle:bold
 code
@@ -26,11 +28,14 @@ hierarchy
 home
 info:bold
 information
+lock
 maximize
 message-text
 minus
+minus:bold
 moon
 more
+panel:panel-left-open
 pause
 play
 record-circle
@@ -40,6 +45,7 @@ search-zoom-in
 search-zoom-out
 setting2
 shield-tick
+status-up
 stop-circle
 sun
 task-square
@@ -48,6 +54,8 @@ tick-circle
 tick-circle:bold
 timer
 trash
-warning-circle:bold
+video
+video:bold
 warning2
+warning-circle:bold
 x

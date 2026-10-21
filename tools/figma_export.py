@@ -128,7 +128,14 @@ def icons(doc, names, out_dir):
         name, _, style = item.partition(":")
         n = frames.get(name)
         if n is None:
-            missing.append(item)
+            # a few icons are components of their own outside the sheet ("Close" of the modal); the
+            # outline of "Close" is only in the derived data of its instances, so one is drawn
+            inst = next((v for v in doc.nodes.values() if v.get("type") == "INSTANCE" and v.get("name") == name
+                         and v.get("derivedSymbolData")), None)
+            if inst is None:
+                missing.append(item)
+            else:
+                (out_dir / ("%s.svg" % name.lower())).write_text(icon_svg(doc, r, inst) + "\n")
             continue
         # each icon frame holds a bold and an outline variant ("Style=outline", "Property 1=bold", ...)
         style = style or "outline"
