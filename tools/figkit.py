@@ -274,10 +274,12 @@ class Renderer:
             c = p.get("color", {"r": 0, "g": 0, "b": 0, "a": 1})
             alias = ((p.get("colorVar") or {}).get("value") or {}).get("alias") or {}
             if "guid" in alias:
-                # bound to a variable: its value in the modes of the enclosing frames
+                # bound to a variable: its value in the modes of the enclosing frames. Figma
+                # copies the variable's alpha into the paint opacity, so do not apply it twice.
                 v = self.doc.resolve(alias["guid"], self.modes)
                 if v and "colorValue" in v:
                     c = v["colorValue"]
+                    return color_hex(c), c.get("a", 1)
             return color_hex(c), op * c.get("a", 1)
         if t in ("GRADIENT_LINEAR", "GRADIENT_RADIAL"):
             gid_ = self._id("g")
@@ -345,12 +347,16 @@ class Renderer:
         if not shadows:
             return None
         fid = self._id("f")
-        parts = []
-        for e in shadows:
+        # plain primitives instead of feDropShadow, which older librsvg leaves empty
+        parts, merge = [], []
+        for i, e in enumerate(shadows):
             c = e.get("color", {})
             off = e.get("offset", {"x": 0, "y": 0})
-            parts.append('<feDropShadow dx="%.2f" dy="%.2f" stdDeviation="%.2f" flood-color="%s" flood-opacity="%.4f"/>'
-                         % (off["x"], off["y"], e.get("radius", 0) / 2, color_hex(c), c.get("a", 1)))
+            parts.append('<feGaussianBlur in="SourceAlpha" stdDeviation="%.2f"/><feOffset dx="%.2f" dy="%.2f" result="o%d"/>'
+                         '<feFlood flood-color="%s" flood-opacity="%.4f"/><feComposite in2="o%d" operator="in" result="s%d"/>'
+                         % (e.get("radius", 0) / 2, off["x"], off["y"], i, color_hex(c), c.get("a", 1), i, i))
+            merge.append('<feMergeNode in="s%d"/>' % i)
+        parts.append("<feMerge>%s<feMergeNode in=\"SourceGraphic\"/></feMerge>" % "".join(merge))
         self.defs.append('<filter id="%s" x="-50%%" y="-50%%" width="200%%" height="200%%">%s</filter>' % (fid, "".join(parts)))
         return fid
 
@@ -389,9 +395,11 @@ class Renderer:
                 kids_svg.append(self.node(c, self._derived_for(master, c), master))
         if t != "TEXT":
             body_strokes = self.shapes(n, ov.get("strokeGeometry") or n.get("strokeGeometry"),
-                                       n.get("strokePaints"))
+                                       ov.get("strokePaints") or n.get("strokePaints"))
         else:
             body_strokes = []
+        if body_strokes:
+            body_strokes = self._align_strokes(n, ov, body_strokes)
         clip = ""
         if t in ("FRAME", "SYMBOL", "INSTANCE") and not n.get("frameMaskDisabled") and kids_svg:
             geom = ov.get("fillGeometry") or n.get("fillGeometry")
@@ -401,10 +409,30 @@ class Renderer:
                 clip = ' clip-path="url(#%s)"' % cid
         fid = self.effects(n)
         filt = ' filter="url(#%s)"' % fid if fid else ""
-        op = n.get("opacity", 1.0)
+        op = ov.get("opacity", n.get("opacity", 1.0))
         opa = ' opacity="%.4f"' % op if op < 1 else ""
         inner = "".join(body) + ("<g%s>%s</g>" % (clip, "".join(kids_svg)) if kids_svg else "") + "".join(body_strokes)
         return '<g transform="%s"%s%s>%s</g>' % (_fmt_matrix(m), filt, opa, inner)
+
+    def _align_strokes(self, n, ov, strokes):
+        """strokeGeometry of an inside or outside stroke is a centered stroke twice as wide;
+        Figma keeps the half inside (or outside) of the fill shape"""
+        align = n.get("strokeAlign", "CENTER")
+        geom = ov.get("fillGeometry") or n.get("fillGeometry")
+        if align == "CENTER" or not geom or not isinstance(geom[0].get("commandsBlob"), int):
+            return strokes
+        d = path_d(self.doc.blobs[geom[0]["commandsBlob"]])
+        cid = self._id("c")
+        if align == "INSIDE":
+            self.defs.append('<clipPath id="%s"><path d="%s"/></clipPath>' % (cid, d))
+            return ['<g clip-path="url(#%s)">%s</g>' % (cid, "".join(strokes))]
+        size = n.get("size", {})
+        w, h = size.get("x", 0), size.get("y", 0)
+        m = max(w, h) + 2 * n.get("strokeWeight", 1) + 2
+        self.defs.append('<mask id="%s" maskUnits="userSpaceOnUse" x="%.3f" y="%.3f" width="%.3f" height="%.3f">'
+                         '<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" fill="#fff"/><path d="%s" fill="#000"/></mask>'
+                         % (cid, -m, -m, w + 2 * m, h + 2 * m, -m, -m, w + 2 * m, h + 2 * m, d))
+        return ['<g mask="url(#%s)">%s</g>' % (cid, "".join(strokes))]
 
     def instance(self, n, ov):
         sd = n.get("symbolData") or {}
@@ -421,7 +449,7 @@ class Renderer:
             path = tuple(gid(g) for g in (o.get("guidPath") or {}).get("guids", []))
             if path:
                 merged = dict(derived.get(path, {}))
-                for k in ("visible", "fillPaints", "opacity"):
+                for k in ("visible", "fillPaints", "strokePaints", "opacity"):
                     if k in o:
                         merged[k] = o[k]
                 derived[path] = merged

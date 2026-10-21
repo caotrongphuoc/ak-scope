@@ -12,11 +12,13 @@ cpu
 danger
 document-code
 document-upload
+edit2
 export
 filter
 flash
 folder-open
 hierarchy
+info:bold
 information
 maximize
 minus
@@ -34,7 +36,11 @@ shield-tick
 stop-circle
 sun
 task-square
+tick-02:bold
 tick-circle
+tick-circle:bold
 timer
 trash
+warning-circle:bold
 warning2
+x

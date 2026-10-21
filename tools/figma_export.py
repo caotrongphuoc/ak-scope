@@ -90,7 +90,8 @@ def tokens(doc):
     out.append(":root {")
     out += ["\t%s: %s;" % kv for kv in sorted(numbers.items())]
     out.append("}")
-    for mode, sel in (("dark", ':root,\n:root[data-theme="dark"]'), ("light", ':root[data-theme="light"]')):
+    # on any element too, so a part of a page can be in the other mode (the gallery shows both)
+    for mode, sel in (("dark", ':root,\n[data-theme="dark"]'), ("light", '[data-theme="light"]')):
         out.append("")
         out.append("%s {" % sel)
         out += ["\t%s: %s;" % kv for kv in sorted(blocks.get(mode, {}).items())]
@@ -106,23 +107,40 @@ def icon_svg(doc, renderer, node):
 
 
 def icons(doc, names, out_dir):
+    """names are icon names, "name:bold" for the bold style (written as name-bold.svg)"""
     page = doc.page("ICON")
     # the icons are the direct children of the big "Icon" frame; other frames on the page
-    # reuse some names (a "flash" toggle, for one)
+    # reuse some names (a "flash" toggle, for one), and a few names are there twice, once empty
     sheet = next(n for n in doc.kids(page) if n.get("name") == "Icon")
-    wanted = set(names)
-    found = {}
+    def styled(n):
+        return any("=" in v.get("name", "") for v in doc.kids(n))
+
+    frames = {}
     for n in doc.kids(sheet):
-        if n.get("name") in wanted and n.get("name") not in found:
-            found[n["name"]] = n
+        if n.get("name") not in frames or (styled(n) and not styled(frames[n["name"]])):
+            frames[n["name"]] = n
     r = figkit.Renderer(doc)
     out_dir.mkdir(parents=True, exist_ok=True)
-    for name, n in sorted(found.items()):
-        # each icon frame holds a bold and an outline variant; the components use outline
+    missing = []
+    for item in sorted(set(names)):
+        name, _, style = item.partition(":")
+        n = frames.get(name)
+        if n is None:
+            missing.append(item)
+            continue
+        # each icon frame holds a bold and an outline variant ("Style=outline", "Property 1=bold", ...)
+        style = style or "outline"
         variants = doc.kids(n)
-        pick = next((v for v in variants if v.get("name") == "Style=outline"), variants[0] if variants else n)
-        (out_dir / ("%s.svg" % name)).write_text(icon_svg(doc, r, pick) + "\n")
-    return sorted(wanted - set(found))
+        pick = next((v for v in variants if v.get("name", "").lower().endswith("=" + style)), None)
+        if pick is None and style == "outline":
+            # "minus" names its outline variant "Style=Style3"
+            pick = next((v for v in variants if not v.get("name", "").lower().endswith("=bold")), None)
+        if pick is None:
+            missing.append(item)
+            continue
+        fname = name if style == "outline" else "%s-%s" % (name, style)
+        (out_dir / ("%s.svg" % fname)).write_text(icon_svg(doc, r, pick) + "\n")
+    return missing
 
 
 def _var_name(doc, paint):
@@ -175,8 +193,16 @@ def _box(doc, n):
     if n.get("type") == "TEXT":
         f = n.get("fontName", {})
         lh = n.get("lineHeight") or {}
-        d["text"] = {"chars": (n.get("textData") or {}).get("characters", ""), "family": f.get("family"),
-                     "style": f.get("style"), "size": n.get("fontSize"),
+        # what Figma shows is the laid out text: per character styles can override the node's
+        # own font size (a "Button" label is 16 on the node and drawn at 14)
+        derived = n.get("derivedTextData") or {}
+        glyphs = derived.get("glyphs") or []
+        meta = (derived.get("fontMetaData") or [{}])[0].get("key") or {}
+        size = glyphs[0]["fontSize"] if glyphs else n.get("fontSize")
+        d["text"] = {"chars": (n.get("textData") or {}).get("characters", ""),
+                     "family": meta.get("family") or f.get("family"), "style": meta.get("style") or f.get("style"),
+                     "size": size, "node_size": n.get("fontSize"),
+                     "width": round((derived.get("baselines") or [{}])[0].get("width", 0), 3),
                      "line_height": [lh.get("value"), lh.get("units")],
                      "letter_spacing": [(n.get("letterSpacing") or {}).get("value"), (n.get("letterSpacing") or {}).get("units")]}
     if n.get("opacity", 1) < 1:

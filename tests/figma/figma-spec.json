@@ -58,7 +58,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -140,7 +142,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -223,6 +227,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -296,6 +302,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -375,6 +383,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -454,6 +464,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -532,6 +544,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -611,6 +625,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -689,7 +705,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -777,7 +795,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -858,7 +878,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -945,7 +967,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1027,7 +1051,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1156,7 +1182,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1230,7 +1258,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1359,7 +1389,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1423,7 +1455,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1487,7 +1521,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -1612,6 +1648,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        16.0,
        "PIXELS"
@@ -1686,6 +1724,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        18.0,
        "PIXELS"
@@ -1768,6 +1808,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        18.0,
        "PIXELS"
@@ -1843,6 +1885,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        18.0,
        "PIXELS"
@@ -2247,7 +2291,9 @@
       "chars": "Button",
       "family": "Inter",
       "style": "Medium",
-      "size": 16.0,
+      "size": 14.0,
+      "node_size": 16.0,
+      "width": 44.625,
       "line_height": [
        100.0,
        "PERCENT"
@@ -2302,6 +2348,8 @@
       "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 44.625,
       "line_height": [
        18.0,
        "PIXELS"
@@ -2405,7 +2453,9 @@
           "chars": "Tab",
           "family": "Inter",
           "style": "Regular",
-          "size": 14.0,
+          "size": 16.0,
+          "node_size": 14.0,
+          "width": 28.031,
           "line_height": [
            100.0,
            "PERCENT"
@@ -2523,6 +2573,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.031,
         "line_height": [
          20.0,
          "PIXELS"
@@ -2658,7 +2710,9 @@
           "chars": "Tab",
           "family": "Inter",
           "style": "Regular",
-          "size": 14.0,
+          "size": 16.0,
+          "node_size": 14.0,
+          "width": 28.031,
           "line_height": [
            100.0,
            "PERCENT"
@@ -2778,6 +2832,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.031,
         "line_height": [
          20.0,
          "PIXELS"
@@ -2922,6 +2978,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 16.0,
+          "node_size": 16.0,
+          "width": 28.031,
           "line_height": [
            20.0,
            "PIXELS"
@@ -3048,6 +3106,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.031,
         "line_height": [
          20.0,
          "PIXELS"
@@ -3200,8 +3260,10 @@
          "text": {
           "chars": "Tab",
           "family": "Inter",
-          "style": "Regular",
-          "size": 14.0,
+          "style": "Medium",
+          "size": 16.0,
+          "node_size": 14.0,
+          "width": 28.359,
           "line_height": [
            100.0,
            "PERCENT"
@@ -3326,8 +3388,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
+        "style": "Medium",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.359,
         "line_height": [
          20.0,
          "PIXELS"
@@ -3473,8 +3537,10 @@
          "text": {
           "chars": "Tab",
           "family": "Inter",
-          "style": "Regular",
-          "size": 14.0,
+          "style": "Medium",
+          "size": 16.0,
+          "node_size": 14.0,
+          "width": 28.359,
           "line_height": [
            100.0,
            "PERCENT"
@@ -3601,6 +3667,8 @@
         "family": "Inter",
         "style": "Medium",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.359,
         "line_height": [
          20.0,
          "PIXELS"
@@ -3705,8 +3773,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          100.0,
          "PERCENT"
@@ -3827,8 +3897,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          100.0,
          "PERCENT"
@@ -3924,7 +3996,9 @@
         "chars": "Tab",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.031,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4029,6 +4103,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.031,
         "line_height": [
          20.0,
          "PIXELS"
@@ -4124,7 +4200,9 @@
         "chars": "Tab",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.031,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4228,8 +4306,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4359,8 +4439,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4465,7 +4547,9 @@
         "chars": "Tab",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.031,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4579,6 +4663,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 28.031,
         "line_height": [
          20.0,
          "PIXELS"
@@ -4683,7 +4769,9 @@
         "chars": "Tab",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.031,
         "line_height": [
          100.0,
          "PERCENT"
@@ -4778,8 +4866,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          18.0,
          "PIXELS"
@@ -4901,8 +4991,10 @@
        "text": {
         "chars": "Tab",
         "family": "Inter",
-        "style": "Regular",
-        "size": 14.0,
+        "style": "Medium",
+        "size": 16.0,
+        "node_size": 14.0,
+        "width": 28.359,
         "line_height": [
          18.0,
          "PIXELS"
@@ -6085,9 +6177,11 @@
        ],
        "text": {
         "chars": "Title",
-        "family": "SF Pro Display",
-        "style": "Regular",
-        "size": 16.0,
+        "family": "Inter",
+        "style": "Medium",
+        "size": 14.0,
+        "node_size": 16.0,
+        "width": 29.682,
         "line_height": [
          22.0,
          "PIXELS"
@@ -6249,6 +6343,8 @@
         "family": "Inter",
         "style": "Medium",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 29.682,
         "line_height": [
          16.0,
          "PIXELS"
@@ -6382,6 +6478,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 53.156,
         "line_height": [
          18.0,
          "PIXELS"
@@ -6433,7 +6531,9 @@
         "chars": "<Sub_text>",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 10.0,
+        "node_size": 14.0,
+        "width": 54.385,
         "line_height": [
          18.0,
          "PIXELS"
@@ -6543,6 +6643,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 53.156,
         "line_height": [
          18.0,
          "PIXELS"
@@ -6595,6 +6697,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 10.0,
+        "node_size": 10.0,
+        "width": 54.385,
         "line_height": [
          14.0,
          "PIXELS"
@@ -7157,6 +7261,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 10.0,
+        "node_size": 10.0,
+        "width": 54.385,
         "line_height": [
          16.0,
          "PIXELS"
@@ -7277,6 +7383,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 10.0,
+        "node_size": 10.0,
+        "width": 54.385,
         "line_height": [
          14.0,
          "PIXELS"
@@ -13096,6 +13204,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -13248,6 +13358,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -13407,6 +13519,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        16.0,
        "PIXELS"
@@ -13567,6 +13681,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -13718,6 +13834,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -13877,6 +13995,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        16.0,
        "PIXELS"
@@ -14042,6 +14162,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -14252,6 +14374,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -14439,6 +14563,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -14640,6 +14766,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -14797,6 +14925,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -14955,6 +15085,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -15113,6 +15245,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -15270,6 +15404,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -15427,6 +15563,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 36.928,
       "line_height": [
        18.0,
        "PIXELS"
@@ -15847,6 +15985,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16005,6 +16145,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16163,6 +16305,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16321,6 +16465,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16479,6 +16625,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16637,6 +16785,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16795,6 +16945,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -16953,6 +17105,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -17111,6 +17265,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -17269,6 +17425,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -17427,6 +17585,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -17584,7 +17744,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -17742,7 +17904,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -17906,6 +18070,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18068,6 +18234,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18230,6 +18398,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18392,6 +18562,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18554,6 +18726,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18716,6 +18890,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -18878,6 +19054,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -19040,6 +19218,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -19202,6 +19382,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -19364,6 +19546,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -19526,6 +19710,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -19687,7 +19873,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -19849,7 +20037,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -19997,9 +20187,11 @@
      ],
      "text": {
       "chars": "Text",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        20.0,
        "PIXELS"
@@ -20150,6 +20342,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -20300,6 +20494,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -20450,6 +20646,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        14.0,
        "PIXELS"
@@ -20600,6 +20798,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -20750,6 +20950,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -20900,6 +21102,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -21050,6 +21254,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -21200,6 +21406,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -21350,6 +21558,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -21500,6 +21710,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 24.398,
       "line_height": [
        100.0,
        "PERCENT"
@@ -21649,7 +21861,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -21799,7 +22013,9 @@
       "chars": "Text",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 24.398,
       "line_height": [
        18.0,
        "PIXELS"
@@ -22956,6 +23172,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 44.203,
       "line_height": [
        100.0,
        "PERCENT"
@@ -23053,6 +23271,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 12.0,
+      "node_size": 12.0,
+      "width": 44.203,
       "line_height": [
        14.0,
        "PIXELS"
@@ -23535,6 +23755,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -23747,6 +23969,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -23863,6 +24087,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24075,6 +24301,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24191,6 +24419,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24403,6 +24633,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24567,6 +24799,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24731,6 +24965,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -24847,6 +25083,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -25011,6 +25249,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -25175,6 +25415,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -25387,6 +25629,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 53.156,
           "line_height": [
            100.0,
            "PERCENT"
@@ -25884,6 +26128,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -25988,6 +26234,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -26092,6 +26340,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -26196,6 +26446,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -26300,6 +26552,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -26404,6 +26658,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -27124,6 +27380,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -27228,6 +27486,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 87.486,
         "line_height": [
          100.0,
          "PERCENT"
@@ -27809,9 +28069,11 @@
        ],
        "text": {
         "chars": "example",
-        "family": "Roboto",
+        "family": "Inter",
         "style": "Regular",
-        "size": 16.0,
+        "size": 14.0,
+        "node_size": 16.0,
+        "width": 55.562,
         "line_height": [
          24.0,
          "PIXELS"
@@ -27995,6 +28257,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 55.562,
         "line_height": [
          100.0,
          "PERCENT"
@@ -28178,6 +28442,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          100.0,
          "PERCENT"
@@ -28341,6 +28607,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          100.0,
          "PERCENT"
@@ -28534,6 +28802,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.562,
           "line_height": [
            100.0,
            "PERCENT"
@@ -28564,6 +28834,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 4.58,
           "line_height": [
            100.0,
            "PERCENT"
@@ -28758,6 +29030,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          18.0,
          "PIXELS"
@@ -28797,6 +29071,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          18.0,
          "PIXELS"
@@ -28942,6 +29218,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 82.004,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29089,6 +29367,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 4.58,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29119,6 +29399,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 82.004,
           "line_height": [
            16.0,
            "PIXELS"
@@ -29266,6 +29548,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 82.004,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29413,6 +29697,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29570,6 +29856,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29727,6 +30015,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29757,6 +30047,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 4.58,
           "line_height": [
            100.0,
            "PERCENT"
@@ -29894,6 +30186,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 164.021,
         "line_height": [
          100.0,
          "PERCENT"
@@ -29924,6 +30218,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          100.0,
          "PERCENT"
@@ -30028,6 +30324,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 164.021,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30150,6 +30448,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30180,6 +30480,8 @@
         "family": "Inter",
         "style": "Medium",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 102.977,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30284,6 +30586,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 164.021,
         "line_height": [
          100.0,
          "PERCENT"
@@ -30388,6 +30692,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 164.021,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30418,6 +30724,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30522,6 +30830,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 126.0,
         "line_height": [
          100.0,
          "PERCENT"
@@ -30625,6 +30935,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 126.0,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30655,6 +30967,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30758,6 +31072,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 126.0,
         "line_height": [
          100.0,
          "PERCENT"
@@ -30861,6 +31177,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 126.0,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30891,6 +31209,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 4.58,
         "line_height": [
          18.0,
          "PIXELS"
@@ -30994,6 +31314,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 101.391,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31096,8 +31418,10 @@
        "text": {
         "chars": "input password",
         "family": "Inter",
-        "style": "Regular",
+        "style": "Medium",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 102.977,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31202,6 +31526,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 101.391,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31306,6 +31632,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31398,8 +31726,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -31492,6 +31822,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31584,8 +31916,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -31678,6 +32012,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 80.91,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31770,8 +32106,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -31864,6 +32202,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 358.135,
         "line_height": [
          100.0,
          "PERCENT"
@@ -31956,8 +32296,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -32050,6 +32392,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 358.135,
         "line_height": [
          100.0,
          "PERCENT"
@@ -32142,8 +32486,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -32236,6 +32582,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 366.023,
         "line_height": [
          100.0,
          "PERCENT"
@@ -32328,8 +32676,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -32442,6 +32792,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -32557,8 +32909,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -32705,6 +33059,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -32820,8 +33176,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -32968,6 +33326,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.986,
           "line_height": [
            100.0,
            "PERCENT"
@@ -33083,8 +33443,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -33197,6 +33559,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 80.91,
           "line_height": [
            100.0,
            "PERCENT"
@@ -33291,8 +33655,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -33405,6 +33771,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 80.91,
           "line_height": [
            100.0,
            "PERCENT"
@@ -33499,8 +33867,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -33613,6 +33983,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 80.91,
           "line_height": [
            100.0,
            "PERCENT"
@@ -33707,8 +34079,10 @@
      "text": {
       "chars": "0 / 100",
       "family": "Inter",
-      "style": "Regular",
-      "size": 14.0,
+      "style": "Medium",
+      "size": 12.0,
+      "node_size": 14.0,
+      "width": 39.668,
       "line_height": [
        100.0,
        "PERCENT"
@@ -33764,6 +34138,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 4.58,
       "line_height": [
        100.0,
        "PERCENT"
@@ -33861,6 +34237,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 32.197,
       "line_height": [
        100.0,
        "PERCENT"
@@ -34006,6 +34384,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.75,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34170,6 +34550,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.75,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34221,7 +34603,9 @@
         "chars": "Giây",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 12.0,
+        "node_size": 14.0,
+        "width": 25.383,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34355,6 +34739,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 14.984,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34519,6 +34905,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 14.984,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34571,6 +34959,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 25.383,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34704,6 +35094,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34868,6 +35260,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -34920,6 +35314,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 25.383,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35053,6 +35449,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35217,6 +35615,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35269,6 +35669,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 25.383,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35402,6 +35804,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35622,6 +36026,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 8.914,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35696,6 +36102,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 25.383,
         "line_height": [
          100.0,
          "PERCENT"
@@ -35968,6 +36376,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 40.811,
         "line_height": [
          100.0,
          "PERCENT"
@@ -36144,7 +36554,9 @@
       "chars": "|",
       "family": "Inter",
       "style": "Regular",
-      "size": 20.0,
+      "size": 14.0,
+      "node_size": 20.0,
+      "width": 4.58,
       "line_height": [
        100.0,
        "PERCENT"
@@ -36256,7 +36668,9 @@
       "chars": "•",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 16.0,
+      "node_size": 14.0,
+      "width": 9.0,
       "line_height": [
        18.0,
        "PIXELS"
@@ -36328,7 +36742,9 @@
       "chars": "•",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 16.0,
+      "node_size": 14.0,
+      "width": 9.0,
       "line_height": [
        18.0,
        "PIXELS"
@@ -36400,7 +36816,9 @@
       "chars": "•",
       "family": "Inter",
       "style": "Regular",
-      "size": 14.0,
+      "size": 16.0,
+      "node_size": 14.0,
+      "width": 9.0,
       "line_height": [
        18.0,
        "PIXELS"
@@ -36471,8 +36889,10 @@
      "text": {
       "chars": "5",
       "family": "Inter",
-      "style": "Medium",
-      "size": 20.0,
+      "style": "Regular",
+      "size": 16.0,
+      "node_size": 20.0,
+      "width": 9.734,
       "line_height": [
        100.0,
        "PERCENT"
@@ -36545,6 +36965,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 16.0,
+      "node_size": 16.0,
+      "width": 9.734,
       "line_height": [
        20.0,
        "PIXELS"
@@ -36615,8 +37037,10 @@
      "text": {
       "chars": "5",
       "family": "Inter",
-      "style": "Medium",
-      "size": 20.0,
+      "style": "Regular",
+      "size": 16.0,
+      "node_size": 20.0,
+      "width": 9.734,
       "line_height": [
        100.0,
        "PERCENT"
@@ -36647,6 +37071,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 4.58,
       "line_height": [
        18.0,
        "PIXELS"
@@ -36717,8 +37143,10 @@
      "text": {
       "chars": "5",
       "family": "Inter",
-      "style": "Medium",
-      "size": 20.0,
+      "style": "Regular",
+      "size": 16.0,
+      "node_size": 20.0,
+      "width": 9.734,
       "line_height": [
        100.0,
        "PERCENT"
@@ -37608,6 +38036,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 29.025,
       "line_height": [
        100.0,
        "PERCENT"
@@ -37693,6 +38123,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 29.025,
       "line_height": [
        100.0,
        "PERCENT"
@@ -37778,6 +38210,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 29.025,
       "line_height": [
        100.0,
        "PERCENT"
@@ -38945,9 +39379,11 @@
        ],
        "text": {
         "chars": "ON",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 18.176,
         "line_height": [
          20.0,
          "PIXELS"
@@ -39050,7 +39486,9 @@
         "chars": "ON",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 13.632,
         "line_height": [
          100.0,
          "PERCENT"
@@ -39170,9 +39608,11 @@
        ],
        "text": {
         "chars": "OFF",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 23.227,
         "line_height": [
          20.0,
          "PIXELS"
@@ -39275,7 +39715,9 @@
         "chars": "OFF",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 17.42,
         "line_height": [
          100.0,
          "PERCENT"
@@ -39377,9 +39819,11 @@
        ],
        "text": {
         "chars": "OFF",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 23.227,
         "line_height": [
          20.0,
          "PIXELS"
@@ -39483,7 +39927,9 @@
         "chars": "OFF",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 17.42,
         "line_height": [
          100.0,
          "PERCENT"
@@ -39585,9 +40031,11 @@
        ],
        "text": {
         "chars": "OFF",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 23.227,
         "line_height": [
          20.0,
          "PIXELS"
@@ -39691,7 +40139,9 @@
         "chars": "OFF",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 17.42,
         "line_height": [
          100.0,
          "PERCENT"
@@ -39792,9 +40242,11 @@
        ],
        "text": {
         "chars": "OFF",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 23.227,
         "line_height": [
          20.0,
          "PIXELS"
@@ -39897,7 +40349,9 @@
         "chars": "OFF",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 17.42,
         "line_height": [
          100.0,
          "PERCENT"
@@ -39985,9 +40439,11 @@
        ],
        "text": {
         "chars": "ON",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 18.176,
         "line_height": [
          20.0,
          "PIXELS"
@@ -40096,7 +40552,9 @@
         "chars": "ON",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 13.632,
         "line_height": [
          100.0,
          "PERCENT"
@@ -40198,9 +40656,11 @@
        ],
        "text": {
         "chars": "ON",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 18.176,
         "line_height": [
          20.0,
          "PIXELS"
@@ -40304,7 +40764,9 @@
         "chars": "ON",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 13.632,
         "line_height": [
          100.0,
          "PERCENT"
@@ -40405,9 +40867,11 @@
        ],
        "text": {
         "chars": "ON",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 18.176,
         "line_height": [
          20.0,
          "PIXELS"
@@ -40510,7 +40974,9 @@
         "chars": "ON",
         "family": "Inter",
         "style": "Regular",
-        "size": 12.0,
+        "size": 9.0,
+        "node_size": 12.0,
+        "width": 13.632,
         "line_height": [
          100.0,
          "PERCENT"
@@ -41713,6 +42179,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 29.025,
       "line_height": [
        100.0,
        "PERCENT"
@@ -42020,7 +42488,9 @@
         "chars": "99",
         "family": "Inter",
         "style": "Regular",
-        "size": 10.0,
+        "size": 12.0,
+        "node_size": 10.0,
+        "width": 14.977,
         "line_height": [
          16.0,
          "PIXELS"
@@ -42105,6 +42575,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 14.977,
         "line_height": [
          100.0,
          "PERCENT"
@@ -42188,7 +42660,9 @@
         "chars": "99",
         "family": "Inter",
         "style": "Regular",
-        "size": 10.0,
+        "size": 12.0,
+        "node_size": 10.0,
+        "width": 14.977,
         "line_height": [
          16.0,
          "PIXELS"
@@ -42273,6 +42747,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 14.977,
         "line_height": [
          14.0,
          "PIXELS"
@@ -42356,7 +42832,9 @@
         "chars": "99",
         "family": "Inter",
         "style": "Regular",
-        "size": 10.0,
+        "size": 12.0,
+        "node_size": 10.0,
+        "width": 14.977,
         "line_height": [
          16.0,
          "PIXELS"
@@ -42441,6 +42919,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 14.977,
         "line_height": [
          100.0,
          "PERCENT"
@@ -42524,7 +43004,9 @@
         "chars": "99",
         "family": "Inter",
         "style": "Regular",
-        "size": 10.0,
+        "size": 12.0,
+        "node_size": 10.0,
+        "width": 14.977,
         "line_height": [
          16.0,
          "PIXELS"
@@ -43400,6 +43882,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 42.438,
       "line_height": [
        100.0,
        "PERCENT"
@@ -43485,6 +43969,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 42.438,
       "line_height": [
        100.0,
        "PERCENT"
@@ -43570,6 +44056,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 42.438,
       "line_height": [
        100.0,
        "PERCENT"
@@ -43655,6 +44143,8 @@
       "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 42.438,
       "line_height": [
        100.0,
        "PERCENT"
@@ -43729,6 +44219,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 25.594,
         "line_height": [
          100.0,
          "PERCENT"
@@ -44096,6 +44588,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          16.0,
          "PIXELS"
@@ -44261,6 +44755,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          16.0,
          "PIXELS"
@@ -44446,6 +44942,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 25.441,
           "line_height": [
            14.0,
            "PIXELS"
@@ -44476,6 +44974,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.289,
           "line_height": [
            16.0,
            "PIXELS"
@@ -44693,6 +45193,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 25.441,
           "line_height": [
            14.0,
            "PIXELS"
@@ -44723,6 +45225,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.289,
           "line_height": [
            16.0,
            "PIXELS"
@@ -44940,6 +45444,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 25.441,
           "line_height": [
            14.0,
            "PIXELS"
@@ -44970,6 +45476,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.289,
           "line_height": [
            16.0,
            "PIXELS"
@@ -45187,6 +45695,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 25.441,
           "line_height": [
            14.0,
            "PIXELS"
@@ -45217,6 +45727,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 55.289,
           "line_height": [
            16.0,
            "PIXELS"
@@ -45414,6 +45926,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          16.0,
          "PIXELS"
@@ -45579,6 +46093,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          16.0,
          "PIXELS"
@@ -45749,9 +46265,11 @@
      ],
      "text": {
       "chars": "Đang tiến hành (50%)",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 142.639,
       "line_height": [
        22.0,
        "PIXELS"
@@ -45849,9 +46367,11 @@
      ],
      "text": {
       "chars": "Tải thất bại",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 73.432,
       "line_height": [
        22.0,
        "PIXELS"
@@ -45949,9 +46469,11 @@
      ],
      "text": {
       "chars": "Quá trình bị gián đoạn",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 145.592,
       "line_height": [
        22.0,
        "PIXELS"
@@ -46049,9 +46571,11 @@
      ],
      "text": {
       "chars": "Tải thành công",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 97.795,
       "line_height": [
        22.0,
        "PIXELS"
@@ -46149,9 +46673,11 @@
      ],
      "text": {
       "chars": "(199) Tệp đã được chọn",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Regular",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 157.24,
       "line_height": [
        22.0,
        "PIXELS"
@@ -46274,6 +46800,8 @@
         "family": "Inter",
         "style": "Medium",
         "size": 16.0,
+        "node_size": 16.0,
+        "width": 125.391,
         "line_height": [
          20.0,
          "PIXELS"
@@ -46325,6 +46853,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 439.291,
         "line_height": [
          18.0,
          "PIXELS"
@@ -46589,6 +47119,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 16.0,
+          "node_size": 16.0,
+          "width": 92.562,
           "line_height": [
            20.0,
            "PIXELS"
@@ -46748,9 +47280,11 @@
            ],
            "text": {
             "chars": "◇\nSwap",
-            "family": "Roboto",
-            "style": "Regular",
-            "size": 10.0,
+            "family": "Inter",
+            "style": "Medium",
+            "size": 14.0,
+            "node_size": 10.0,
+            "width": 14.766,
             "line_height": [
              1.0,
              "RAW"
@@ -47041,6 +47575,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 16.0,
+          "node_size": 16.0,
+          "width": 92.562,
           "line_height": [
            20.0,
            "PIXELS"
@@ -47200,9 +47736,11 @@
            ],
            "text": {
             "chars": "◇\nSwap",
-            "family": "Roboto",
-            "style": "Regular",
-            "size": 10.0,
+            "family": "Inter",
+            "style": "Medium",
+            "size": 14.0,
+            "node_size": 10.0,
+            "width": 14.766,
             "line_height": [
              1.0,
              "RAW"
@@ -47493,6 +48031,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 16.0,
+          "node_size": 16.0,
+          "width": 92.562,
           "line_height": [
            20.0,
            "PIXELS"
@@ -47652,9 +48192,11 @@
            ],
            "text": {
             "chars": "◇\nSwap",
-            "family": "Roboto",
-            "style": "Regular",
-            "size": 10.0,
+            "family": "Inter",
+            "style": "Medium",
+            "size": 14.0,
+            "node_size": 10.0,
+            "width": 14.766,
             "line_height": [
              1.0,
              "RAW"
@@ -47930,6 +48472,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 81.676,
           "line_height": [
            100.0,
            "PERCENT"
@@ -48112,6 +48656,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 14.711,
           "line_height": [
            18.0,
            "PIXELS"
@@ -48247,6 +48793,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 81.676,
           "line_height": [
            100.0,
            "PERCENT"
@@ -48429,6 +48977,8 @@
           "family": "Inter",
           "style": "Regular",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 14.711,
           "line_height": [
            18.0,
            "PIXELS"
@@ -48858,9 +49408,11 @@
        ],
        "text": {
         "chars": "Title",
-        "family": "SF Pro Display",
-        "style": "Regular",
+        "family": "Inter",
+        "style": "Semi Bold",
         "size": 20.0,
+        "node_size": 20.0,
+        "width": 43.32,
         "line_height": [
          28.0,
          "PIXELS"
@@ -48888,9 +49440,11 @@
        ],
        "text": {
         "chars": "description",
-        "family": "SF Pro Text",
+        "family": "Inter",
         "style": "Regular",
-        "size": 16.0,
+        "size": 14.0,
+        "node_size": 16.0,
+        "width": 73.992,
         "line_height": [
          22.0,
          "PIXELS"
@@ -49006,6 +49560,8 @@
         "family": "Inter",
         "style": "Semi Bold",
         "size": 20.0,
+        "node_size": 20.0,
+        "width": 109.785,
         "line_height": [
          100.0,
          "PERCENT"
@@ -49035,8 +49591,10 @@
        "text": {
         "chars": "description",
         "family": "Inter",
-        "style": "Medium",
+        "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 73.992,
         "line_height": [
          100.0,
          "PERCENT"
@@ -49171,9 +49729,11 @@
          ],
          "text": {
           "chars": "Number",
-          "family": "SF Pro Text",
-          "style": "Regular",
+          "family": "Inter",
+          "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            20.0,
            "PIXELS"
@@ -49203,9 +49763,11 @@
        ],
        "text": {
         "chars": "Text",
-        "family": "SF Pro Text",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          20.0,
          "PIXELS"
@@ -49312,6 +49874,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            100.0,
            "PERCENT"
@@ -49344,6 +49908,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          100.0,
          "PERCENT"
@@ -49447,9 +50013,11 @@
          ],
          "text": {
           "chars": "Number",
-          "family": "SF Pro Display",
-          "style": "Regular",
+          "family": "Inter",
+          "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            20.0,
            "PIXELS"
@@ -49479,9 +50047,11 @@
        ],
        "text": {
         "chars": "Text",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          20.0,
          "PIXELS"
@@ -49588,6 +50158,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            100.0,
            "PERCENT"
@@ -49620,6 +50192,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          100.0,
          "PERCENT"
@@ -49723,9 +50297,11 @@
          ],
          "text": {
           "chars": "Number",
-          "family": "SF Pro Display",
-          "style": "Regular",
+          "family": "Inter",
+          "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            20.0,
            "PIXELS"
@@ -49755,9 +50331,11 @@
        ],
        "text": {
         "chars": "Text",
-        "family": "SF Pro Display",
+        "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          20.0,
          "PIXELS"
@@ -49864,6 +50442,8 @@
           "family": "Inter",
           "style": "Medium",
           "size": 12.0,
+          "node_size": 12.0,
+          "width": 45.867,
           "line_height": [
            100.0,
            "PERCENT"
@@ -49896,6 +50476,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 12.0,
+        "node_size": 12.0,
+        "width": 24.398,
         "line_height": [
          100.0,
          "PERCENT"
@@ -50162,9 +50744,11 @@
        ],
        "text": {
         "chars": "Label",
-        "family": "SF Pro Display",
-        "style": "Medium",
-        "size": 16.0,
+        "family": "Inter",
+        "style": "Regular",
+        "size": 14.0,
+        "node_size": 16.0,
+        "width": 35.93,
         "line_height": [
          22.0,
          "PIXELS"
@@ -50212,9 +50796,11 @@
          ],
          "text": {
           "chars": "120",
-          "family": "SF Pro Display",
-          "style": "Bold",
-          "size": 32.0,
+          "family": "Inter",
+          "style": "Semi Bold",
+          "size": 34.0,
+          "node_size": 32.0,
+          "width": 60.131,
           "line_height": [
            40.0,
            "PIXELS"
@@ -50265,6 +50851,8 @@
             "family": "Inter",
             "style": "Regular",
             "size": 12.0,
+            "node_size": 12.0,
+            "width": 23.121,
             "line_height": [
              100.0,
              "PERCENT"
@@ -50400,6 +50988,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 35.93,
         "line_height": [
          18.0,
          "PIXELS"
@@ -50450,6 +51040,8 @@
           "family": "Inter",
           "style": "Semi Bold",
           "size": 34.0,
+          "node_size": 34.0,
+          "width": 60.131,
           "line_height": [
            100.0,
            "PERCENT"
@@ -50500,6 +51092,8 @@
             "family": "Inter",
             "style": "Regular",
             "size": 12.0,
+            "node_size": 12.0,
+            "width": 23.121,
             "line_height": [
              14.0,
              "PIXELS"
@@ -50647,8 +51241,10 @@
          "text": {
           "chars": "FPT VMSmart",
           "family": "Inter",
-          "style": "Semi Bold",
+          "style": "Medium",
           "size": 14.0,
+          "node_size": 14.0,
+          "width": 92.736,
           "line_height": [
            18.0,
            "PIXELS"
@@ -50680,7 +51276,9 @@
         "chars": "2.4.4",
         "family": "Inter",
         "style": "Regular",
-        "size": 14.0,
+        "size": 12.0,
+        "node_size": 14.0,
+        "width": 28.863,
         "line_height": [
          16.0,
          "PIXELS"
@@ -51912,6 +52510,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          18.0,
          "PIXELS"
@@ -52036,6 +52636,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          18.0,
          "PIXELS"
@@ -52160,6 +52762,8 @@
         "family": "Inter",
         "style": "Regular",
         "size": 14.0,
+        "node_size": 14.0,
+        "width": 28.465,
         "line_height": [
          18.0,
          "PIXELS"
@@ -52270,9 +52874,11 @@
      ],
      "text": {
       "chars": "Plus",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 28.273,
       "line_height": [
        20.0,
        "PIXELS"
@@ -52352,9 +52958,11 @@
      ],
      "text": {
       "chars": "Standard",
-      "family": "SF Pro Display",
+      "family": "Inter",
       "style": "Medium",
       "size": 14.0,
+      "node_size": 14.0,
+      "width": 61.154,
       "line_height": [
        20.0,
        "PIXELS"

@@ -83,7 +83,7 @@
 }
 
 :root,
-:root[data-theme="dark"] {
+[data-theme="dark"] {
 	--color-background-base: #131313;
 	--color-background-danger: #de2c2c;
 	--color-background-danger-disable: #421010;
@@ -200,7 +200,7 @@
 	--color-on-background-white-overlay-dark: rgba(0, 0, 0, 0.2);
 }
 
-:root[data-theme="light"] {
+[data-theme="light"] {
 	--color-background-base: #f7f7f7;
 	--color-background-danger: #de2c2c;
 	--color-background-danger-disable: #ffcfcf;
