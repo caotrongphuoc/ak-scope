@@ -30,6 +30,11 @@ FRAMEWORK_ALLOWED = ("sources/platform/stm32l/io_cfg.c", "sources/platform/stm32
 
 DELAY_CALLS = {"sys_ctrl_delay_ms", "sys_ctrl_delay_us", "sys_ctrl_delay", "delay",
                "delayMicroseconds", "delay_ms", "delay_us", "HAL_Delay", "_delay_ms", "_delay_us"}
+# storage writes that wait for the hardware before they return; seen on the kit: saving the
+# 11m-game best score with eeprom_write() inside a handler held every task for 61 ms
+STORAGE_CALLS = {"eeprom_write", "eeprom_erase", "io_eeprom_write", "io_eeprom_erase", "flash_write",
+                 "flash_erase_sector", "flash_erase_block_32k", "flash_erase_block_64k",
+                 "flash_erase_full", "flash_erase_synchronous", "flash_wait_to_idle"}
 POST_CALLS = ("task_post_pure_msg", "task_post_common_msg", "task_post_dynamic_msg", "task_post",
               "timer_set", "timer_remove_attr")
 KERNEL_CALLS_IN_ISR = set(POST_CALLS) | {"get_pure_msg", "get_common_msg", "get_dynamic_msg"}
@@ -283,7 +288,8 @@ def _first_diff_line(a, b):
 
 
 def s02_blocking(p):
-    """S02: no delay or busy wait in code that runs inside a task handler."""
+    """S02: no delay, busy wait or blocking storage write in code that runs inside a task
+    handler."""
     findings = []
     roots = [n for n in p.msg_funcs if any(not d.file.startswith("sources/ak/") for d in p.defs(n))]
     reach = p.reach(roots)
@@ -301,6 +307,14 @@ def s02_blocking(p):
                         reported.add(key)
                         findings.append(Finding("S02", ERROR, "%s() blocks the handler%s" % (call, via),
                                                 _norm(f), ln))
+            for call in sorted(fn.calls() & STORAGE_CALLS):
+                for f, ln, _ in fn.find(r"\b" + call + r"\s*\("):
+                    key = (f, ln)
+                    if key not in reported:
+                        reported.add(key)
+                        findings.append(Finding("S02", WARNING, "%s() waits for the memory to finish "
+                                                "inside a handler%s; do it in steps driven by a timer, "
+                                                "or out of the handler" % (call, via), _norm(f), ln))
             for f, ln in busy_waits(fn):
                 key = (f, ln)
                 if key not in reported:

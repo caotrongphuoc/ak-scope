@@ -55,6 +55,7 @@ extern uint32_t score;
 static void game_draw(void) {
  while (!(((SPI_TypeDef *) (0x40013000))->SR & 0x02));
  GPIO_SetBits(((GPIO_TypeDef *) (0x40020000)), 0x0001);
+ eeprom_write(0, 0, 4);
 }
 void game_handle(ak_msg_t* msg) {
  switch (msg->sig) {
@@ -149,8 +150,10 @@ class TestRules(unittest.TestCase):
         msgs = {(f.severity, f.file, f.line) for f in self.f["S02"]}
         self.assertIn(("error", "sources/app/task_life.cpp", 8), msgs)
         self.assertIn(("warning", "sources/app/game.cpp", 3), msgs)
-        busy = next(f for f in self.f["S02"] if f.severity == "warning")
+        busy = next(f for f in self.f["S02"] if "busy wait" in f.message)
         self.assertIn("game_handle -> game_draw", busy.message)
+        store = next(f for f in self.f["S02"] if "eeprom_write" in f.message)
+        self.assertEqual((store.severity, store.line), ("warning", 5))
 
     def test_s03_io(self):
         self.assertEqual(self.lines("S03"), [("sources/app/game.cpp", 3), ("sources/app/game.cpp", 4)])

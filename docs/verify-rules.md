@@ -39,7 +39,7 @@ everything.
 | Rule | Severity | Checks | Why |
 | --- | --- | --- | --- |
 | S01 | error | files under `ak/`, `sys/`, `common/`, `networks/`, `platform/`, `libraries/` and `boot/` are the same as in the base kit. Allowed: `platform/stm32l/io_cfg.c/.h` and `ak/ak.cfg.mk` | framework code is shared by every task; a change there breaks guarantees the rest relies on |
-| S02 | error / warning | no `sys_ctrl_delay_*`, `delay()` and similar (error), no `while (cond);` busy wait (warning) in code that runs in a task | a handler must run to completion; while it waits nothing else runs |
+| S02 | error / warning | no `sys_ctrl_delay_*`, `delay()` and similar (error); no `while (cond);` busy wait and no blocking EEPROM or flash write such as `eeprom_write()` (warning) in code that runs in a task | a handler must run to completion; while it waits nothing else runs. Saving the `11m-game` best score with `eeprom_write()` in the match handler held every task for 61 ms |
 | S03 | error | no StdPeriph calls (`GPIO_*`, `TIM_*`...), Arduino pin calls or register access in `app/` and `driver/` | all board IO lives in `io_cfg.c` and is injected, so a port to another MCU only touches that file |
 | S04 | warning | functions named `task_*` are tasks or polling tasks in `task_list.h` | `task_` means one thing: an AK task, which keeps the task list and logs unambiguous |
 | S05 | warning | signals used by the app are at least `AK_USER_DEFINE_SIG` (10) | values below 10 are the kernel's |
@@ -108,7 +108,9 @@ the names from the project or plain numbers. A missing `after` in the trace is a
 
 Measured on 2026-10-20 with the base kit next to the projects:
 
-- `11m-game`: no errors in its own code; 7 helper functions named `task_display_*` (S04),
+- `11m-game`: no errors in its own code; the best score saved with `eeprom_write()` from the
+  match handler (S02, found first on a gameplay trace as a 61 ms `EM_GAME_MATCH_UPDATE`);
+  7 helper functions named `task_display_*` (S04),
   `AC_DISPLAY_RENDER_SCREEN = 0` (S05), two unused Christmas signals (S08). On a boot trace:
   `AC_DISPLAY_INITIAL` 139 ms and `FW_CHECKING_REQ` 82.7 ms (R01 errors).
 - `zomwar-game`: `ZW_GAME_DEFINE_SIG` added to the kernel's `ak.h` (S01), a new register access
