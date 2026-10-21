@@ -7,6 +7,13 @@ STM32L151). It links a small trace module into the firmware without changing the
 flashes it with `ak-flash`, reads the trace from the console UART, shows it in a local web page,
 and checks the firmware against the AK rules.
 
+![Trace view: tasks, timeline and the detail of one handler run](docs/images/trace-dark.png)
+
+| | |
+| --- | --- |
+| ![Events](docs/images/events-dark.png) | ![Verify](docs/images/verify-dark.png) |
+| ![Stats](docs/images/stats-dark.png) | ![Trace, light theme](docs/images/trace-light.png) |
+
 ## Install
 
 Needs Python 3.10 or newer.
@@ -27,6 +34,11 @@ sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.0
 ```
 
 Tested on Ubuntu 22.04 with the AK kit on a CH340 USB serial adapter. Windows is not tested yet.
+
+ak-flash asks the running firmware for its bootloader at 115200 baud. A build with another
+console rate (`akscope build --console-baud 460800`) does not answer, so Flash fails with
+"handshake faulted"; put the kit in boot mode by hand (hold MODE, press and release RESET, keep
+MODE held until the LIFE LED blinks fast) and flash again.
 
 ## Quick start
 

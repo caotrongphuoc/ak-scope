@@ -4,6 +4,10 @@ ak-flash talks to the AK bootloader on the same UART the firmware uses for its c
 When the running firmware sends trace frames, they can land inside the handshake reply and
 the first attempt fails with a checksum error. After a failed attempt the board waits in the
 bootloader, so a later run goes through. flash() retries for that reason.
+
+ak-flash asks the running firmware for the bootloader at 115200 baud. A firmware built with
+another console rate (akscope build --console-baud) does not understand it, and every attempt
+ends in "handshake faulted". The kit then has to be put in boot mode by hand; the error says how.
 """
 
 import re
@@ -19,6 +23,12 @@ RETRY_DELAY_S = 5.0
 DEFAULT_ATTEMPTS = 4
 
 _ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+# what ak-flash itself prints for a board that does not answer the handshake
+BOOT_MODE_HINT = ("Put the kit in boot mode: hold MODE, press and release RESET, keep MODE held until "
+                  "the LIFE LED blinks fast, then flash again (the firmware may run its console at "
+                  "another rate than the 115200 ak-flash uses)")
 
 
 class FlashError(Exception):
@@ -44,4 +54,7 @@ def flash(port, binary, address=APP_START_ADDR, attempts=DEFAULT_ATTEMPTS, log=p
         last = errors[-1] if errors else "exit code %d" % out.returncode
         log("akscope: flash attempt %d failed: %s" % (attempt, last))
 
-    raise FlashError("flash failed after %d attempts: %s" % (attempts, last))
+    msg = "flash failed after %d attempts: %s" % (attempts, last)
+    if "handshake faulted" in last:
+        msg = msg.rstrip(" !.") + ". " + BOOT_MODE_HINT
+    raise FlashError(msg)

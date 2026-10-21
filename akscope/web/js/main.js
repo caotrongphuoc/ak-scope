@@ -274,6 +274,12 @@ function renderInfo(tr) {
 	$("trace-info").innerHTML = parts.join("");
 }
 
+function showToast(msg) {
+	$("toast-text").textContent = msg;
+	$("toast").hidden = false;
+}
+$("toast-close").addEventListener("click", () => ($("toast").hidden = true));
+
 function showError(msg) {
 	$("load-error-text").textContent = msg;
 	$("load-error").hidden = false;
@@ -332,6 +338,9 @@ function renderLive(st) {
 	el.querySelector(".live-text").textContent =
 		st.message || (st.state === "recording" ? "recording " + file : st.state === "flashing" ? "flashing" : "idle");
 	el.title = st.message || st.file || "";
+	// a failed start or flash also comes up in full, it can carry what to do about it
+	if (error && error !== state.lastError) showToast(st.message);
+	state.lastError = error || "";
 	$("btn-record").hidden = st.state === "recording";
 	$("btn-record").disabled = st.state === "flashing";
 	$("btn-stop").hidden = st.state !== "recording";

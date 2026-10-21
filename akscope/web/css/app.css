@@ -716,3 +716,38 @@ body {
 	height: auto;
 	min-height: 55px;
 }
+
+/* a Figma Message under the top bar for errors of record and flash; long ones wrap */
+.toast {
+	position: fixed;
+	top: calc(var(--topbar-height) + 12px);
+	left: 50%;
+	z-index: 90;
+	transform: translateX(-50%);
+	max-width: min(720px, calc(100vw - 48px));
+}
+
+.toast .message {
+	align-items: flex-start;
+	height: auto;
+	min-height: 34px;
+	white-space: normal;
+}
+
+.toast .message > span:nth-child(2) {
+	flex: 1 1 auto;
+}
+
+.toast .toast-close .icon {
+	color: var(--color-foreground-base);
+}
+
+.toast-close {
+	flex: 0 0 auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}

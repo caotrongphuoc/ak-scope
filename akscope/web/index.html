@@ -197,6 +197,16 @@
 		</div>
 	</section>
 
+	<div class="toast" id="toast" hidden>
+		<div class="message message--error">
+			<span class="icon" style="--icon:url(/icons/warning-circle-bold.svg)"></span>
+			<span id="toast-text"></span>
+			<button class="toast-close" id="toast-close" type="button" aria-label="Close">
+				<span class="icon message-close" style="--icon:url(/icons/x.svg)"></span>
+			</button>
+		</div>
+	</div>
+
 	<div class="overlay" id="flash-dialog" hidden>
 		<div class="modal modal--alert" role="dialog" aria-modal="true" aria-labelledby="flash-title">
 			<div class="modal-header">

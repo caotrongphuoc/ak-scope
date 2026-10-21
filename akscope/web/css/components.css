@@ -1754,3 +1754,35 @@ th.is-hover .sort:not(.is-ascend):not(.is-descend) {
 	--nav-bg: var(--color-on-background-selected);
 	color: var(--color-foreground-nav-text);
 }
+
+/* Scrollbar --------------------------------------------------------------------------------- */
+
+/* the Figma Scrollbar: a 4 px bar, a 2 px thumb with 1 px around it, the secondary colors.
+ * WebKit (the desktop window) takes all of it; Firefox only has a thin bar and two colors, so
+ * it gets the colors of the hovered bar, which can be seen on the dark surfaces */
+@supports (-moz-appearance: none) {
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-foreground-secondary) var(--color-background-dialog);
+	}
+}
+
+::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+	background: var(--color-background-dialog);
+}
+
+::-webkit-scrollbar-thumb {
+	border: 1px solid var(--color-background-dialog);
+	border-radius: 99px;
+	background: var(--color-background-secondary);
+}
+
+:hover::-webkit-scrollbar-thumb {
+	background: var(--color-foreground-secondary);
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
