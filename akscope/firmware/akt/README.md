@@ -8,8 +8,14 @@ Measured on `11m-game` (STM32L151, 32 MHz):
 
 | | trace off | trace on |
 | --- | --- | --- |
-| Flash | 50728 B | 52856 B (+2128) |
+| Flash | 50728 B | 53088 B (+2360, of which 256 is the CRC table) |
 | RAM | 13640 B | 14208 B (+568, of which 512 is the ring) |
+| CPU per record | | 356 cycles, 11 us |
+
+CPU per record is the time a handler or an ISR spends to record one event (copy it into the
+ring with interrupts off), measured on the kit with DWT over 16 records in a row. A handled
+message costs one `EXEC`, plus one `POST` in the handler that sent it. CRC and COBS are done
+later by the polling task when the record is sent.
 
 With the trace off (`AKT_TRACE=0`, the default) the build is the same as without the module.
 

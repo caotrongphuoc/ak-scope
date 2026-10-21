@@ -1,7 +1,7 @@
 #ifndef __AKT_CFG_H__
 #define __AKT_CFG_H__
 
-/* bytes of RAM for frames waiting to be sent, each frame takes its size + 1 */
+/* bytes of RAM for records waiting to be sent, each record takes its size + 1 */
 #ifndef AKT_RING_SIZE
 #define AKT_RING_SIZE				(512)
 #endif

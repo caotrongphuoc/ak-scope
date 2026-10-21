@@ -12,10 +12,15 @@ by the USART TXE interrupt) as every other console byte. No UART register is tou
 `akt_trace`. `xputc()` is not used because it turns every 0x0A into 0x0D 0x0A, and frame
 bytes can be 0x0A.
 
-That ring overwrites its oldest bytes when full, so `akt_trace` never pushes faster than the
-line can drain. It keeps a byte budget refilled from the elapsed time and the configured baud
+Recording an event only copies the raw record into the akt ring (512 bytes by default) with
+interrupts off. The polling task takes records out, adds the CRC and the COBS encoding, and
+writes the frame. That keeps the cost inside handlers and ISRs to 356 cycles per record on
+the AK kit.
+
+The console TX ring overwrites its oldest bytes when full, so `akt_trace` never pushes faster
+than the line can drain. It keeps a byte budget refilled from the elapsed time and the configured baud
 rate (`AKT_BAUD`), and only moves a whole frame into the TX ring when the budget covers it.
-Frames that do not fit stay in the akt ring; if the akt ring itself is full, new records are
+Records that do not fit stay in the akt ring; if the akt ring itself is full, new records are
 dropped and counted (see `OVERFLOW`).
 
 The kernel task log (`AK_TASK_LOG_CONSOLE_ENABLE`) must be off while the trace is on.
