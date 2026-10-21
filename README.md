@@ -22,6 +22,15 @@ Needs Python 3.10 or newer.
 pip install .
 ```
 
+On Ubuntu 22.04 the system pip (22.0) cannot read this package and installs it as `UNKNOWN`;
+update pip for your user first. To work on ak-scope, install it editable, so the `akscope`
+command runs the code of the checkout:
+
+```sh
+python3 -m pip install --user -U pip
+python3 -m pip install --user -e .
+```
+
 For building and flashing the firmware you also need what the AK base kit uses:
 
 - the ARM toolchain `gcc-arm-none-eabi-10.3-2021.10`
