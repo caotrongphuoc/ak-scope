@@ -158,6 +158,19 @@ python3 tools/figma/export.py all "[WEB - 1] Design system VMS.fig"
 AKSCOPE_FIG="[WEB - 1] Design system VMS.fig" python3 -m unittest tests.test_figma_gallery
 ```
 
-## License
+## Contact & Support
 
-[MIT](LICENSE)
+<p style="font-size: 20px;"><strong>Cao Trong Phuoc</strong> - Software Engineer - Embedded Systems</p>
+
+``` Note
+Thank you for visiting this repository.
+If you have any questions, suggestions, or feedback about ak-scope or AK firmware development, feel free to contact me directly.
+```
+
+<a href="https://github.com/caotrongphuoc">
+  <img src="https://img.shields.io/badge/GitHub-caotrongphuoc-181717?style=for-the-badge&logo=github&logoColor=white"/>
+</a>
+
+<a href="https://www.linkedin.com/in/cao-trong-phuoc/">
+  <img src="https://img.shields.io/badge/LinkedIn-Cao%20Trong%20Phuoc-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
+</a>
