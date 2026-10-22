@@ -1,3 +1,4 @@
+import pathlib
 import struct
 import unittest
 
@@ -6,6 +7,7 @@ from akscope.core.symbols import SymbolTable
 from akscope.verify import load_rules, runtime
 
 MS = 32000  # cycles at 32 MHz
+SAMPLES = pathlib.Path(__file__).resolve().parent.parent / "samples"
 
 
 def info(t):
@@ -92,6 +94,21 @@ class TestTimeline(unittest.TestCase):
         self.assertEqual(r09[0].severity, "error")
         self.assertIn("last run before it: AC_TASK_DISPLAY_ID / AC_DISPLAY_RENDER at 2500.000 ms", r09[0].message)
         self.assertIn("never run: AC_TASK_DISPLAY_ID / AC_DISPLAY_RENDER posted at 3000.000 ms", r09[0].message)
+
+
+class TestRealReboot(unittest.TestCase):
+    def test_shell_reboot(self):
+        records, text, _ = akt.decode_bytes((SAMPLES / "base-kit-reboot-akt.bin").read_bytes())
+        self.assertEqual([r.kind for r in records if r.restart], ["INFO"])
+        tl = timeline.build_timeline(records)
+        self.assertEqual(len(tl.restarts), 1)
+        self.assertAlmostEqual(tl.us(tl.restarts[0][0]) / 1e3, 5850.0, delta=1)
+        # the boot's display init comes after the restart, at its own place on the time axis
+        init = next(e for e in tl.execs if (e.task, e.sig) == (9, 10))
+        self.assertAlmostEqual(tl.us(init.t_begin) / 1e3, 5982.0, delta=1)
+        self.assertIn("Wellcome to Active Kernel", text)
+        r09 = [f for f in runtime.run(tl, SymbolTable(), load_rules(None)) if f.rule == "R09"]
+        self.assertEqual(len(r09), 1)
 
 
 if __name__ == "__main__":

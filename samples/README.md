@@ -11,3 +11,4 @@ unchanged, on the kit's STM32L151 at 32 MHz.
 | `base-kit-symbols.json` | same build | written by `akscope build`, local `project` path removed. Names for the records in `base-kit-boot-akt.bin`. |
 | `base-kit-boot-console.log` | built with `make LOG_AK_KERNEL_ENABLE=-DAK_TASK_LOG_CONSOLE_ENABLE`, no trace, 115200 | 30 s from the end of the flash: boot banner, task start-up, `-LINK_PRINT-` and `-SIG->` text between 71 kernel log lines. |
 | `base-kit-idle-console.log` | same build | the next 15 s on the idle screen, then the shell commands `ver`, `fatal l`, `fatal m`: 168 kernel log lines and the 18 messages `fatal m` lists. |
+| `base-kit-reboot-akt.bin` | same build as `base-kit-boot-akt.bin` | 6 s of the running kit (starting mid run, no `INFO` first), then the shell command `reboot` typed on the console, then 10 s from the boot: a restart for R09. The typed command and its echo break 19 frames. |
