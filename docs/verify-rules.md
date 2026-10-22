@@ -80,6 +80,7 @@ Thresholds come from `akscope/rules/default.yml`; copy it, change it and pass it
 | R06 | warning | a message delivered to a task that has no case for it; needs the project sources | |
 | R07 | error / warning | records dropped on the board (error), corrupt frames (warning) | |
 | R08 | error | expected sequences from the rules file | |
+| R09 | error | the board did not restart during the trace: an `INFO` near time 0, or a step back of more than 1 s to the first seconds after boot | a watchdog reset (a handler that never returns), a fatal error or power. The run that hung sends no `EXEC`; its message is among the posts still waiting, which R09 lists with the last run before the restart. The time from the last record to the boot is not in the trace, the timeline puts the boot right after it |
 
 ### Ignoring findings
 

@@ -1,4 +1,4 @@
-"""Runtime rules R01 to R08 on a recorded trace (a Timeline from akscope.core.timeline).
+"""Runtime rules R01 to R09 on a recorded trace (a Timeline from akscope.core.timeline).
 
 Findings are grouped per (task, signal) so a handler that is slow every frame gives one line
 with a count and its worst case, not one line per run.
@@ -118,7 +118,8 @@ def r05_timer_drift(tl, sym, rules):
     for e in tl.execs:
         if e.src == "timer":
             events.append((tl.us(e.t_begin), 1, "EXEC", e.task, e.sig, 0, e))
-    for t in tl.gaps:
+    # runs may be missing before an OVERFLOW, and a restart starts the timers over
+    for t in list(tl.gaps) + [t for t, _ in tl.restarts]:
         events.append((tl.us(t), 2, "GAP", None, None, 0, None))
     events.sort(key=lambda x: (x[0], x[1]))
     last = {}
@@ -183,6 +184,31 @@ def r07_lost(tl, sym, rules, stream_stats=None):
     return out
 
 
+def r09_restart(tl, sym, rules):
+    """R09: the board restarted in the middle of the trace (watchdog, a fatal error, power).
+
+    A run that never ends sends no EXEC, so the run that hung is not in the trace; its message
+    is among the posts still waiting at the restart, and the last run before it shows where
+    the firmware was."""
+    out = []
+    for t, waiting in tl.restarts:
+        before = [e for e in tl.execs if e.t_begin < t]
+        parts = ["the board restarted (watchdog, a fatal error or power); the time from the last "
+                 "record to the boot is not in the trace"]
+        if before:
+            last = max(before, key=lambda e: e.t_begin + e.duration)
+            parts.append("last run before it: %s at %.3f ms" % (_name(sym, last.task, last.sig),
+                                                                 tl.us(last.t_begin) / 1e3))
+        if waiting:
+            names = ["%s posted at %.3f ms" % (_name(sym, tl.posts[i].des, tl.posts[i].sig), tl.us(tl.posts[i].t) / 1e3)
+                     for i in waiting[:5]]
+            more = " and %d more" % (len(waiting) - 5) if len(waiting) > 5 else ""
+            parts.append("never run: %s%s; a handler that does not return is one of these, it "
+                         "holds every task until the watchdog resets the board" % (", ".join(names), more))
+        out.append(Finding("R09", ERROR, "; ".join(parts), t_us=tl.us(t)))
+    return out
+
+
 def _match(spec, task, sig, sym):
     def ok(want, got, name):
         if want is None:
@@ -233,4 +259,5 @@ def run(tl, sym, rules, handled=None, stream_stats=None):
     findings += r06_unhandled(tl, sym, rules, handled)
     findings += r07_lost(tl, sym, rules, stream_stats)
     findings += r08_expect(tl, sym, rules)
+    findings += r09_restart(tl, sym, rules)
     return sorted(findings, key=lambda f: (f.t_us is None, f.t_us or 0, f.rule))

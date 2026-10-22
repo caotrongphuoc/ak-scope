@@ -112,6 +112,7 @@ class Record:
     fields: dict = field(default_factory=dict)
     t_abs: int = 0  # cycle count with wraps removed, set by Unwrapper
     exec_index: int = -1  # for an EXEC: its position in Timeline.execs, set by build_timeline
+    restart: bool = False  # first record after the board restarted, set by Unwrapper
 
 
 def decode_record(body):
@@ -202,6 +203,15 @@ class StreamDecoder:
         return items
 
 
+# a restart: the cycle counter starts over at boot. INFO is sent first thing, so an INFO this
+# close to 0 is a boot (the periodic INFO comes after 64 s); without INFO (lost in the noise of
+# the restart) a step back of more than a second to a time this close to 0 is one too. At
+# 32 MHz; a faster chip only makes the windows shorter
+BOOT_INFO_CYCLES = 3200000  # 0.1 s
+BOOT_STEP_BACK_CYCLES = 32000000  # 1 s
+BOOT_WINDOW_CYCLES = 320000000  # 10 s
+
+
 class Unwrapper:
     """Turn the 32-bit cycle counter into a monotonic count.
 
@@ -209,11 +219,21 @@ class Unwrapper:
     it started, so it comes after the POSTs made inside the handler. Each step is taken as a
     signed 32-bit difference from the previous record, which is right as long as two records
     are less than half a wrap apart (67 s at 32 MHz). The board sends POOL every second.
+
+    When the board restarts the counter starts over. The records after it are placed right
+    after the last one before it (the real gap, reset plus boot, is not in the trace), marked
+    with restart, and their times go on from there.
     """
 
     def __init__(self):
         self._last_t = None
         self._last_abs = 0
+        self.restarts = []  # t_abs of the last record before each restart
+
+    def _is_restart(self, rec, delta):
+        if rec.kind == "INFO" and rec.t < BOOT_INFO_CYCLES:
+            return True
+        return delta < -BOOT_STEP_BACK_CYCLES and rec.t < BOOT_WINDOW_CYCLES
 
     def __call__(self, rec):
         if self._last_t is None:
@@ -222,6 +242,10 @@ class Unwrapper:
             delta = (rec.t - self._last_t) & 0xFFFFFFFF
             if delta & 0x80000000:
                 delta -= 1 << 32
+            if self._is_restart(rec, delta):
+                rec.restart = True
+                self.restarts.append(self._last_abs)
+                delta = rec.t
             rec.t_abs = self._last_abs + delta
         self._last_t = rec.t
         self._last_abs = rec.t_abs

@@ -184,6 +184,7 @@ export class TimelineView {
 		this.paintGrid(c, th);
 		this.paintBlocks(c, th);
 		this.paintArrows(c, th);
+		this.paintRestarts(c, th);
 		this.paintMeasure(c, th);
 		this.paintLabels(c, th);
 		this.paintAxis(c, th);
@@ -400,6 +401,30 @@ export class TimelineView {
 		c.lineWidth = 2;
 		for (const i of hot) draw(posts[i], th.primary);
 		c.lineWidth = 1;
+	}
+
+	// the board restarted here (verify R09); the time it took to boot is not in the trace
+	paintRestarts(c, th) {
+		const top = this.wrap.scrollTop + AXIS + 6;
+		c.font = "12px " + th.sans;
+		c.textBaseline = "middle";
+		for (const r of this.trace.restarts || []) {
+			const x = Math.round(this.x(r.t)) + 0.5;
+			if (x < GUTTER || x > this.width) continue;
+			c.strokeStyle = th.red;
+			c.setLineDash([4, 3]);
+			c.beginPath();
+			c.moveTo(x, AXIS);
+			c.lineTo(x, this.height);
+			c.stroke();
+			c.setLineDash([]);
+			const label = "restart";
+			const w = c.measureText(label).width + 12;
+			c.fillStyle = th.red;
+			c.fillRect(x + 2, top, w, 20);
+			c.fillStyle = "#ffffff";
+			c.fillText(label, x + 8, top + 10);
+		}
 	}
 
 	paintMeasure(c, th) {

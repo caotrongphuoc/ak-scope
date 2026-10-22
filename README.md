@@ -145,9 +145,10 @@ built on it can also get findings such as a framework file changed (S01), regist
 outside `io_cfg.c` (S03) or a global written by several tasks (S10).
 
 Thirteen static rules (blocking calls in handlers, IO outside `io_cfg.c`, signals posted but
-not handled, globals shared between tasks, ISR rules, debug prints on a blocking console...) and eight runtime rules (handler run
-time, queue wait, pool use, message storms, timer drift, expected sequences...). Code that
-comes unchanged from the base kit is left out when the kit is checked out next to the project.
+not handled, globals shared between tasks, ISR rules, debug prints on a blocking console...)
+and nine runtime rules (handler run time, queue wait, pool use, message storms, timer drift,
+expected sequences, board restarts...). Code that comes unchanged from the base kit is left
+out when the kit is checked out next to the project.
 See [docs/verify-rules.md](docs/verify-rules.md) for every rule, its limits, and the rules
 file (thresholds, ignores, expected sequences).
 

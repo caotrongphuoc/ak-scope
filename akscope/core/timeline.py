@@ -88,6 +88,8 @@ class Timeline:
     marks: list = field(default_factory=list)  # (t, user_id, value)
     dropped: int = 0
     gaps: list = field(default_factory=list)  # t of each OVERFLOW: records are missing before it
+    restarts: list = field(default_factory=list)  # (t, [post index]): the board restarted at t,
+                                                  # these posts were still waiting for their run
     task_agg: dict = field(default_factory=dict)  # task -> Agg
     sig_agg: dict = field(default_factory=dict)  # (task, sig) -> Agg
     logs: dict = field(default_factory=dict)  # exec index -> console lines of that run (runlog)
@@ -119,6 +121,13 @@ class TimelineBuilder:
             tl.t0 = r.t_abs
         t = r.t_abs - tl.t0
         f = r.fields
+        if r.restart:
+            # what was queued is gone with the reset: a post still waiting may be the message
+            # whose handler hung; nothing pairs across the restart
+            waiting = sorted(i for q in self._waiting.values() for i in q)
+            tl.restarts.append((t, waiting))
+            self._waiting.clear()
+            self._timer_sigs.clear()
         if r.kind == "POST":
             p = Post(len(tl.posts), t, f["src"], f["des"], f["sig"], f["msg_type"], f["len"])
             tl.posts.append(p)
@@ -244,6 +253,10 @@ def mark_json(tl, item):
     return {"t": tl.us(t), "id": i, "value": v}
 
 
+def restarts_json(tl):
+    return [{"t": tl.us(t), "waiting": waiting} for t, waiting in tl.restarts]
+
+
 def stats_json(tl, sym):
     return {
         "task_stats": [dict(task=t, name=sym.task(t), **s) for t, s in task_stats(tl).items()],
@@ -278,6 +291,7 @@ def to_json(tl, sym=None, text="", stream_stats=None):
         "timers": [timer_json(tl, x, sym) for x in tl.timers],
         "pools": [pool_json(tl, x) for x in tl.pools],
         "marks": [mark_json(tl, x) for x in tl.marks],
+        "restarts": restarts_json(tl),
         "text": text,
     }
     out.update(stats_json(tl, sym))

@@ -7,6 +7,7 @@ const RULES = {
 	S13: "debug prints on a blocking console",
 	R01: "handler run time", R02: "queue wait", R03: "pool use", R04: "message storm",
 	R05: "timer drift", R06: "no case for message", R07: "trace incomplete", R08: "expected sequence",
+	R09: "board restarted",
 };
 
 export class VerifyView {

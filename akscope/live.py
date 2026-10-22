@@ -117,6 +117,8 @@ class LiveSession:
             "text": "".join(self.text[x0:]),
             "duration_us": tl.us(tl.duration),
             "dropped": tl.dropped,
+            # a handful at most; the page replaces its list
+            "restarts": timeline.restarts_json(tl),
             "info": tl.info,
             "cpu_hz": tl.cpu_hz,
             "stream": vars(self.decoder.stats),

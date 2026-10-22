@@ -206,6 +206,7 @@ function applyDelta(d) {
 	tr.text += d.text;
 	tr.duration_us = d.duration_us;
 	tr.dropped = d.dropped;
+	tr.restarts = d.restarts || [];
 	tr.info = d.info;
 	tr.cpu_hz = d.cpu_hz;
 	tr.stream = d.stream;
@@ -268,6 +269,7 @@ function renderInfo(tr) {
 	parts.push(tag(fmtDur(tr.duration_us)));
 	parts.push(tag(`${tr.execs.length} runs`));
 	if (tr.dropped) parts.push(tag(`${tr.dropped} dropped`, "red"));
+	if (tr.restarts && tr.restarts.length) parts.push(tag(`${tr.restarts.length} restart${tr.restarts.length > 1 ? "s" : ""}`, "red"));
 	if (tr.stream && tr.stream.corrupt) parts.push(tag(`${tr.stream.corrupt} corrupt`, "red"));
 	if (!tr.has_symbols) parts.push(tag("no names", "yellow"));
 	if (!info.cpu_hz) parts.push(tag("no INFO, 32 MHz assumed", "yellow"));
