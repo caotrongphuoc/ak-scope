@@ -6,5 +6,5 @@ dist/
 .venv/
 captures/
 
-# iconsax icons are generated from the Figma file (tools/figma_export.py all), not committed
+# iconsax icons are generated from the Figma file (tools/figma/export.py all), not committed
 akscope/web/icons/

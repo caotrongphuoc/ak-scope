@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Record, visualize and verify task messages, signals and timers in AK event-driven firmware"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "MIT"}
 dependencies = ["pyserial>=3.4", "pyyaml>=5.1"]
 
 [project.scripts]

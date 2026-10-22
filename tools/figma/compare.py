@@ -1,9 +1,9 @@
 """Compare the gallery page with the Figma design system, pixel by pixel.
 
-    python3 tests/figma/compare.py FILE.fig [--only GROUP] [--out DIR]
+    python3 tools/figma/compare.py FILE.fig [--only GROUP] [--out DIR]
 
 Every gallery entry names a component variant of the Figma file. The variant is drawn from
-the .fig data (tools/figkit.py) on the same surface color as the gallery cell, the page is
+the .fig data (figkit.py) on the same surface color as the gallery cell, the page is
 shot in headless Firefox through geckodriver, and the two images are compared:
 
 - size must be equal
@@ -35,7 +35,7 @@ import time
 import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT))
 
 import figkit  # noqa: E402

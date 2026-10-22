@@ -1,5 +1,5 @@
 // What the gallery shows: each entry is one component variant of the Figma file, named by its
-// page and symbol name, with the HTML that must look the same. tests/figma/compare.py reads
+// page and symbol name, with the HTML that must look the same. tools/figma/compare.py reads
 // this list from the page and compares every entry with the variant drawn from the .fig file.
 
 const icon = (name, style = "") => `<span class="icon" style="--icon:url(../icons/${name}.svg)${style}"></span>`;

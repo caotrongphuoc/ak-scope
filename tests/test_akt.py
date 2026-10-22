@@ -107,27 +107,29 @@ class TestStream(unittest.TestCase):
 
 class TestRealCapture(unittest.TestCase):
     def setUp(self):
-        data = (SAMPLES / "11m-game-boot-akt.bin").read_bytes()
+        data = (SAMPLES / "base-kit-boot-akt.bin").read_bytes()
         self.records, self.text, self.stats = akt.decode_bytes(data)
 
     def test_counts(self):
-        self.assertEqual((self.stats.frames, self.stats.corrupt), (68, 0))
-        self.assertTrue(self.text.startswith("[BOOT] version: 0.0.1"))
+        self.assertEqual((self.stats.frames, self.stats.corrupt), (153, 0))
+        # the bootloader prints at 115200, read at the 460800 console rate it is noise; it is
+        # text, not corrupt frames, because nothing counts before the first good frame
+        self.assertGreater(self.stats.text_bytes, 1000)
 
     def test_info(self):
         info = self.records[0]
         self.assertEqual(info.kind, "INFO")
         self.assertEqual(info.fields["cpu_hz"], 32000000)
-        self.assertEqual(info.fields["task_count"], 18)
+        self.assertEqual(info.fields["task_count"], 13)
 
     def test_time_span(self):
         span = self.records[-1].t_abs - self.records[0].t_abs
-        self.assertAlmostEqual(span / 32e6, 20.0, delta=0.1)
+        self.assertAlmostEqual(span / 32e6, 29.8, delta=0.1)
 
     def test_display_init_time(self):
-        # the kernel log of the same firmware reports 139 ms for this handler
+        # the kernel log of the same firmware without the trace reports 156 ms for this handler
         ex = [r for r in self.records if r.kind == "EXEC" and r.fields["task"] == 9]
-        self.assertEqual(int(ex[0].fields["duration"] / 32000), 139)
+        self.assertEqual(int(ex[0].fields["duration"] / 32000), 154)
 
 
 if __name__ == "__main__":

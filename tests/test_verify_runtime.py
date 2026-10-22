@@ -120,20 +120,21 @@ class TestCli(unittest.TestCase):
     def verify(self, *extra):
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            ret = main(["verify", "--trace", str(SAMPLES / "11m-game-boot-akt.bin"), *extra])
+            ret = main(["verify", "--trace", str(SAMPLES / "base-kit-boot-akt.bin"), *extra])
         return ret, out.getvalue()
 
     def test_real_trace(self):
         ret, out = self.verify()
         self.assertEqual(ret, 1)
-        self.assertIn("error R01 9 / 10 ran 139.1 ms (limit 50 ms)", out)
-        self.assertTrue(out.strip().endswith("2 errors, 3 warnings"))
+        self.assertIn("error R01 9 / 10 ran 154.7 ms (limit 50 ms)", out)
+        self.assertTrue(out.strip().endswith("3 errors, 4 warnings"))
         # errors come first
         self.assertIn("error", out.splitlines()[0])
 
     def test_rules_file(self):
         with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
-            f.write("exe_error_ms: 200\nignore:\n  - rule: R01\n    match: '2 / 20'\n")
+            # the logo screen takes 338.6 ms, so the limit goes above it
+            f.write("exe_error_ms: 400\nignore:\n  - rule: R01\n    match: '2 / 20'\n")
         ret, out = self.verify("--rules", f.name, "--format", "json")
         pathlib.Path(f.name).unlink()
         data = json.loads(out)
@@ -143,7 +144,7 @@ class TestCli(unittest.TestCase):
 
     def test_strict(self):
         with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
-            f.write("exe_error_ms: 200\n")
+            f.write("exe_error_ms: 400\n")
         ret, _ = self.verify("--rules", f.name, "--strict")
         pathlib.Path(f.name).unlink()
         self.assertEqual(ret, 1)

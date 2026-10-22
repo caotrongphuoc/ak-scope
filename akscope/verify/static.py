@@ -30,8 +30,8 @@ FRAMEWORK_ALLOWED = ("sources/platform/stm32l/io_cfg.c", "sources/platform/stm32
 
 DELAY_CALLS = {"sys_ctrl_delay_ms", "sys_ctrl_delay_us", "sys_ctrl_delay", "delay",
                "delayMicroseconds", "delay_ms", "delay_us", "HAL_Delay", "_delay_ms", "_delay_us"}
-# storage writes that wait for the hardware before they return; seen on the kit: saving the
-# 11m-game best score with eeprom_write() inside a handler held every task for 61 ms
+# storage writes that wait for the hardware before they return; seen on the kit: a game saving
+# its best score with eeprom_write() inside a handler held every task for 61 ms
 STORAGE_CALLS = {"eeprom_write", "eeprom_erase", "io_eeprom_write", "io_eeprom_erase", "flash_write",
                  "flash_erase_sector", "flash_erase_block_32k", "flash_erase_block_64k",
                  "flash_erase_full", "flash_erase_synchronous", "flash_wait_to_idle"}

@@ -1,5 +1,5 @@
 /* Components of the Figma design system "[WEB - 1] Design system VMS", built from the numbers
- * in tests/figma/figma-spec.json. Colors only come from figma-tokens.css.
+ * in tools/figma/spec.json. Colors only come from figma-tokens.css.
  * States are classes as well as pseudo classes, so the gallery can show each one:
  * .is-hover = :hover, [disabled] / .is-disabled = disabled. */
 

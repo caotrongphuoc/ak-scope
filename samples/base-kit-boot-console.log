@@ -1,0 +1,114 @@
+[BOOT] version: 0.0.1
+[BOOT] start application
+
+   __    _  _ 
+  /__\  ( )/ )
+ /(__)\ (   ( 
+(__)(__)(_)\_)
+Wellcome to Active Kernel 1.3
+
+[PRINT] App run mode: DEBUG, App version: 0.0.0.3
+[PRINT] Init mbMaster >> [PRINT] No error
+[task_run] Active Objects is ready
+
+taskID: 6	msgType:0x80	refCnt:1	sig:10		waitTime:4	exeTime:0
+-SIG-> AC_UART_IF_INIT
+taskID: 7	msgType:0x80	refCnt:1	sig:10		waitTime:4	exeTime:3
+taskID: 12	msgType:0x80	refCnt:1	sig:10		waitTime:1	exeTime:0
+taskID: 11	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:1
+taskID: 10	msgType:0x80	refCnt:1	sig:10		waitTime:1	exeTime:0
+taskID: 11	msgType:0x80	refCnt:1	sig:11		waitTime:0	exeTime:1
+-LINK_PRINT- ----------
+-LINK_PRINT- LINK_PDU pool size: 4 (pdu)
+-LINK_PRINT- LINK_PDU buffer size: 384 (bytes)
+-LINK_PRINT- MAX time link-frame fails: 1000 (ms)
+-LINK_PRINT- MAX timeout send phy-frame: 250 (ms)
+-LINK_PRINT- MAX timeout receive NEXT mac-frame: 250 (ms)
+-LINK_PRINT- ----------
+taskID: 12	msgType:0x80	refCnt:1	sig:11		waitTime:1	exeTime:28
+-SIG-> AC_DISPLAY_INITIAL
+taskID: 9	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:156
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+-SIG-> AC_DISPLAY_SHOW_LOGO
+-SIG-> SCREEN_ENTRY
+taskID: 9	msgType:0x80	refCnt:1	sig:14		waitTime:0	exeTime:342
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+-SIG-> FW_CHECKING_REQ
+taskID: 2	msgType:0x80	refCnt:1	sig:20		waitTime:0	exeTime:32
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+-SIG-> AC_DISPLAY_SHOW_IDLE
+-SIG-> SCREEN_ENTRY
+taskID: 9	msgType:0x80	refCnt:1	sig:15		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:51
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:51
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+-SIG-> AC_DISPLAY_WELCOME_TEXT_ANIM_TICK
+taskID: 9	msgType:0x80	refCnt:1	sig:17		waitTime:0	exeTime:52
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+-SIG-> AC_DISPLAY_SHOW_IDLE
+-SIG-> SCREEN_ENTRY
+taskID: 9	msgType:0x80	refCnt:1	sig:15		waitTime:0	exeTime:42
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:38
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 4	msgType:0x80	refCnt:1	sig:10		waitTime:0	exeTime:0
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37
+taskID: 9	msgType:0x80	refCnt:1	sig:16		waitTime:0	exeTime:37

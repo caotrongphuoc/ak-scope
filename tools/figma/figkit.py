@@ -10,7 +10,7 @@ without a layout engine and without the fonts installed.
 Only what the ak-scope design system uses is handled: solid and linear gradient paints,
 drop shadows, clipping frames, instances with their derived (resized, overridden) data.
 
-Used by tools/figma_export.py. Needs `zstd` on the PATH.
+Used by export.py and compare.py. Needs `zstd` on the PATH.
 """
 
 import math

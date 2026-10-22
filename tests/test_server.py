@@ -59,12 +59,12 @@ class TestStatic(ServerCase):
 
 class TestDecode(ServerCase):
     def test_upload(self):
-        blob = (SAMPLES / "11m-game-boot-akt.bin").read_bytes()
+        blob = (SAMPLES / "base-kit-boot-akt.bin").read_bytes()
         status, _, body = self.request("POST", "/api/decode?name=boot.bin", blob)
         self.assertEqual(status, 200)
         data = json.loads(body)
         self.assertEqual(data["name"], "boot.bin")
-        self.assertEqual(len(data["execs"]), 32)
+        self.assertEqual(len(data["execs"]), 103)
         self.assertFalse(data["has_symbols"])
 
     def test_empty_body(self):
@@ -73,7 +73,7 @@ class TestDecode(ServerCase):
 
 
 class TestTraceArg(ServerCase):
-    trace = str(SAMPLES / "11m-game-boot-akt.bin")
+    trace = str(SAMPLES / "base-kit-boot-akt.bin")
 
     def test_trace(self):
         status, _, body = self.request("GET", "/api/trace")
@@ -143,7 +143,7 @@ class TestDecodedCache(unittest.TestCase):
 
         from akscope import server
 
-        data = (SAMPLES / "11m-game-boot-akt.bin").read_bytes()
+        data = (SAMPLES / "base-kit-boot-akt.bin").read_bytes()
         with tempfile.TemporaryDirectory() as d:
             with unittest.mock.patch.object(server, "_decoded_dir", return_value=pathlib.Path(d)):
                 first = State()
@@ -157,7 +157,7 @@ class TestDecodedCache(unittest.TestCase):
                     self.assertEqual(dec.call_count, 0)
                     self.assertEqual(a, b)
                     # verify still gets a timeline, built when it is asked for
-                    self.assertEqual(len(again._current_timeline()[0].execs), 32)
+                    self.assertEqual(len(again._current_timeline()[0].execs), 103)
                     self.assertEqual(dec.call_count, 1)
 
     def test_prune(self):

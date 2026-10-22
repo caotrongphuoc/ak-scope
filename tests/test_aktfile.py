@@ -7,7 +7,7 @@ import unittest
 from akscope.cli import main
 from akscope.core.aktfile import AktWriter, read_capture
 
-SAMPLE = str(pathlib.Path(__file__).resolve().parent.parent / "samples" / "11m-game-boot-akt.bin")
+SAMPLE = str(pathlib.Path(__file__).resolve().parent.parent / "samples" / "base-kit-boot-akt.bin")
 
 
 class TestAktFile(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestAktFile(unittest.TestCase):
     def test_raw_file(self):
         header, data = read_capture(SAMPLE)
         self.assertEqual(header, {})
-        self.assertTrue(data.startswith(b"[BOOT]"))
+        self.assertGreater(len(data), 4000)
 
 
 class TestDump(unittest.TestCase):
@@ -34,13 +34,13 @@ class TestDump(unittest.TestCase):
             ret = main(["dump", SAMPLE])
         self.assertEqual(ret, 0)
         lines = out.getvalue().splitlines()
-        self.assertEqual(len(lines), 68)
+        self.assertEqual(len(lines), 153)
         self.assertIn("INFO", lines[0])
-        self.assertIn("68 frames, 0 corrupt", err.getvalue())
-        # sorted by start time: task 6 runs, then posts to 17 from inside its handler
-        i = next(i for i, l in enumerate(lines) if "EXEC" in l and "task 6 " in l)
-        self.assertIn("6 -> 17", lines[i + 1])
-        self.assertTrue(any("exe 139.099 ms" in l for l in lines))
+        self.assertIn("153 frames, 0 corrupt", err.getvalue())
+        # sorted by start time: task 7 runs, then posts to 12 from inside its handler
+        i = next(i for i, l in enumerate(lines) if "EXEC" in l and "task 7 " in l)
+        self.assertIn("7 -> 12", lines[i + 1])
+        self.assertTrue(any("exe 154.671 ms" in l for l in lines))
 
 
 if __name__ == "__main__":

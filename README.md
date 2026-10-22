@@ -53,14 +53,14 @@ release RESET, keep MODE held until the LIFE LED blinks fast); the error message
 ## Quick start
 
 ```sh
-# 1. build the game with the trace linked in; the project folder is not written to
-akscope build ~/workspace/github/11m-game --tools ~/workspace/tools
+# 1. build the project with the trace linked in; the project folder is not written to
+akscope build ~/workspace/my-game --tools ~/workspace/tools
 
 # 2. open the page, then Flash (writes the firmware, records from boot) or Record
-akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0
+akscope serve --project ~/workspace/my-game --dev /dev/ttyUSB0
 
 # 3. check the sources and a recorded trace against the AK rules
-akscope verify ~/workspace/github/11m-game --trace captures/run-20261020-161828.akt
+akscope verify ~/workspace/my-game --trace captures/run-20261022-101500.akt
 ```
 
 `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH` (it holds
@@ -68,7 +68,7 @@ akscope verify ~/workspace/github/11m-game --trace captures/run-20261020-161828.
 commands do not need it.
 
 For a game that sends many messages, build with `--console-baud 460800`. At 115200 a busy
-`11m-game` lost 43 % of its records while being played; at 460800 it lost 0.2 %. `record` and
+game lost 43 % of its records while being played; at 460800 it lost 0.2 %. `record` and
 `serve` pick up the rate of the project; the bootloader keeps its own rate, so its banner reads
 as noise and is ignored.
 
@@ -91,8 +91,8 @@ as noise and is ignored.
 ## The web page and the desktop window
 
 ```
-akscope serve --project ~/workspace/github/11m-game --dev /dev/ttyUSB0    # in the browser
-akscope app --project ~/workspace/github/11m-game --dev /dev/ttyUSB0      # in its own window
+akscope serve --project ~/workspace/my-game --dev /dev/ttyUSB0    # in the browser
+akscope app --project ~/workspace/my-game --dev /dev/ttyUSB0      # in its own window
 ```
 
 Both show the same page: the top bar holds the trace facts, the serial port, Record, Flash and
@@ -127,15 +127,20 @@ first time.
 ## Verify
 
 ```sh
-akscope verify ~/workspace/github/zomwar-game
+akscope verify ~/workspace/ak-base-kit-stm32l151 --trace samples/base-kit-boot-akt.bin
 ```
 
 ```
-application/sources/ak/inc/ak.h:43: error S01 framework file changed from the AK base kit
-sources/driver/buzzer/buzzer.c:189: error S03 register access CR1 outside io_cfg.c, move it to platform/stm32l/io_cfg.c and inject it
-sources/app/game/game_zomwar/zw_game_border.cpp:3: warning S10 zw_game_score is written by 3 tasks: ...
-2 errors, 4 warnings
+@ 130.985 ms: error R01 AC_TASK_DISPLAY_ID / AC_DISPLAY_INITIAL ran 154.7 ms (limit 50 ms), 1 run over 10 ms
+@ 2130.991 ms: error R01 AC_TASK_DISPLAY_ID / AC_DISPLAY_SHOW_LOGO ran 338.6 ms (limit 50 ms), 1 run over 10 ms
+@ 5031.042 ms: error R01 AC_TASK_FW_ID / FW_CHECKING_REQ ran 84.0 ms (limit 50 ms), 1 run over 10 ms
+...
+3 errors, 4 warnings
 ```
+
+The base kit's own application keeps every static rule; its display handlers run long. A game
+built on it can also get findings such as a framework file changed (S01), register access
+outside `io_cfg.c` (S03) or a global written by several tasks (S10).
 
 Twelve static rules (blocking calls in handlers, IO outside `io_cfg.c`, signals posted but not
 handled, globals shared between tasks, ISR rules...) and eight runtime rules (handler run
@@ -169,11 +174,11 @@ The tests use the captures in `samples/` and need no board. The web page is plai
 modules under `akscope/web/`, no build step.
 
 The components of the page are compared with the Figma file pixel by pixel
-(`akscope/web/gallery.html`, `tests/figma/compare.py`). The icons are drawn from the Figma file
+(`akscope/web/gallery.html`, `tools/figma/compare.py`). The icons are drawn from the Figma file
 and not kept in the repository:
 
 ```sh
-python3 tools/figma_export.py all "[WEB - 1] Design system VMS.fig"   # tokens, icons, spec
+python3 tools/figma/export.py all "[WEB - 1] Design system VMS.fig"   # tokens, icons, spec
 AKSCOPE_FIG="[WEB - 1] Design system VMS.fig" python3 -m unittest tests.test_figma_gallery
 ```
 

@@ -4,7 +4,7 @@
 them on the console UART for `akscope`. It lives in the application layer and does not
 change the kernel. Record format: [docs/trace-format.md](../../../docs/trace-format.md).
 
-Measured on `11m-game` (STM32L151, 32 MHz):
+Measured on a game built from the base kit (STM32L151, 32 MHz):
 
 | | trace off | trace on |
 | --- | --- | --- |
@@ -27,8 +27,8 @@ This is the normal way. The project is built by its own Makefile with a wrapper 
 objects go to `~/.cache/akscope/build/`, and no file in the project is written.
 
 ```sh
-akscope build ~/workspace/github/11m-game --tools ~/workspace/tools
-akscope record --port /dev/ttyUSB0 --flash ~/workspace/github/11m-game -o run.akt
+akscope build ~/workspace/my-game --tools ~/workspace/tools
+akscope record --port /dev/ttyUSB0 --flash ~/workspace/my-game -o run.akt
 akscope dump run.akt
 ```
 
@@ -52,7 +52,8 @@ Limits of this mode:
 - a handler defined inside `task_list.cpp` itself cannot be wrapped and is reported;
 - the app version in `INFO` comes from `APP_VER` in `app.h`; it is 0.0.0.0 when the project
   has no `sources/app/app.cpp` or no such macro;
-- tested on `11m-game` and `zomwar-game` built from AK base kit 1.3.
+- tested on three projects built from AK base kit 1.3: the base kit's own application and two
+  games, with 13, 18 and 19 tasks.
 
 `akscope build` also writes `symbols.json` next to the objects: task names from the task table,
 and signal names per task, found from `case` labels in each handler's `switch (msg->sig)` and
@@ -60,8 +61,8 @@ from `task_post_*_msg()` / `timer_set()` calls. `akscope record --flash <project
 the `.akt` file so `akscope dump` prints names. A name followed by `?` was matched only by value
 and may be wrong.
 
-Measured with `zomwar-game`: RAM 15024 of 16384 bytes with the default ring, 14768 with
-`--ring 256`.
+Measured on the busiest of them (19 tasks): RAM 15024 of 16384 bytes with the default ring,
+14768 with `--ring 256`.
 
 ## Add it by hand
 
@@ -199,7 +200,7 @@ AKT_MARK(1, score);      /* USER record: id 1, value score */
   faulted`, one 5 to 10 s later goes through. `akscope flash` retries up to 4 times, 5 s apart.
 - **Console in blocking mode.** `main_app()` only switches the console to interrupt driven
   output (`sys_ctrl_shell_sw_to_nonblock()`) when `IF_LINK_UART_EN` is not set. With the
-  link UART enabled, as in `11m-game`, each frame blocks the polling task for about 1.5 ms at
+  link UART enabled, as in the base kit, each frame blocks the polling task for about 1.5 ms at
   115200 baud. This delays the next dispatch but is not counted in any handler's run time.
 - **`INFO` arrives late if the PC attaches after boot.** It is sent at start-up and then after
   every 64 `POOL` records (64 s). Reset the board after starting `akscope record` to get it at

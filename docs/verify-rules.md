@@ -5,9 +5,9 @@ of the AK kernel. Static rules (S) read the project sources; runtime rules (R) r
 recorded with `akscope record`.
 
 ```sh
-akscope verify ~/workspace/github/11m-game                      # static rules only
-akscope verify --trace run.akt                                  # runtime rules only
-akscope verify ~/workspace/github/11m-game --trace run.akt      # both, and R06 can run
+akscope verify ~/workspace/my-game                    # static rules only
+akscope verify --trace run.akt                       # runtime rules only
+akscope verify ~/workspace/my-game --trace run.akt    # both, and R06 can run
 ```
 
 Exit code: 0 when there are no errors, 1 when there are errors (or warnings with `--strict`),
@@ -39,7 +39,7 @@ everything.
 | Rule | Severity | Checks | Why |
 | --- | --- | --- | --- |
 | S01 | error | files under `ak/`, `sys/`, `common/`, `networks/`, `platform/`, `libraries/` and `boot/` are the same as in the base kit. Allowed: `platform/stm32l/io_cfg.c/.h` and `ak/ak.cfg.mk` | framework code is shared by every task; a change there breaks guarantees the rest relies on |
-| S02 | error / warning | no `sys_ctrl_delay_*`, `delay()` and similar (error); no `while (cond);` busy wait and no blocking EEPROM or flash write such as `eeprom_write()` (warning) in code that runs in a task | a handler must run to completion; while it waits nothing else runs. Saving the `11m-game` best score with `eeprom_write()` in the match handler held every task for 61 ms |
+| S02 | error / warning | no `sys_ctrl_delay_*`, `delay()` and similar (error); no `while (cond);` busy wait and no blocking EEPROM or flash write such as `eeprom_write()` (warning) in code that runs in a task | a handler must run to completion; while it waits nothing else runs. A game saving its best score with `eeprom_write()` in a gameplay handler held every task for 61 ms |
 | S03 | error | no StdPeriph calls (`GPIO_*`, `TIM_*`...), Arduino pin calls or register access in `app/` and `driver/` | all board IO lives in `io_cfg.c` and is injected, so a port to another MCU only touches that file |
 | S04 | warning | functions named `task_*` are tasks or polling tasks in `task_list.h` | `task_` means one thing: an AK task, which keeps the task list and logs unambiguous |
 | S05 | warning | signals used by the app are at least `AK_USER_DEFINE_SIG` (10) | values below 10 are the kernel's |
@@ -95,23 +95,24 @@ ignore:
 
 ```yaml
 expect:
-  - name: match starts after the logo
+  - name: idle screen after the logo
     after: {task: AC_TASK_DISPLAY_ID, sig: AC_DISPLAY_SHOW_LOGO}
-    then: {task: EM_GAME_MATCH_ID, sig: EM_GAME_MATCH_INIT}
-    within: 100ms
+    then: {task: AC_TASK_DISPLAY_ID, sig: AC_DISPLAY_SHOW_IDLE}
+    within: 11s
 ```
 
 For every run of `after`, a run of `then` must start within `within`. `task` and `sig` take
 the names from the project or plain numbers. A missing `after` in the trace is a warning.
 
-## Results on the game projects
+## Results on real projects
 
-Measured on 2026-10-20 with the base kit next to the projects:
+Measured on 2026-10-20 to 22 with the base kit next to the projects, on three projects built
+from AK base kit 1.3: the base kit's own application and two games.
 
-- `11m-game`: no errors in its own code; the best score saved with `eeprom_write()` from the
-  match handler (S02, found first on a gameplay trace as a 61 ms `EM_GAME_MATCH_UPDATE`);
-  7 helper functions named `task_display_*` (S04),
-  `AC_DISPLAY_RENDER_SCREEN = 0` (S05), two unused Christmas signals (S08). On a boot trace:
-  `AC_DISPLAY_INITIAL` 139 ms and `FW_CHECKING_REQ` 82.7 ms (R01 errors).
-- `zomwar-game`: `ZW_GAME_DEFINE_SIG` added to the kernel's `ak.h` (S01), a new register access
-  in the buzzer driver (S03), `zw_game_score` written by 3 tasks and `gunner` by 2 (S10).
+- The base kit application keeps every static rule. On a boot trace
+  (`samples/base-kit-boot-akt.bin`): `AC_DISPLAY_INITIAL` 154.7 ms, `AC_DISPLAY_SHOW_LOGO`
+  338.6 ms and `FW_CHECKING_REQ` 84.0 ms (R01 errors), the idle animation about 38 ms a frame.
+- In the games: a best score saved with `eeprom_write()` from a gameplay handler (S02, seen
+  first on a trace as a 61 ms run), helper functions named `task_*` (S04), a signal numbered 0
+  (S05), unused signals (S08), a signal macro added to the kernel's `ak.h` (S01), a register
+  access in a driver (S03), and globals written by two or three tasks (S10).

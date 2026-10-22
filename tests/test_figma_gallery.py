@@ -1,7 +1,7 @@
-"""The gallery against the Figma file (tests/figma/compare.py), when the machine can run it.
+"""The gallery against the Figma file (tools/figma/compare.py), when the machine can run it.
 
 Needs the design system file in AKSCOPE_FIG, geckodriver and Firefox on PATH, the generated
-icons (python3 tools/figma_export.py all FILE.fig), and PyGObject with librsvg for the reference
+icons (python3 tools/figma/export.py all FILE.fig), and PyGObject with librsvg for the reference
 images. Skipped otherwise; the comparison takes a few minutes.
 """
 
@@ -32,7 +32,7 @@ def _missing():
 @unittest.skipIf(_missing(), _missing() or "")
 class TestGallery(unittest.TestCase):
     def test_matches_figma(self):
-        sys.path.insert(0, str(ROOT / "tests" / "figma"))
+        sys.path.insert(0, str(ROOT / "tools" / "figma"))
         import compare
         self.assertEqual(compare.main([FIG]), 0, "gallery entries differ from Figma, see the compare output")
 

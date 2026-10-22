@@ -133,13 +133,14 @@ class TestDumpWithSymbols(unittest.TestCase):
     def test_names(self):
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            ret = main(["dump", str(SAMPLES / "11m-game-boot-akt.bin"),
-                        "--sym", str(SAMPLES / "11m-game-symbols.json")])
+            ret = main(["dump", str(SAMPLES / "base-kit-boot-akt.bin"),
+                        "--sym", str(SAMPLES / "base-kit-symbols.json")])
         self.assertEqual(ret, 0)
         text = out.getvalue()
         self.assertIn("POST         idle -> AC_TASK_UART_IF_ID  sig AC_UART_IF_INIT", text)
-        self.assertIn("task AC_TASK_DISPLAY_ID  sig AC_DISPLAY_INITIAL  pure  exe 139.099 ms", text)
-        self.assertIn("sig AC_DISPLAY_RENDER_SCREEN", text)
+        self.assertIn("task AC_TASK_DISPLAY_ID  sig AC_DISPLAY_INITIAL  pure  exe 154.671 ms", text)
+        # a post from an interrupt: the MODE button
+        self.assertIn("POST         isr -> AC_TASK_DISPLAY_ID  sig AC_DISPLAY_BUTON_MODE_PRESSED", text)
 
 
 if __name__ == "__main__":

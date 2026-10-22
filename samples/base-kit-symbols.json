@@ -1,0 +1,155 @@
+{
+ "app_ver": [
+  0,
+  0,
+  0,
+  3
+ ],
+ "fallback_signals": {
+  "0": "AC_DISPLAY_RENDER_SCREEN",
+  "20": "FW_CHECKING_REQ"
+ },
+ "signals": {
+  "1": {
+   "10": "SYSTEM_AK_FLASH_UPDATE_REQ"
+  },
+  "10": {
+   "10": "AC_LINK_PHY_INIT",
+   "11": "AC_LINK_PHY_FRAME_SEND_REQ",
+   "12": "AC_LINK_PHY_FRAME_SEND_TO",
+   "13": "AC_LINK_PHY_FRAME_REV",
+   "14": "AC_LINK_PHY_FRAME_REV_TO",
+   "15": "AC_LINK_PHY_FRAME_REV_CS_ERR"
+  },
+  "11": {
+   "10": "AC_LINK_MAC_INIT",
+   "11": "AC_LINK_MAC_PHY_LAYER_STARTED",
+   "12": "AC_LINK_MAC_FRAME_SEND_REQ",
+   "13": "AC_LINK_MAC_FRAME_SEND_START",
+   "14": "AC_LINK_MAC_FRAME_SEND_DONE",
+   "15": "AC_LINK_MAC_FRAME_SEND_ERR",
+   "16": "AC_LINK_MAC_FRAME_REV",
+   "17": "AC_LINK_MAC_FRAME_REV_TO"
+  },
+  "12": {
+   "10": "AC_LINK_INIT",
+   "11": "AC_LINK_MAC_LAYER_STARTED",
+   "16": "AC_LINK_SEND_HANDLE_PDU_FULL",
+   "17": "AC_LINK_SEND_DONE",
+   "18": "AC_LINK_SEND_ERR",
+   "19": "AC_LINK_REV_MSG"
+  },
+  "2": {
+   "10": "FW_CRENT_APP_FW_INFO_REQ",
+   "11": "FW_CRENT_BOOT_FW_INFO_REQ",
+   "12": "FW_UPDATE_REQ",
+   "13": "FW_UPDATE_SM_OK",
+   "14": "FW_TRANSFER_REQ",
+   "15": "FW_INTERNAL_UPDATE_APP_RES_OK",
+   "16": "FW_INTERNAL_UPDATE_BOOT_RES_OK",
+   "17": "FW_SAFE_MODE_RES_OK",
+   "18": "FW_UPDATE_SM_BUSY",
+   "19": "FW_PACKED_TIMEOUT",
+   "20": "FW_CHECKING_REQ"
+  },
+  "3": {
+   "10": "AC_SHELL_LOGIN_CMD",
+   "11": "AC_SHELL_REMOTE_CMD"
+  },
+  "4": {
+   "10": "AC_LIFE_SYSTEM_CHECK"
+  },
+  "6": {
+   "10": "AC_RF24_IF_INIT_NETWORK"
+  },
+  "7": {
+   "10": "AC_UART_IF_INIT",
+   "11": "AC_UART_IF_PURE_MSG_OUT",
+   "12": "AC_UART_IF_COMMON_MSG_OUT",
+   "13": "AC_UART_IF_DYNAMIC_MSG_OUT",
+   "14": "AC_UART_IF_PURE_MSG_IN",
+   "15": "AC_UART_IF_COMMON_MSG_IN",
+   "16": "AC_UART_IF_DYNAMIC_MSG_IN"
+  },
+  "9": {
+   "0": "AC_DISPLAY_RENDER_SCREEN",
+   "10": "AC_DISPLAY_INITIAL",
+   "11": "AC_DISPLAY_BUTON_MODE_PRESSED",
+   "12": "AC_DISPLAY_BUTON_UP_PRESSED",
+   "13": "AC_DISPLAY_BUTON_DOWN_PRESSED",
+   "14": "AC_DISPLAY_SHOW_LOGO",
+   "15": "AC_DISPLAY_SHOW_IDLE",
+   "16": "AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE",
+   "17": "AC_DISPLAY_WELCOME_TEXT_ANIM_TICK",
+   "18": "AC_DISPLAY_SHOW_FW_UPDATE",
+   "19": "AC_DISPLAY_SHOW_FW_UPDATE_ERR"
+  }
+ },
+ "tasks": {
+  "0": {
+   "handler": "task_timer_tick",
+   "name": "TASK_TIMER_TICK_ID",
+   "pri": 7
+  },
+  "1": {
+   "handler": "task_system",
+   "name": "AC_TASK_SYSTEM_ID",
+   "pri": 2
+  },
+  "10": {
+   "handler": "task_link_phy",
+   "name": "AC_LINK_PHY_ID",
+   "pri": 3
+  },
+  "11": {
+   "handler": "task_link_mac",
+   "name": "AC_LINK_MAC_ID",
+   "pri": 4
+  },
+  "12": {
+   "handler": "task_link",
+   "name": "AC_LINK_ID",
+   "pri": 5
+  },
+  "2": {
+   "handler": "task_fw",
+   "name": "AC_TASK_FW_ID",
+   "pri": 2
+  },
+  "3": {
+   "handler": "task_shell",
+   "name": "AC_TASK_SHELL_ID",
+   "pri": 2
+  },
+  "4": {
+   "handler": "task_life",
+   "name": "AC_TASK_LIFE_ID",
+   "pri": 6
+  },
+  "5": {
+   "handler": "task_if",
+   "name": "AC_TASK_IF_ID",
+   "pri": 4
+  },
+  "6": {
+   "handler": "task_rf24_if",
+   "name": "AC_TASK_RF24_IF_ID",
+   "pri": 4
+  },
+  "7": {
+   "handler": "task_uart_if",
+   "name": "AC_TASK_UART_IF_ID",
+   "pri": 4
+  },
+  "8": {
+   "handler": "task_dbg",
+   "name": "AC_TASK_DBG_ID",
+   "pri": 4
+  },
+  "9": {
+   "handler": "task_display",
+   "name": "AC_TASK_DISPLAY_ID",
+   "pri": 4
+  }
+ }
+}

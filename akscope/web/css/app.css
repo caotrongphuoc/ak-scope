@@ -751,3 +751,10 @@ body {
 	color: inherit;
 	cursor: pointer;
 }
+
+/* long task / signal names wrap instead of widening the panel */
+.detail .menu-label > span {
+	min-width: 0;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}

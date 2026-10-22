@@ -22,10 +22,10 @@ class TestDesktopEntry(unittest.TestCase):
 
     def test_entry_with_project(self):
         with tempfile.TemporaryDirectory() as d:
-            proj = pathlib.Path(d) / "11m game"
+            proj = pathlib.Path(d) / "my game"
             proj.mkdir()
             text = desktop.desktop_entry(proj, python="/usr/bin/python3")
-            self.assertIn("Name=ak-scope (11m game)\n", text)
+            self.assertIn("Name=ak-scope (my game)\n", text)
             # the path is quoted for the Exec line
             self.assertIn("--project '%s'" % proj.resolve(), text)
 

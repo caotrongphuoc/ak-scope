@@ -72,20 +72,22 @@ class TestPairing(unittest.TestCase):
 
 class TestRealCapture(unittest.TestCase):
     def setUp(self):
-        records, text, self.stats = akt.decode_bytes((SAMPLES / "11m-game-boot-akt.bin").read_bytes())
+        records, text, self.stats = akt.decode_bytes((SAMPLES / "base-kit-boot-akt.bin").read_bytes())
         self.tl = timeline.build_timeline(records)
-        self.sym = SymbolTable(json.loads((SAMPLES / "11m-game-symbols.json").read_text()))
+        self.sym = SymbolTable(json.loads((SAMPLES / "base-kit-symbols.json").read_text()))
         self.text = text
 
     def test_every_post_handled(self):
-        self.assertEqual(len(self.tl.posts), 9)
+        # 8 posts, the last one from the MODE button interrupt
+        self.assertEqual(len(self.tl.posts), 8)
         self.assertTrue(all(p.exec >= 0 for p in self.tl.posts))
 
     def test_waits_match_kernel(self):
-        # the kernel figure is whole ms; the paired one is exact
+        # the kernel takes both ends in whole ms ticks, so it can be off by up to 2 ms (the button
+        # post: 0.94 ms paired, 2 ms in the kernel); the paired one is exact
         for e in self.tl.execs:
             if e.wait >= 0:
-                self.assertAlmostEqual(self.tl.us(e.wait) / 1000, e.wait_ms_kernel, delta=1.0)
+                self.assertAlmostEqual(self.tl.us(e.wait) / 1000, e.wait_ms_kernel, delta=2.0)
 
     def test_json(self):
         out = timeline.to_json(self.tl, self.sym, self.text, self.stats)
@@ -95,7 +97,7 @@ class TestRealCapture(unittest.TestCase):
         link = next(e for e in out["execs"] if e["sig_name"] == "AC_LINK_INIT")
         self.assertEqual(link["src_name"], "AC_TASK_UART_IF_ID")
         display = next(s for s in out["task_stats"] if s["name"] == "AC_TASK_DISPLAY_ID")
-        self.assertAlmostEqual(display["exe_max_us"] / 1000, 139.1, delta=0.1)
+        self.assertAlmostEqual(display["exe_max_us"] / 1000, 338.6, delta=0.1)
         self.assertEqual(out["stream"]["corrupt"], 0)
 
 

@@ -27,8 +27,8 @@ ignore: []
 # R08: expected sequences. For every run of `after`, a run of `then` must start within
 # `within` (us, ms or s). task and sig take names from the project or numbers.
 #   expect:
-#     - name: match starts after the logo
+#     - name: idle screen after the logo
 #       after: {task: AC_TASK_DISPLAY_ID, sig: AC_DISPLAY_SHOW_LOGO}
-#       then: {task: EM_GAME_MATCH_ID, sig: EM_GAME_MATCH_INIT}
-#       within: 100ms
+#       then: {task: AC_TASK_DISPLAY_ID, sig: AC_DISPLAY_SHOW_IDLE}
+#       within: 11s
 expect: []

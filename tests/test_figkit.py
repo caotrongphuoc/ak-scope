@@ -3,9 +3,9 @@ import struct
 import sys
 import unittest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "tools"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "tools" / "figma"))
 import figkit  # noqa: E402
-import figma_export  # noqa: E402
+import export as figma_export  # noqa: E402
 
 
 def blob(*cmds):

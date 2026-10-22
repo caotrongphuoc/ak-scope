@@ -49,21 +49,24 @@ class TestParseText(unittest.TestCase):
             self.assertEqual([r.line for r in records], [2, 4], repr(sep))
 
     def test_real_capture(self):
-        records = parse_file(SAMPLES / "11m-game-idle-console.log")
-        self.assertEqual(len(records), 24)
-        self.assertTrue(all(r.origin == "console" for r in records))
+        records = parse_file(SAMPLES / "base-kit-idle-console.log")
+        self.assertEqual(len(records), 186)
+        # 168 lines as the kernel logs them, then the 18 messages `fatal m` lists
+        self.assertEqual(sum(r.origin == "console" for r in records), 168)
+        self.assertEqual(sum(r.origin == "fatal" for r in records), 18)
         life = [r for r in records if r.task_id == 4]
         shell = [r for r in records if r.task_id == 3]
-        self.assertEqual(len(life), 21)
-        self.assertEqual([r.exe_ms for r in shell], [5, 1, 90])
+        self.assertEqual(len(life), 22)
+        # the shell commands ver, fatal l, fatal m
+        self.assertEqual([r.exe_ms for r in shell], [63, 38, 235])
 
     def test_boot_capture_with_text(self):
         # boot banner and -LINK_PRINT- lines sit between the kernel log lines
-        records = parse_file(SAMPLES / "11m-game-boot-console.log")
-        self.assertEqual(len(records), 84)
-        self.assertEqual(records[0].line, 3)
+        records = parse_file(SAMPLES / "base-kit-boot-console.log")
+        self.assertEqual(len(records), 71)
+        self.assertEqual(records[0].line, 14)
         display = [r for r in records if r.task_id == 9]
-        self.assertEqual([(r.sig, r.exe_ms) for r in display], [(10, 139), (14, 36), (104, 38)])
+        self.assertEqual([(r.sig, r.exe_ms) for r in display[:3]], [(10, 156), (14, 342), (15, 52)])
 
 
 if __name__ == "__main__":

@@ -4,16 +4,16 @@ import unittest
 
 from akscope import build
 
-# objdump -r -j .rodata.app_task_table task_list.o, 11m-game c6c9b29 (trimmed)
+# objdump -r -j .rodata.app_task_table task_list.o, ak-base-kit-stm32l151 57e480e (trimmed)
 OBJDUMP_TABLE = """
 build/task_list.o:     file format elf32-littlearm
 
 RELOCATION RECORDS FOR [.rodata.app_task_table]:
-OFFSET   TYPE              VALUE
+OFFSET   TYPE              VALUE 
 00000004 R_ARM_ABS32       task_timer_tick
 0000000c R_ARM_ABS32       _Z11task_systemP8ak_msg_t
 00000024 R_ARM_ABS32       _Z9task_lifeP8ak_msg_t
-00000054 R_ARM_ABS32       _Z20em_game_match_handleP8ak_msg_t
+00000034 R_ARM_ABS32       _Z12task_rf24_ifP8ak_msg_t
 """
 
 
@@ -21,7 +21,7 @@ class TestRelocations(unittest.TestCase):
     def test_parse(self):
         self.assertEqual(build.parse_relocations(OBJDUMP_TABLE), [
             "task_timer_tick", "_Z11task_systemP8ak_msg_t", "_Z9task_lifeP8ak_msg_t",
-            "_Z20em_game_match_handleP8ak_msg_t"])
+            "_Z12task_rf24_ifP8ak_msg_t"])
 
     def test_empty(self):
         self.assertEqual(build.parse_relocations(""), [])
