@@ -50,6 +50,7 @@ everything.
 | S10 | warning | a file scope variable written from more than one task | tasks share data by messages; shared globals make the order of events matter |
 | S11 | error | an ISR that reaches the kernel calls `task_entry_interrupt()` and `task_exit_interrupt()` | the kernel needs them to post safely from interrupt context |
 | S12 | error | no `get_dynamic_msg()` or `task_post_dynamic_msg()` from an ISR | dynamic messages allocate from the heap |
+| S13 | warning | no `APP_DBG_SIG`, `APP_DBG` or `APP_PRINT` in code that runs in a task while the console blocks (`main_app()` does not call `sys_ctrl_shell_sw_to_nonblock()`, as with `IF_LINK_UART_EN`) | each character holds the handler 10 bits at the console rate (87 us at 115200), so run times include the printing; reported once for the project, it is a build setting |
 
 Limits worth knowing:
 

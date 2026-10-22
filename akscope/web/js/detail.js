@@ -73,6 +73,15 @@ export class DetailView {
 				timers.map((t) => item(`${t.kind === "TIMER_SET" ? "set" : "remove"} ${esc(name(t.des))} / ${esc(t.sig_name)}`,
 					t.kind === "TIMER_SET" ? `${t.duty_ms} ms ${t.periodic ? "periodic" : "one shot"}` : "", -1)).join("");
 		}
+		// the base kit's debug prints of this run (core/runlog.py); a blocking console holds the
+		// handler while it sends them, 10 bits a character
+		if (e.log && e.log.length) {
+			const baud = (tr.header || {}).baud;
+			const chars = e.log.reduce((n, l) => n + l.length + 1, 0);
+			const cost = baud ? ` <span class="detail-empty">${chars} characters, ${fmtDur(chars * 10 * 1e6 / baud)} at ${baud} baud</span>` : "";
+			html += `<div class="detail-section" style="margin-top:16px">Console in this run${cost}</div>` +
+				`<pre class="run-log">${e.log.map(esc).join("\n")}</pre>`;
+		}
 		this.root.innerHTML = html;
 	}
 }

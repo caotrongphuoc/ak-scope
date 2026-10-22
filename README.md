@@ -104,7 +104,9 @@ Figma, dark and light.
   goes from the post to the run it caused; a tick marks a run started by a timer. Wheel to
   zoom, drag to pan, shift and drag to measure, `f` to fit.
 - **Detail**: for the selected run, its run time, its exact queue wait, who posted it, and what
-  it posted, each a link to follow the chain.
+  it posted, each a link to follow the chain. With the base kit's debug prints on
+  (`APP_DBG_SIG_EN`), the console lines the run printed, matched by the `-SIG-> NAME` line it
+  starts with, and how long sending them held the handler.
 - **Events**: every record, with a filter; export the filtered rows as CSV or JSON.
 - **Flow**: the messages in the timeline view as a sequence diagram.
 - **Stats**: run time per task and per signal, CPU share, longest handler.
@@ -142,8 +144,8 @@ The base kit's own application keeps every static rule; its display handlers run
 built on it can also get findings such as a framework file changed (S01), register access
 outside `io_cfg.c` (S03) or a global written by several tasks (S10).
 
-Twelve static rules (blocking calls in handlers, IO outside `io_cfg.c`, signals posted but not
-handled, globals shared between tasks, ISR rules...) and eight runtime rules (handler run
+Thirteen static rules (blocking calls in handlers, IO outside `io_cfg.c`, signals posted but
+not handled, globals shared between tasks, ISR rules, debug prints on a blocking console...) and eight runtime rules (handler run
 time, queue wait, pool use, message storms, timer drift, expected sequences...). Code that
 comes unchanged from the base kit is left out when the kit is checked out next to the project.
 See [docs/verify-rules.md](docs/verify-rules.md) for every rule, its limits, and the rules

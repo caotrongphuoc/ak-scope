@@ -12,6 +12,7 @@ from collections import deque
 from dataclasses import dataclass, field
 
 from akscope.core.model import msg_type_name
+from akscope.core.runlog import RunLog
 from akscope.core.symbols import SymbolTable
 
 SRC_TIMER = "timer"
@@ -89,6 +90,7 @@ class Timeline:
     gaps: list = field(default_factory=list)  # t of each OVERFLOW: records are missing before it
     task_agg: dict = field(default_factory=dict)  # task -> Agg
     sig_agg: dict = field(default_factory=dict)  # (task, sig) -> Agg
+    logs: dict = field(default_factory=dict)  # exec index -> console lines of that run (runlog)
 
     def us(self, cycles):
         return cycles * 1e6 / self.cpu_hz
@@ -110,7 +112,9 @@ class TimelineBuilder:
         self.links = []  # (post index, exec index) paired since the last take_links()
 
     def add(self, r):
+        """Returns the Exec for an EXEC record, else None."""
         tl = self.tl
+        added = None
         if tl.t0 is None:
             tl.t0 = r.t_abs
         t = r.t_abs - tl.t0
@@ -131,6 +135,7 @@ class TimelineBuilder:
             elif (e.task, e.sig) in self._timer_sigs:
                 e.src = SRC_TIMER
             tl.execs.append(e)
+            added = e
             tl.task_agg.setdefault(e.task, Agg()).add(e)
             tl.sig_agg.setdefault((e.task, e.sig), Agg()).add(e)
             tl.duration = max(tl.duration, t + e.duration)
@@ -153,6 +158,7 @@ class TimelineBuilder:
             tl.info = f
             tl.cpu_hz = f["cpu_hz"]
         tl.duration = max(tl.duration, t)
+        return added
 
     def take_links(self):
         links, self.links = self.links, []
@@ -168,10 +174,24 @@ def build_timeline(records, default_cpu_hz=32000000):
         b.tl.info = info.fields
         b.tl.cpu_hz = info.fields["cpu_hz"]
     for r in records:
-        b.add(r)
+        e = b.add(r)
+        if e is not None:
+            r.exec_index = e.index
     if b.tl.t0 is None:
         b.tl.t0 = 0
     return b.tl
+
+
+def attach_logs(tl, items, sym, baud=None):
+    """Fill tl.logs from the decoded items in UART order (akt.decode_stream), after
+    build_timeline has numbered the EXEC records. baud: console rate of the capture."""
+    log = RunLog(sym.signal, baud, sym.signal_names())
+    for x in items:
+        if isinstance(x, str):
+            log.text(x)
+        elif x.kind == "EXEC" and x.exec_index >= 0:
+            log.exec(x.exec_index, x.fields["task"], x.fields["sig"], tl.us(x.fields["duration"]))
+    tl.logs = log.logs
 
 
 def task_stats(tl):
@@ -196,6 +216,7 @@ def exec_json(tl, e, sym):
         "src": e.src, "src_name": e.src if isinstance(e.src, str) else sym.task(e.src),
         "post": e.post, "wait": us(e.wait) if e.wait >= 0 else None,
         "wait_ms_kernel": None if e.wait_ms_kernel == 0xFFFF else e.wait_ms_kernel,
+        "log": tl.logs.get(e.index),
     }
 
 

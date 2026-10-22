@@ -529,6 +529,7 @@ export class TimelineView {
 			`<dt>exe</dt><dd class="${cls}">${fmtDur(e.dur)}</dd>` +
 			`<dt>wait</dt><dd>${e.wait != null ? fmtDur(e.wait) : e.wait_ms_kernel != null ? e.wait_ms_kernel + " ms (kernel)" : "-"}</dd>` +
 			`<dt>type</dt><dd>${esc(e.type)}</dd>` +
+			(e.log ? `<dt>console</dt><dd>${e.log.length} line${e.log.length === 1 ? "" : "s"}</dd>` : "") +
 			`</dl>`;
 		tip.hidden = false;
 		const pad = 14;

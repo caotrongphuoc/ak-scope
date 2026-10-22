@@ -622,9 +622,55 @@ def s12_dynamic_in_isr(p):
     return findings
 
 
+_PRINT = re.compile(r"\bxprintf\s*\(")
+_LEADING_LITERAL = re.compile(r'\s*"([^"]*)"')
+# what the base kit's app_dbg.h macros put in front of the text
+_PRINT_KINDS = (("-SIG-> ", "APP_DBG_SIG"), ("[DBG] ", "APP_DBG"), ("[PRINT] ", "APP_PRINT"))
+
+
+def s13_debug_prints(p):
+    """S13: debug prints inside handlers while the console blocks.
+
+    After -E an enabled APP_DBG_SIG / APP_DBG / APP_PRINT is an xprintf() call and a disabled
+    one is gone, so this sees what the build prints. main_app() of the base kit switches the
+    console to interrupt driven output only without IF_LINK_UART_EN; otherwise every character
+    holds the running handler until the UART has sent it, and the handler's run time (in the
+    trace, the kernel log and R01) includes the printing. One finding for the project: it is
+    a build setting, the prints themselves are often the base kit's.
+    """
+    mains = [fn for fn in p.defs("main_app") if fn.file.startswith("sources/")]
+    if not mains or any("sys_ctrl_shell_sw_to_nonblock" in fn.calls() for fn in mains):
+        return []
+    roots = [n for n in p.msg_funcs if any(not d.file.startswith("sources/ak/") for d in p.defs(n))]
+    kinds, places = {}, set()
+    for name in p.reach(roots):
+        for fn in p.defs(name):
+            if not fn.file.startswith(("sources/app/", "sources/driver/", "sources/networks/",
+                                       "sources/common/")):
+                continue
+            base = fn.brace + 1
+            for m in _PRINT.finditer(fn.body):
+                # the body has its string literals blanked; the format is read from the -E text
+                lit = _LEADING_LITERAL.match(fn.unit.raw, base + m.end())
+                kind = next((k for prefix, k in _PRINT_KINDS if lit and lit.group(1).startswith(prefix)), None)
+                # plain xprintf is the shell answering a command, not a debug print
+                if kind:
+                    places.add(fn.unit.where(base + m.start()))
+                    kinds[kind] = kinds.get(kind, 0) + 1
+    if not places:
+        return []
+    what = ", ".join("%d %s" % (n, k) for k, n in sorted(kinds.items(), key=lambda x: -x[1]))
+    return [Finding("S13", WARNING,
+                    "%d debug prints run inside task handlers (%s) and the console blocks while it sends "
+                    "(main_app() keeps it blocking with IF_LINK_UART_EN): each character holds the "
+                    "handler 10 bits, about 87 us at 115200 or 22 us at 460800, and the run times "
+                    "include it. For timing, build with the prints off (-UAPP_DBG_SIG_EN -UAPP_DBG_EN "
+                    "-UAPP_PRINT_EN in the Makefile)" % (len(places), what), mains[0].file)]
+
+
 RULES = (s02_blocking, s03_io_outside_io_cfg, s04_task_prefix, s05_user_signals, s06_priorities,
          s07_unhandled_posts, s08_dead_signals, s09_common_payload, s10_shared_globals,
-         s11_isr_bracket, s12_dynamic_in_isr)
+         s11_isr_bracket, s12_dynamic_in_isr, s13_debug_prints)
 
 
 class BaseKitDiff:

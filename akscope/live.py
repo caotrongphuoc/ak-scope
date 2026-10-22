@@ -17,6 +17,7 @@ import time
 
 from akscope.core import akt, timeline
 from akscope.core.aktfile import AktWriter
+from akscope.core.runlog import RunLog
 from akscope.core.symbols import SymbolTable
 
 TICK_S = 0.25
@@ -96,6 +97,7 @@ class LiveSession:
                                stream_stats=self.decoder.stats)
         out["name"] = self.status["file"]
         out["has_symbols"] = bool(self.sym.tasks)
+        out["header"] = {"baud": self.runlog.baud}
         out["live"] = True
         v.cursor = self._counts()
         v.last_stats = time.monotonic()
@@ -169,6 +171,9 @@ class LiveSession:
         writer = AktWriter(path, header)
         with self.lock:
             self.builder = timeline.TimelineBuilder()
+            # debug prints of each run (runlog); tl.logs is the dict it fills
+            self.runlog = RunLog(self.sym.signal, baud, self.sym.signal_names())
+            self.builder.tl.logs = self.runlog.logs
             self.decoder = akt.StreamDecoder()
             self.unwrap = akt.Unwrapper()
             self.text = []
@@ -197,9 +202,12 @@ class LiveSession:
                 with self.lock:
                     for item in self.decoder.feed(data):
                         if isinstance(item, akt.Record):
-                            self.builder.add(self.unwrap(item))
+                            e = self.builder.add(self.unwrap(item))
+                            if e is not None:
+                                self.runlog.exec(e.index, e.task, e.sig, self.builder.tl.us(e.duration))
                         else:
                             self.text.append(item)
+                            self.runlog.text(item)
                 if time.monotonic() - last_flush > 1.0:
                     writer.flush()
                     last_flush = time.monotonic()

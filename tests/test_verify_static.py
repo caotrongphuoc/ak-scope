@@ -195,6 +195,48 @@ class TestRules(unittest.TestCase):
         self.assertIn("task_post_dynamic_msg", self.f["S12"][0].message)
 
 
+# a handler with the base kit's debug macros expanded, as -E gives them with APP_DBG_SIG_EN
+PRINTS = APP_H + '''# 1 "sources/app/task_print.cpp"
+void task_print(ak_msg_t* msg) {
+ switch (msg->sig) {
+ case AC_LIFE_CHECK:
+  xprintf("-SIG-> " "AC_LIFE_CHECK\\n");
+  xprintf("[DBG] " "score %d\\n", 1);
+  xprintf("%s\\n", "an answer of the shell");
+  break;
+ }
+}
+'''
+
+
+def main_app(nonblock):
+    call = "sys_ctrl_shell_sw_to_nonblock();" if nonblock else ""
+    return '''# 1 "sources/app/app.cpp"
+int main_app() {
+ task_create((task_t*)app_task_table);
+ %s
+ return task_run();
+}
+''' % call
+
+
+class TestDebugPrints(unittest.TestCase):
+    def run_s13(self, nonblock):
+        p = static.Project({"sources/app/task_list.cpp": TASK_LIST.replace("task_zero}", "task_print}"),
+                            "sources/app/task_print.cpp": PRINTS, "sources/app/app.cpp": main_app(nonblock)})
+        return static.s13_debug_prints(p)
+
+    def test_blocking_console(self):
+        f = self.run_s13(False)
+        self.assertEqual(len(f), 1)
+        self.assertEqual((f[0].rule, f[0].file, f[0].line), ("S13", "sources/app/app.cpp", 0))
+        # the shell answer is not counted
+        self.assertIn("2 debug prints run inside task handlers (1 APP_DBG_SIG, 1 APP_DBG)", f[0].message)
+
+    def test_interrupt_driven_console(self):
+        self.assertEqual(self.run_s13(True), [])
+
+
 SIZES = '''# 1 "sources/app/sizes.cpp"
 struct big_t { uint8_t data[80]; };
 struct small_t { uint8_t a; };

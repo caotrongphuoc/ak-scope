@@ -111,6 +111,7 @@ class Record:
     t: int  # raw 32-bit cycle count from the board
     fields: dict = field(default_factory=dict)
     t_abs: int = 0  # cycle count with wraps removed, set by Unwrapper
+    exec_index: int = -1  # for an EXEC: its position in Timeline.execs, set by build_timeline
 
 
 def decode_record(body):
@@ -227,14 +228,17 @@ class Unwrapper:
         return rec
 
 
-def decode_bytes(data):
-    """Decode a whole capture. Returns (records, text, stats)."""
+def decode_stream(data):
+    """Decode a whole capture. Returns (items, stats): Record and str (console text) in the
+    order they came on the UART."""
     dec = StreamDecoder()
     unwrap = Unwrapper()
-    records, text = [], []
-    for item in dec.feed(data) + dec.finish():
-        if isinstance(item, Record):
-            records.append(unwrap(item))
-        else:
-            text.append(item)
-    return records, "".join(text), dec.stats
+    items = [unwrap(x) if isinstance(x, Record) else x for x in dec.feed(data) + dec.finish()]
+    return items, dec.stats
+
+
+def decode_bytes(data):
+    """Decode a whole capture. Returns (records, text, stats)."""
+    items, stats = decode_stream(data)
+    records = [x for x in items if isinstance(x, Record)]
+    return records, "".join(x for x in items if not isinstance(x, Record)), stats

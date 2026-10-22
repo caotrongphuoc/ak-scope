@@ -4,6 +4,7 @@ const RULES = {
 	S01: "framework unchanged", S02: "handler blocks", S03: "IO outside io_cfg.c", S04: "task_ prefix",
 	S05: "user signal range", S06: "task priority", S07: "posted, not handled", S08: "dead signal",
 	S09: "common payload", S10: "global shared by tasks", S11: "ISR bracket", S12: "dynamic msg in ISR",
+	S13: "debug prints on a blocking console",
 	R01: "handler run time", R02: "queue wait", R03: "pool use", R04: "message storm",
 	R05: "timer drift", R06: "no case for message", R07: "trace incomplete", R08: "expected sequence",
 };

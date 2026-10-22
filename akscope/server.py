@@ -41,17 +41,20 @@ KEEPALIVE_S = 15
 
 # decoded page JSON of opened captures, so opening a large trace again is instant
 DECODED_KEEP = 20
-DECODED_FORMAT = "1"  # change when the page JSON changes shape
+DECODED_FORMAT = "2"  # change when the page JSON changes shape
 
 mimetypes.add_type("text/javascript", ".js")
 
 
 def decode_capture(header, data, sym=None, name=""):
     """(timeline JSON for the page, (Timeline, SymbolTable, stream stats) for verify)"""
-    records, text, stats = akt.decode_bytes(data)
+    items, stats = akt.decode_stream(data)
+    records = [x for x in items if isinstance(x, akt.Record)]
+    text = "".join(x for x in items if isinstance(x, str))
     if sym is None:
         sym = SymbolTable(header.get("symbols"))
     tl = timeline.build_timeline(records)
+    timeline.attach_logs(tl, items, sym, header.get("baud"))
     out = timeline.to_json(tl, sym, text=text, stream_stats=stats)
     out["name"] = name
     out["header"] = {k: v for k, v in header.items() if k != "symbols"}

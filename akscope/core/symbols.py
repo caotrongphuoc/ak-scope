@@ -262,6 +262,13 @@ class SymbolTable:
         t = self.tasks.get(task_id)
         return t["name"] if t else str(task_id)
 
+    def signal_names(self):
+        """Every signal name of the project."""
+        names = set(self.fallback.values())
+        for sigs in self.signals.values():
+            names.update(sigs.values())
+        return names
+
     def signal(self, task_id, sig):
         name = self.signals.get(task_id, {}).get(sig)
         if name:

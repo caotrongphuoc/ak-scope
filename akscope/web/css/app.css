@@ -758,3 +758,14 @@ body {
 	white-space: normal;
 	overflow-wrap: anywhere;
 }
+
+.run-log {
+	margin: 0;
+	padding: 8px;
+	overflow-x: auto;
+	border: 1px solid var(--color-border-base);
+	border-radius: var(--radius-md-8);
+	background: var(--color-background-surface);
+	font: 12px / 18px var(--font-mono);
+	white-space: pre;
+}
