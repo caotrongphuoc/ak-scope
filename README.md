@@ -1,3 +1,9 @@
+<div align="center">
+
+![Repo Traffic](https://ak-badge-proxy.caotrongphuoc.workers.dev/?username=ak-scope&label=Repo+Traffic&color=blue&style=flat-square)
+
+</div>
+
 <p align="center">
   <img src="https://img.shields.io/badge/language-Python%203.10-blue?style=flat-square&logo=python" alt="Language">
   <img src="https://img.shields.io/badge/mcu-STM32L151-blue?style=flat-square" alt="MCU">
