@@ -1,4 +1,4 @@
-"""Make the README banner: docs/images/banner/banner-ak-scope.gif and banner-ak-scope-2x1.png.
+"""Make the README banner: resources/images/banner/banner-ak-scope.gif and banner-ak-scope-2x1.png.
 
     python3 tools/banner.py
 
@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / "tools" / "figma"))
 from akscope.core import akt, timeline  # noqa: E402
 from akscope.core.symbols import SymbolTable  # noqa: E402
 
-OUT = ROOT / "docs" / "images" / "banner"
+OUT = ROOT / "resources" / "images" / "banner"
 W, H = 1280, 640
 FRAMES = 24
 FRAME_MS = 120
