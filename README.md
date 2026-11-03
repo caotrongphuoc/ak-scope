@@ -36,9 +36,9 @@
 | File | Description |
 | :---: | :--- |
 | [README.md](README.md) | Overview, install, quick start and commands. |
-| [docs/guide.md](docs/guide.md) | The page and its views, the desktop window, console rate, flashing, firmware without the trace. |
-| [docs/verify-rules.md](docs/verify-rules.md) | The static and runtime rules, their limits, and the rules file. |
-| [docs/trace-format.md](docs/trace-format.md) | The trace records on the wire and the `.akt` file format. |
+| [docs/01-guide-getting-started.md](docs/01-guide-getting-started.md) | The page and its views, the desktop window, console rate, flashing, firmware without the trace. |
+| [docs/02-guide-verify-rules.md](docs/02-guide-verify-rules.md) | The static and runtime rules, their limits, and the rules file. |
+| [docs/03-design-trace-format.md](docs/03-design-trace-format.md) | The trace records on the wire and the `.akt` file format. |
 | [akscope/firmware/akt/README.md](akscope/firmware/akt/README.md) | The firmware trace module: how it is linked in, cost, known issues. |
 | [samples/README.md](samples/README.md) | The captures from a real kit that the tests use. |
 
@@ -112,7 +112,7 @@ akscope verify ~/workspace/my-game --trace captures/run-20261022-101500.akt
 ```
 
 `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH`; it and the console rate
-are remembered for the project. See [docs/guide.md](docs/guide.md) for the details.
+are remembered for the project. See [docs/01-guide-getting-started.md](docs/01-guide-getting-started.md) for the details.
 
 ### IV. Commands
 
@@ -155,7 +155,7 @@ akscope verify ~/workspace/ak-base-kit-stm32l151 --trace samples/base-kit-boot-a
 
 Code that comes unchanged from the base kit is left out when the kit is checked out next to the
 project. Thresholds, ignores and expected sequences go in a rules file, see
-[docs/verify-rules.md](docs/verify-rules.md).
+[docs/02-guide-verify-rules.md](docs/02-guide-verify-rules.md).
 
 ### VI. Development
 

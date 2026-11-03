@@ -1,4 +1,4 @@
-"""Decode the akt trace stream (docs/trace-format.md, format version 1).
+"""Decode the akt trace stream (docs/03-design-trace-format.md, format version 1).
 
 The stream from the console UART mixes plain text and frames:
     0x00 | COBS(record | crc8) | 0x00

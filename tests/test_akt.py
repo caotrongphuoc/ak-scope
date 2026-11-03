@@ -38,7 +38,7 @@ class TestCobs(unittest.TestCase):
 
 class TestDecodeRecord(unittest.TestCase):
     def test_sizes_match_spec(self):
-        # sizes from the table in docs/trace-format.md
+        # sizes from the table in docs/03-design-trace-format.md
         self.assertEqual(akt.RECORD_SIZE, {1: 20, 2: 11, 3: 14, 4: 12, 5: 7, 6: 9, 7: 7, 8: 10})
 
     def test_post(self):

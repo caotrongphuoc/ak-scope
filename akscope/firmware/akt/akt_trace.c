@@ -3,7 +3,7 @@
  * @file    akt_trace.c
  * @brief   record AK message flow and send it on the console UART
  *
- * Record layout and framing: docs/trace-format.md in ak-scope.
+ * Record layout and framing: docs/03-design-trace-format.md in ak-scope.
  ******************************************************************************
  */
 #if defined(AKT_TRACE_EN)
@@ -220,7 +220,7 @@ static void akt_push(const uint8_t* record, uint8_t len) {
 }
 
 static uint8_t akt_src() {
-	/* the kernel src_task_id is 0 for every message posted from a handler, see trace-format.md */
+	/* the kernel src_task_id is 0 for every message posted from a handler, see 03-design-trace-format.md */
 	if (get_current_task_id() == AK_TASK_INTERRUPT_ID) {
 		return AK_TASK_INTERRUPT_ID;
 	}
