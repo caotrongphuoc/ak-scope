@@ -14,15 +14,21 @@
 
 # ak-scope - Message trace and verify for AK firmware
 
+<p align="center">
+  <a href="docs/images/banner/banner-ak-scope-2x1.png">
+    <img src="docs/images/banner/banner-ak-scope.gif" alt="ak-scope: message trace and verify for AK event-driven firmware; the boot of the base kit on the timeline, from the kit to the page; click for the static 2:1 cover" width="1280" height="640"/>
+  </a>
+</p>
+
 Record, visualize and verify the task messages, signals and timers of firmware built on the
 [AK Embedded Base Kit](https://github.com/the-ak-foundation/ak-base-kit-stm32l151).
+
+---
 
 <p align="center">
   <img src="docs/images/trace-dark.png" alt="Trace view: tasks, timeline and the detail of one handler run" width="900"/>
 </p>
 <p align="center"><strong><em>Figure 1:</em></strong> Trace view of the base kit application: a press of the MODE button and the runs it caused</p>
-
-<hr>
 
 ## Documentation
 
