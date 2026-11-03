@@ -20,15 +20,14 @@
   </a>
 </p>
 
-Record, visualize and verify the task messages, signals and timers of firmware built on the
-[AK Embedded Base Kit](https://github.com/the-ak-foundation/ak-base-kit-stm32l151).
+<hr>
 
----
+## Demo
 
 <p align="center">
   <img src="resources/images/screens/trace-dark.png" alt="Trace view: tasks, timeline and the detail of one handler run" width="900"/>
 </p>
-<p align="center"><strong><em>Figure 1:</em></strong> Trace view of the base kit application: a press of the MODE button and the runs it caused</p>
+<p align="center"><em>Trace view of the base kit application: a press of the MODE button and the runs it caused</em></p>
 
 ## Documentation
 
@@ -46,6 +45,9 @@ Record, visualize and verify the task messages, signals and timers of firmware b
 </div>
 
 ## Introduction
+
+ak-scope records, visualizes and verifies the task messages, signals and timers of firmware built on the
+[AK Embedded Base Kit](https://github.com/the-ak-foundation/ak-base-kit-stm32l151).
 
 An AK application is a set of tasks that talk through messages: a handler runs to completion
 for each message, posts to other tasks and arms timers. When something is slow or out of order,
@@ -77,7 +79,7 @@ games.
 
 </div>
 
-## Requirements
+### I. Requirements
 
 | | |
 | --- | --- |
@@ -87,7 +89,7 @@ games.
 | Build and flash | `gcc-arm-none-eabi-10.3-2021.10`, [ak-flash](https://github.com/ak-embedded-software/ak-flash) on the `PATH` |
 | Desktop window | `python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.0` (optional) |
 
-## Install
+### II. Install
 
 ```sh
 git clone https://github.com/caotrongphuoc/ak-scope.git
@@ -96,7 +98,7 @@ python3 -m pip install --user -U pip        # the pip of Ubuntu 22.04 is too old
 python3 -m pip install --user -e .
 ```
 
-## Quick start
+### III. Quick Start
 
 ```sh
 # 1. build the project with the trace linked in
@@ -112,7 +114,7 @@ akscope verify ~/workspace/my-game --trace captures/run-20261022-101500.akt
 `--tools` is the folder the AK Makefile calls `WORKSPACE_TOOLS_PATH`; it and the console rate
 are remembered for the project. See [docs/guide.md](docs/guide.md) for the details.
 
-## Commands
+### IV. Commands
 
 | Command | Does |
 | --- | --- |
@@ -128,7 +130,7 @@ are remembered for the project. See [docs/guide.md](docs/guide.md) for the detai
 
 `akscope <command> --help` lists every option.
 
-## Verify
+### V. Verify
 
 ```sh
 akscope verify ~/workspace/ak-base-kit-stm32l151 --trace samples/base-kit-boot-akt.bin
@@ -155,7 +157,7 @@ Code that comes unchanged from the base kit is left out when the kit is checked 
 project. Thresholds, ignores and expected sequences go in a rules file, see
 [docs/verify-rules.md](docs/verify-rules.md).
 
-## Development
+### VI. Development
 
 ```sh
 python3 -m unittest
