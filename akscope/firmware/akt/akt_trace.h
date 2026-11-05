@@ -13,18 +13,18 @@ extern "C"
 
 #include "akt_cfg.h"
 
-#define AKT_FORMAT_VERSION			(1)
+#define AKT_FORMAT_VERSION (1)
 
-#define AKT_ID_INFO					(0x01)
-#define AKT_ID_POST					(0x02)
-#define AKT_ID_EXEC					(0x03)
-#define AKT_ID_TIMER_SET			(0x04)
-#define AKT_ID_TIMER_REMOVE			(0x05)
-#define AKT_ID_POOL					(0x06)
-#define AKT_ID_OVERFLOW				(0x07)
-#define AKT_ID_USER					(0x08)
+#define AKT_ID_INFO			(0x01)
+#define AKT_ID_POST			(0x02)
+#define AKT_ID_EXEC			(0x03)
+#define AKT_ID_TIMER_SET	(0x04)
+#define AKT_ID_TIMER_REMOVE (0x05)
+#define AKT_ID_POOL			(0x06)
+#define AKT_ID_OVERFLOW		(0x07)
+#define AKT_ID_USER			(0x08)
 
-#define AKT_FLAG_RELEASE			(0x01)
+#define AKT_FLAG_RELEASE (0x01)
 
 typedef struct {
 	/* free running cycle counter, see io_cycle_counter_get() in README */
@@ -49,21 +49,21 @@ extern uint32_t akt_exec_begin(ak_msg_t* msg);
 extern void akt_exec_end(uint32_t t_begin);
 
 /* AKT_WRAP(fn) defines a traced copy of handler fn, AKT_TASK(fn) names it in the task table */
-#define AKT_WRAP(fn)											\
-	static void akt_wrap_##fn(ak_msg_t* msg) {					\
-		uint32_t t_begin = akt_exec_begin(msg);					\
-		fn(msg);												\
-		akt_exec_end(t_begin);									\
+#define AKT_WRAP(fn)                            \
+	static void akt_wrap_##fn(ak_msg_t* msg) {  \
+		uint32_t t_begin = akt_exec_begin(msg); \
+		fn(msg);                                \
+		akt_exec_end(t_begin);                  \
 	}
 
-#define AKT_TASK(fn)				akt_wrap_##fn
-#define AKT_MARK(id, value)			akt_trace_mark((id), (value))
+#define AKT_TASK(fn)		akt_wrap_##fn
+#define AKT_MARK(id, value) akt_trace_mark((id), (value))
 
 #else
 
 #define akt_trace_init(port)
 #define AKT_WRAP(fn)
-#define AKT_TASK(fn)				fn
+#define AKT_TASK(fn) fn
 #define AKT_MARK(id, value)
 
 #endif

@@ -22,16 +22,16 @@
 /* cycle counter: the port function by default. A build that knows where the counter is can
  * define AKT_CYCLE_NOW() to read it inline; akscope build reads DWT->CYCCNT that way. */
 #if defined(AKT_CYCLE_NOW)
-#define akt_now()					AKT_CYCLE_NOW()
+#define akt_now() AKT_CYCLE_NOW()
 #else
-#define akt_now()					akt_port.cycle_now()
+#define akt_now() akt_port.cycle_now()
 #endif
 
 /* the longest record is INFO (20 bytes); a frame adds the crc and one COBS code byte */
-#define AKT_RECORD_MAX				(20)
-#define AKT_FRAME_MAX				(AKT_RECORD_MAX + 2)
+#define AKT_RECORD_MAX (20)
+#define AKT_FRAME_MAX  (AKT_RECORD_MAX + 2)
 /* bytes on the line for a record of n bytes: frame plus the two 0x00 delimiters */
-#define AKT_WIRE_SIZE(n)			((n) + 4)
+#define AKT_WIRE_SIZE(n) ((n) + 4)
 
 typedef struct {
 	uint8_t task_id;
@@ -66,7 +66,7 @@ static uint8_t akt_pool_count;
 static void akt_info();
 
 /* -Os does not inline these by itself; each call costs more than the body on the record path */
-#define AKT_INLINE					static inline __attribute__((always_inline))
+#define AKT_INLINE static inline __attribute__((always_inline))
 
 AKT_INLINE void put_u16(uint8_t* p, uint16_t v) {
 	p[0] = (uint8_t)v;
@@ -86,6 +86,7 @@ AKT_INLINE uint16_t sat_u16(uint32_t v) {
 
 /* CRC-8/SMBUS: poly 0x07, init 0, no reflection, no final xor.
  * Table driven: the bitwise loop took most of the ~1700 cycles a record cost at 32 MHz. */
+/* clang-format off */
 static const uint8_t akt_crc8_table[256] = {
 	0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D,
 	0x70, 0x77, 0x7E, 0x79, 0x6C, 0x6B, 0x62, 0x65, 0x48, 0x4F, 0x46, 0x41, 0x54, 0x53, 0x5A, 0x5D,
@@ -104,6 +105,7 @@ static const uint8_t akt_crc8_table[256] = {
 	0xAE, 0xA9, 0xA0, 0xA7, 0xB2, 0xB5, 0xBC, 0xBB, 0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83,
 	0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3,
 };
+/* clang-format on */
 
 static uint8_t akt_crc8(const uint8_t* data, uint8_t len) {
 	uint8_t crc = 0;
@@ -146,12 +148,16 @@ static uint8_t akt_encode(uint8_t* record, uint8_t len, uint8_t* frame) {
  * cheaper, and it nests inside AK critical sections and ISRs (Cortex-M) */
 AKT_INLINE uint32_t akt_lock() {
 	uint32_t primask;
+	/* clang-format off */
 	__asm volatile ("mrs %0, primask\n\tcpsid i" : "=r" (primask) :: "memory");
+	/* clang-format on */
 	return primask;
 }
 
 AKT_INLINE void akt_unlock(uint32_t primask) {
+	/* clang-format off */
 	__asm volatile ("msr primask, %0" :: "r" (primask) : "memory");
+	/* clang-format on */
 }
 
 /* called with interrupts off */

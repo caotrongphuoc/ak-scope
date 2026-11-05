@@ -1,0 +1,25 @@
+---
+# AK style, as in the AK kernel and the base kit: tabs, brace on the same line,
+# else on its own line. Same base as zomwar-game and mini-clock.
+Language: Cpp
+BasedOnStyle: LLVM
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 0
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterExternBlock: true
+  BeforeElse: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AlignConsecutiveMacros: true
+IndentExternBlock: NoIndent
+AlignTrailingComments: false
+PointerAlignment: Left
+SpaceBeforeParens: ControlStatements
+IndentCaseLabels: false
+SortIncludes: false
+...
