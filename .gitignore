@@ -8,3 +8,9 @@ captures/
 
 # iconsax icons are generated from the Figma file (tools/figma/export.py all), not committed
 akscope/web/icons/
+
+# editor / OS metadata
+.vscode/
+.idea/
+.DS_Store
+*.swp
